@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digi-TAM V0.03 — Converter</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+:root { --primary: #2563eb; }
+body { font-family:'Assistant','Inter',sans-serif; background:#0f172a; margin:0; overflow:hidden; color:white; }
+.doc-content { line-height:1.8; color:#1e293b; font-size:1rem; }
+.doc-content h1 { font-size:2rem; font-weight:900; color:#0f172a; border-bottom:3px solid #e2e8f0; padding-bottom:.6rem; margin:2rem 0 1rem; scroll-margin-top:80px; }
+.doc-content h2 { font-size:1.5rem; font-weight:700; color:#1e293b; border-inline-start:4px solid var(--primary); padding-inline-start:.9rem; margin:2rem 0 1rem; scroll-margin-top:80px; }
+.doc-content h3 { font-size:1.15rem; font-weight:700; color:#475569; margin:1.5rem 0 .75rem; scroll-margin-top:80px; }
+.doc-content p { margin-bottom:.9rem; }
+.doc-content ol { list-style:none; counter-reset:sc; margin-inline-start:0; margin-bottom:1.25rem; }
+.doc-content ol li { counter-increment:sc; display:flex; align-items:flex-start; gap:.6rem; padding:.5rem .75rem; border-radius:8px; margin-bottom:.35rem; }
+.doc-content ol li::before { content:counter(sc); min-width:22px; height:22px; background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.7rem; font-weight:700; flex-shrink:0; margin-top:2px; }
+.doc-content ul { list-style-type:disc; margin-inline-start:1.5rem; margin-bottom:1.25rem; }
+.doc-content li { margin-bottom:.4rem; }
+.doc-content table { width:100%; border-collapse:collapse; margin:1.5rem 0; border:1px solid #cbd5e1; }
+.doc-content th,.doc-content td { border:1px solid #cbd5e1; padding:10px 12px; text-align:inherit; vertical-align:top; }
+.doc-content th { background:#f1f5f9; font-weight:700; }
+.doc-content a { color:var(--primary); text-decoration:underline; font-weight:600; }
+.doc-content img { max-width:100%; height:auto; display:block; margin:1.25rem auto; border-radius:8px; box-shadow:0 3px 10px rgba(0,0,0,.12); border:1px solid #e2e8f0; object-fit:contain; }
+.nav-active { background-color:var(--primary) !important; color:white !important; font-weight:700; }
+.fade-in { animation:fadeIn .35s ease-out; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-thumb { background:#334155; border-radius:8px; }
+.cfg-label { display:block; font-size:.68rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+.cfg-input { width:100%; background:#1e293b; border:1px solid #334155; border-radius:10px; padding:10px 14px; color:white; font-size:.92rem; outline:none; transition:border-color .2s; font-family:inherit; }
+.cfg-input:focus { border-color:#3b82f6; }
+.swatch { width:32px; height:32px; border-radius:7px; cursor:pointer; border:2px solid transparent; transition:all .2s; flex-shrink:0; }
+.swatch.on { border-color:white; transform:scale(1.15); }
+.tdot { width:6px; height:6px; background:#94a3b8; border-radius:50%; animation:td .8s ease-in-out infinite; }
+.tdot:nth-child(2){animation-delay:.15s} .tdot:nth-child(3){animation-delay:.3s}
+@keyframes td { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-8px)} }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback, useMemo } = React;
+
+/* ══════════════════════════════════════════════════════
+   CONSTANTS
+══════════════════════════════════════════════════════ */
+const VERSION = 'V0.03';
+const THEMES = [
+  {name:'כחול',p:'#2563eb',s:'#0f172a'}, {name:'ירוק',p:'#16a34a',s:'#052e16'},
+  {name:'סגול',p:'#7c3aed',s:'#1e1b4b'}, {name:'אדום',p:'#dc2626',s:'#1c0a0a'},
+  {name:'כתום',p:'#ea580c',s:'#1a0800'}, {name:'טיל',p:'#0891b2',s:'#0c1a2e'},
+  {name:'זהב',p:'#d97706',s:'#1c1200'},
+];
+const TILE_ICONS = ['📋','🔧','⚙️','📐','🔩','🪛','📦','🏗️','🚗','🪑','🛡️','📡'];
+const HE_STOP = new Set(['של','את','הוא','היא','הם','הן','זה','זו','זאת','אם','כי','על','אל','לא','יש','כל','עם','אבל','גם','רק','כן','לו','לה','לנו','להם','שלו','שלה','כבר','עוד','אחד','אחת','כך','כאן','שם','אז','אף','בין','תחת','מעל','לפני','אחרי','כמו','עבור','דרך','היה','יהיה','הייתה','יש','אין','עד','או','ולא']);
+const EN_STOP = new Set(['the','a','an','is','are','was','were','be','been','to','of','in','on','at','by','for','with','and','or','not','it','its','this','that','these','those','i','you','he','she','we','they','do','does','did','will','can','could','should','would','may','might','have','has','had','what','how','why','when','where','who','which']);
+const HE_PFXS = ['מה','שה','כש','לכ','וה','שב','שמ','של','ה','ב','ל','מ','כ','ו','ש'];
+
+/* ══════════════════════════════════════════════════════
+   TEXT HELPERS
+══════════════════════════════════════════════════════ */
+const stripHtml = html => { const d=document.createElement('div'); d.innerHTML=html; return (d.textContent||d.innerText||'').replace(/\s+/g,' ').trim(); };
+const stripPrefix = w => { for(const p of HE_PFXS){ if(w.startsWith(p)&&w.length>p.length+2) return w.slice(p.length); } return w; };
+const tokenize = text => text.toLowerCase().replace(/[^\u0590-\u05FFa-z0-9\s]/g,' ').split(/\s+/).filter(w=>w.length>1&&!HE_STOP.has(w)&&!EN_STOP.has(w));
+const tokenizeNorm = text => tokenize(text).map(stripPrefix);
+const detectLang = t => /[\u0590-\u05FF]/.test(t.substring(0,2000)) ? 'he' : 'en';
+const safeJSON = s => JSON.stringify(s).replace(/<\/script>/gi,'<\\/script>').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029');
+
+/* ══════════════════════════════════════════════════════
+   DOC PARSER
+══════════════════════════════════════════════════════ */
+const parseDoc = (html, fileName) => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html,'text/html');
+  const nodes = Array.from(doc.body.childNodes);
+  const lang = detectLang(doc.body.innerText||'');
+  const sections=[], figures=[];
+  let cur={id:'intro',title:lang==='he'?'מבוא':'Introduction',content:'',level:1,children:[]};
+  let figIdx=1;
+
+  nodes.forEach(node=>{
+    if(node.nodeType!==1){cur.content+=node.textContent||'';return;}
+    const tag=node.tagName, isH=['H1','H2','H3','H4'].includes(tag);
+    const hasImg=!!node.querySelector('img');
+    if(isH){
+      if(cur.content.trim()||cur.id!=='intro') sections.push({...cur});
+      cur={id:node.id||`s${Math.random().toString(36).substr(2,8)}`,title:node.innerText.trim(),content:'',level:parseInt(tag[1]),children:[]};
+    } else if(hasImg){
+      const img=node.querySelector('img'),fid=`f${Math.random().toString(36).substr(2,5)}`;
+      figures.push({id:fid,title:img.alt||`Figure ${figIdx}`,content:`<img src="${img.src}" alt="${img.alt||''}"/>`,sectionId:cur.id});
+      figIdx++; cur.content+=node.outerHTML;
+    } else {
+      cur.content+=node.outerHTML;
+    }
+  });
+  sections.push(cur);
+
+  const root=[],stack=[];
+  sections.forEach(sec=>{
+    while(stack.length&&stack[stack.length-1].level>=sec.level) stack.pop();
+    if(!stack.length) root.push(sec); else stack[stack.length-1].children.push(sec);
+    stack.push(sec);
+  });
+  return {meta:{title:fileName.replace(/\.docx$/i,''),lang,dir:lang==='he'?'rtl':'ltr'},structure:root,allSections:sections,figures};
+};
+
+/* ══════════════════════════════════════════════════════
+   CHAT ENGINE
+══════════════════════════════════════════════════════ */
+const buildChatIndex = sections => {
+  const corpus=sections.map(s=>({id:s.id,title:s.title,level:s.level,text:(s.title+' '+stripHtml(s.content)).replace(/\s+/g,' ')}));
+  const inv={},idf={};
+  corpus.forEach((doc,i)=>{ const toks=tokenizeNorm(doc.text); const freq={}; toks.forEach(t=>freq[t]=(freq[t]||0)+1); Object.entries(freq).forEach(([t,cnt])=>{ if(!inv[t])inv[t]=[]; inv[t].push({i,tf:cnt/toks.length}); }); });
+  const N=corpus.length;
+  Object.entries(inv).forEach(([t,docs])=>{idf[t]=Math.log(1+N/docs.length);});
+  return {corpus,inv,idf};
+};
+const chatQuery=(idx,q,n=5)=>{ const {corpus,inv,idf}=idx; const qT=tokenizeNorm(q); if(!qT.length)return[]; const sc=new Array(corpus.length).fill(0); qT.forEach(qt=>{ (inv[qt]||[]).forEach(({i,tf})=>sc[i]+=tf*(idf[qt]||1)); if(qt.length>=3){ const pre=qt.slice(0,Math.ceil(qt.length*.72)); Object.entries(inv).forEach(([t,ds])=>{ if(t!==qt&&t.startsWith(pre)){ const w=0.45*(idf[t]||0.5); ds.forEach(({i,tf})=>sc[i]+=tf*w); } }); } }); return sc.map((score,i)=>({score,...corpus[i]})).filter(r=>r.score>0).sort((a,b)=>b.score-a.score).slice(0,n); };
+const extractAnswer=(sec,qTN)=>{ if(!sec)return''; const text=stripHtml(sec.content); if(text.length<=400)return text; const lines=text.split(/[.!?\n]/).map(l=>l.trim()).filter(l=>l.length>8); const scored=lines.map((line,idx)=>{ let sc=0; const lt=tokenizeNorm(line); qTN.forEach(qt=>lt.forEach(lw=>{ if(lw===qt)sc+=2; else if(qt.length>=3&&lw.length>=3){ const p=qt.slice(0,Math.ceil(qt.length*.72)); if(lw.startsWith(p)||qt.startsWith(lw.slice(0,Math.ceil(lw.length*.72))))sc+=0.7; } })); return {line,sc,idx}; }); const sorted=[...scored].sort((a,b)=>b.sc-a.sc); if(!sorted.length||sorted[0].sc===0)return lines.slice(0,6).join('. '); const best=sorted[0].idx; const s=Math.max(0,best-1),e=Math.min(lines.length-1,best+5); return lines.slice(s,e+1).join('. ').slice(0,500); };
+
+/* ══════════════════════════════════════════════════════
+   EXPORT HTML BUILDER — TRANGO STYLE
+══════════════════════════════════════════════════════ */
+const buildExportHTML = (data, cfg) => {
+  const {title,subtitle,logoB64,primary,sidebar:sidebarColor,dir} = cfg;
+  const isHe = data.meta.lang === 'he';
+  const allSecs = data.allSections;
+
+  /* ── Sidebar nav (nav-groups structure matching FOB website) ── */
+  const buildNavGroup = (sec) => {
+    const bodyId = 'nb_' + sec.id;
+    let items = `<button class="nav-item level1" data-target="sec-${sec.id}">${sec.title}</button>\n`;
+    if (sec.children && sec.children.length) {
+      sec.children.forEach(child => {
+        const hasGrandkids = child.children && child.children.length > 0;
+        if (hasGrandkids) {
+          const subBodyId = 'nbsub_' + child.id;
+          const subItems = child.children.map(gc => {
+            const hasL4 = gc.children && gc.children.length > 0;
+            if (hasL4) {
+              const subBodyId2 = 'nbsub_' + gc.id;
+              const l4Items = gc.children.map(l4 =>
+                `  <button class="nav-item level4" data-target="sec-${l4.id}">${l4.title}</button>`
+              ).join('\n');
+              return `<div class="nav-item-row">
+  <button class="nav-item level3" data-target="sec-${gc.id}">${gc.title}</button>
+  <button class="nav-sub-btn" data-body="${subBodyId2}"><span class="sub-arrow">▼</span></button>
+</div>
+<div class="nav-group-body nav-collapsed" id="${subBodyId2}">
+${l4Items}
+</div>`;
+            }
+            return `  <button class="nav-item level3" data-target="sec-${gc.id}">${gc.title}</button>`;
+          }).join('\n');
+          items += `<div class="nav-item-row">
+  <button class="nav-item level2" data-target="sec-${child.id}">${child.title}</button>
+  <button class="nav-sub-btn" data-body="${subBodyId}"><span class="sub-arrow">▼</span></button>
+</div>
+<div class="nav-group-body nav-collapsed" id="${subBodyId}">
+${subItems}
+</div>\n`;
+        } else {
+          items += `<button class="nav-item level2" data-target="sec-${child.id}">${child.title}</button>\n`;
+        }
+      });
+    }
+    return `<div class="nav-group">
+  <div class="nav-chapter" data-body="${bodyId}">
+    <span class="toggle-icon">▼</span>${sec.title}
+  </div>
+  <div class="nav-group-body" id="${bodyId}">
+    ${items}
+  </div>
+</div>`;
+  };
+  const navHTML = data.structure.map(sec => buildNavGroup(sec)).join('\n');
+
+  /* ── Tiles for landing page ── */
+  const tilesHTML = data.structure.map((sec, i) => {
+    const desc = stripHtml(sec.content).slice(0, 90);
+    const icon = TILE_ICONS[i % TILE_ICONS.length];
+    return `<div class="tile" onclick="showSection('sec-${sec.id}')">
+  <div class="tile-ic">${icon}</div>
+  <div class="tile-ti">${sec.title}</div>
+  ${desc ? `<div class="tile-ds">${desc}${desc.length >= 88 ? '…' : ''}</div>` : ''}
+</div>`;
+  }).join('');
+
+  /* ── Extract base64 images to hidden DOM store ── */
+  let _imgIdx = 0;
+  const _imgSrcs = [];
+  const _contentsData = allSecs.map(s => {
+    const raw = s.content || '';
+    const content = raw.replace(/<img([^>]*?)src="([^"]*)"([^>]*?)>/gi, (_, b, src, a) => {
+      const n = _imgIdx++;
+      _imgSrcs.push(src);
+      return `<img${b}data-imgid="${n}"${a}>`;
+    });
+    return {id:s.id, title:s.title, level:s.level||1, content,
+            hasImg:/<img[\s>]/i.test(raw), hasOl:/<ol[\s>]/i.test(raw)};
+  });
+  const contentsJSON = safeJSON(_contentsData);
+  const imgStoreHTML = _imgSrcs.map((src, n) =>
+    `<img id="_di${n}" src="${src}" style="display:none">`
+  ).join('');
+
+  const smJSON = safeJSON(allSecs.map(s=>({id:s.id,title:s.title,level:s.level})));
+  const chatJSON = safeJSON(allSecs.map(s=>({id:s.id,title:s.title,level:s.level,
+    text:stripHtml(s.content).slice(0,2000),html:s.content.slice(0,5000)})));
+  const heStopArr = safeJSON([...HE_STOP,...EN_STOP]);
+  const hePfxArr  = safeJSON(HE_PFXS);
+
+  const zoomIn  = isHe ? 'הגדל' : 'Zoom In';
+  const zoomOut = isHe ? 'הקטן' : 'Zoom Out';
+
+  return `<!DOCTYPE html>
+<html lang="${data.meta.lang}" dir="${dir}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${title}</title>
+<style>
+/* ─── Reset & Base ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #1e2a38; }
+
+/* ─── App Shell ─── */
+#app { display: grid; grid-template-columns: 260px 1fr; grid-template-rows: 56px 1fr; height: 100vh; }
+#sidebar { grid-column: 1; grid-row: 2; }
+#content { grid-column: 2; grid-row: 2; }
+
+/* ─── Topbar ─── */
+#topbar { grid-column: 1 / -1; background: ${primary}; color: #fff; display: flex; align-items: center; padding: 0 24px; gap: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.3); z-index: 10; }
+#topbar .logo { font-size: 1.1rem; font-weight: 700; letter-spacing: .5px; }
+#topbar .subtitle { font-size: .85rem; opacity: .75; }
+
+/* ─── Sidebar ─── */
+#sidebar { background: #fff; border-right: 1px solid #dde3ec; overflow-y: auto; padding: 0 0 40px; }
+.nav-group { border-top: 1px solid #eef0f4; }
+.nav-group:first-child { border-top: none; }
+.nav-chapter { padding: 8px 14px 6px; font-size: .7rem; font-weight: 700; text-transform: uppercase; color: #8494a8; letter-spacing: .8px; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 6px; transition: background .15s; }
+.nav-chapter:hover { background: #f5f7fb; }
+.nav-chapter .toggle-icon { font-size: .6rem; transition: transform .2s; display: inline-block; width: 10px; text-align: center; }
+.nav-group-body { overflow: hidden; max-height: 2000px; transition: max-height 0.3s ease; }
+.nav-group-body.nav-collapsed { max-height: 0; }
+.nav-item { display: block; width: 100%; background: none; border: none; text-align: right; cursor: pointer; font-family: inherit; color: #2e4060; padding: 6px 18px; font-size: .82rem; line-height: 1.4; transition: background .15s, color .15s; border-right: 3px solid transparent; }
+.nav-item:hover { background: #eef4fc; }
+.nav-item.active { background: #e5effa; color: ${primary}; border-right-color: ${primary}; font-weight: 600; }
+.nav-item.level1 { padding-right: 18px; font-weight: 600; font-size: .84rem; }
+.nav-item.level2 { padding-right: 28px; }
+.nav-item.level3 { padding-right: 38px; font-size: .78rem; color: #4a5c78; }
+.nav-item.level4 { padding-right: 52px; font-size: .75rem; color: #6b7c99; }
+.nav-item-row { display: flex; align-items: stretch; }
+.nav-item-row .nav-item { flex: 1; width: auto; }
+.nav-sub-btn { background: none; border: none; border-right: 3px solid transparent; cursor: pointer; padding: 0 9px; font-size: .58rem; color: #8494a8; transition: background .15s, color .15s; display: flex; align-items: center; }
+.nav-sub-btn:hover { background: #eef4fc; color: ${primary}; }
+.nav-sub-btn .sub-arrow { transition: transform .2s; display: inline-block; }
+#sidebar::-webkit-scrollbar { width: 6px; }
+#sidebar::-webkit-scrollbar-thumb { background: #c0cad8; border-radius: 3px; }
+
+/* ─── Main Content ─── */
+#content { overflow: hidden; padding: 32px 28px; display: flex; flex-direction: column; }
+#content::-webkit-scrollbar { width: 6px; }
+#content::-webkit-scrollbar-thumb { background: #c0cad8; border-radius: 3px; }
+
+/* ─── Section ─── */
+.section { display: none; }
+.section.active { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.section-heading { font-size: 1.4rem; font-weight: 700; color: #1a3557; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #d0ddf0; flex-shrink: 0; }
+.section-heading .section-num { color: ${primary}; margin-left: 8px; }
+
+/* ─── Content Layout ─── */
+.section-body { display: flex; flex-direction: row-reverse; gap: 0; align-items: stretch; flex: 1; min-height: 0; }
+
+/* ─── Figure Panel ─── */
+.figure-panel { width: 38%; min-width: 150px; max-width: 65%; flex-shrink: 0; background: #fff; border: 1px solid #dde3ec; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.06); display: flex; flex-direction: column; }
+.figure-zoom-bar { display: flex; align-items: center; justify-content: flex-end; gap: 6px; padding: 5px 10px; background: #f0f4fa; border-bottom: 1px solid #dde3ec; flex-shrink: 0; }
+.zoom-btn { background: #fff; border: 1px solid #c0cad8; border-radius: 4px; width: 24px; height: 24px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #2e4060; transition: background .15s; line-height: 1; padding: 0; }
+.zoom-btn:hover { background: #e5effa; border-color: ${primary}; }
+.zoom-label { font-size: .7rem; color: #556080; min-width: 34px; text-align: center; }
+.img-scroll { overflow: auto; flex: 1; min-height: 0; }
+.img-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+.img-scroll::-webkit-scrollbar-thumb { background: #c0cad8; border-radius: 3px; }
+.img-hotspot-wrapper { position: relative; line-height: 0; width: 100%; transition: width 0.15s; }
+.img-hotspot-wrapper > img { width: 100%; display: block; background: #fafbfc; padding: 8px; }
+.figure-caption { padding: 8px 12px; font-size: .75rem; color: #556080; background: #f6f8fc; border-top: 1px solid #e8ecf4; text-align: center; line-height: 1.4; flex-shrink: 0; }
+.figure-label-bar { padding: 6px 12px; font-size: .76rem; font-weight: 600; color: #1a3557; background: #eef4fc; border-bottom: 1px solid #d0ddf0; flex-shrink: 0; text-align: center; }
+.figure-label-bar:empty { display: none; }
+.fig-nav-bar { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 5px 10px; background: #f0f4fa; border-top: 1px solid #dde3ec; flex-shrink: 0; }
+.fig-nav-btn { background: #fff; border: 1px solid #c0cad8; border-radius: 4px; width: 24px; height: 24px; cursor: pointer; font-size: 1.1rem; line-height: 1; display: flex; align-items: center; justify-content: center; color: #2e4060; padding: 0; transition: background .15s; }
+.fig-nav-btn:hover { background: #e5effa; border-color: ${primary}; }
+.fig-counter { font-size: .72rem; color: #556080; min-width: 34px; text-align: center; }
+.fig-ref-pill { display: inline-flex; align-items: center; gap: 2px; background: #eef4fc; border: 1px solid #b0c4de; border-radius: 10px; padding: 1px 8px; font-size: .8em; color: ${primary}; font-weight: 600; cursor: pointer; font-family: inherit; transition: background .15s, border-color .15s; vertical-align: baseline; }
+.fig-ref-pill:hover { background: #dbeafe; border-color: ${primary}; }
+.fig-chunk { border-inline-start: 3px solid transparent; transition: border-color .25s; margin-bottom: 2px; }
+.fig-chunk-hdr { background: #f0f6ff; cursor: pointer; transition: background .2s, border-color .2s; }
+.fig-chunk-hdr:hover { background: #e4eefb; }
+.fig-chunk.chunk-active { border-inline-start-color: ${primary}; }
+.fig-chunk.chunk-active .fig-chunk-hdr { background: #dbeafe; }
+
+/* ─── Resize Handle ─── */
+.resize-handle { width: 6px; cursor: col-resize; background: transparent; flex-shrink: 0; align-self: stretch; position: relative; transition: background .15s; }
+.resize-handle::after { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); width: 2px; background: #dde3ec; border-radius: 2px; transition: background .15s; }
+.resize-handle:hover, .resize-handle.dragging { background: rgba(26,86,176,.08); }
+.resize-handle:hover::after, .resize-handle.dragging::after { background: ${primary}; }
+
+/* ─── Table / Text Panel ─── */
+.table-panel { flex: 1; min-width: 0; background: #fff; border: 1px solid #dde3ec; border-radius: 8px; overflow-y: auto; box-shadow: 0 2px 8px rgba(0,0,0,.06); min-height: 0; display: flex; flex-direction: column; }
+.table-panel::-webkit-scrollbar { width: 6px; }
+.table-panel::-webkit-scrollbar-thumb { background: #c0cad8; border-radius: 3px; }
+.table-title { padding: 10px 16px; font-size: .8rem; font-weight: 700; color: #1a3557; background: #eef4fc; border-bottom: 1px solid #d0ddf0; flex-shrink: 0; position: sticky; top: 0; z-index: 1; }
+.data-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.data-table thead tr { background: #1a3557; color: #fff; }
+.data-table thead th { padding: 9px 12px; text-align: right; font-weight: 600; white-space: nowrap; }
+.data-table tbody tr:nth-child(even) { background: #f6f8fc; }
+.data-table tbody tr:hover { background: #e8f0fb; }
+.data-table td { padding: 8px 12px; border-bottom: 1px solid #e8ecf4; vertical-align: top; line-height: 1.5; }
+
+/* ─── Sections without image ─── */
+.section-body.no-image { display: flex; flex-direction: column; overflow-y: auto; }
+
+/* ─── Text-only section ─── */
+.text-section { background: #fff; border-radius: 8px; padding: 24px; border: 1px solid #dde3ec; flex: 1; overflow-y: auto; min-height: 0; }
+.text-section::-webkit-scrollbar { width: 6px; }
+.text-section::-webkit-scrollbar-thumb { background: #c0cad8; border-radius: 3px; }
+.text-section p { margin-bottom: 10px; line-height: 1.7; }
+.text-section ul { margin: 8px 0 16px 0; padding-right: 20px; }
+.text-section li { margin-bottom: 6px; line-height: 1.6; }
+.text-section ol { margin: 8px 0 16px 0; padding-right: 20px; }
+.text-section table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .85rem; }
+.text-section th, .text-section td { border: 1px solid #dde3ec; padding: 8px 12px; text-align: right; vertical-align: top; }
+.text-section th { background: #f0f4fa; font-weight: 700; }
+.text-section img { max-width: 100%; height: auto; border-radius: 6px; margin: 1rem auto; display: block; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.text-section h1, .text-section h2, .text-section h3 { color: #1a3557; margin: 1rem 0 .5rem; }
+
+/* Inline doc content (inside table-panel) */
+.doc-content { padding: 16px; line-height: 1.7; font-size: .85rem; color: #1e2a38; }
+.doc-content p { margin-bottom: .8rem; }
+.doc-content ul, .doc-content ol { margin: .5rem 0 1rem 0; padding-right: 20px; }
+.doc-content li { margin-bottom: .4rem; line-height: 1.6; }
+.doc-content table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .82rem; }
+.doc-content th, .doc-content td { border: 1px solid #dde3ec; padding: 8px 12px; text-align: right; vertical-align: top; }
+.doc-content th { background: #f0f4fa; font-weight: 700; }
+.doc-content img { max-width: 100%; height: auto; border-radius: 6px; margin: .75rem auto; display: block; }
+
+/* ─── Callout cross-highlight ─── */
+.callout-strip { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 10px; background: #f6f8fc; border-top: 1px solid #e0e8f4; flex-shrink: 0; }
+.callout-btn { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #9aafc8; background: #fff; color: #4a5c78; font-size: .72rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; transition: background .15s, border-color .15s, color .15s; padding: 0; }
+.callout-btn:hover, .callout-btn.callout-active { background: #dbeafe; border-color: ${primary}; color: ${primary}; }
+.doc-content tr.callout-active td { background: #dbeafe !important; }
+
+/* ─── Placeholder ─── */
+.placeholder { background: #fff; border: 2px dashed #c8d4e8; border-radius: 8px; padding: 48px 24px; text-align: center; color: #8494a8; font-size: .9rem; flex: 1; }
+
+/* ─── Signatures ─── */
+.sigs { margin-top: 2rem; padding-top: 1.5rem; border-top: 2px dashed #e2e8f0; flex-shrink: 0; }
+.sigtl { font-size: .6rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1rem; }
+.sigr { display: flex; gap: 2rem; }
+.sigf { flex: 1; }
+.sigl { font-size: .7rem; font-weight: 600; color: #64748b; margin-bottom: 6px; }
+.sigd { height: 1px; background: #cbd5e1; width: 100%; margin-bottom: 4px; }
+
+/* ─── Chat ─── */
+#chatBtn { position: fixed; bottom: 22px; ${dir==='rtl'?'left:22px':'right:22px'}; width: 48px; height: 48px; background: ${primary}; border-radius: 50%; border: none; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,.25); z-index: 1000; font-size: 1.25rem; transition: transform .2s; display: flex; align-items: center; justify-content: center; }
+#chatBtn:hover { transform: scale(1.1); }
+#chatPanel { position: fixed; bottom: 78px; ${dir==='rtl'?'left:22px':'right:22px'}; width: 340px; height: 470px; background: white; border-radius: 16px; box-shadow: 0 8px 28px rgba(0,0,0,.2); display: none; flex-direction: column; z-index: 1000; overflow: hidden; direction: ${dir}; border: 1px solid #e2e8f0; }
+#chatHead { background: ${primary}; color: white; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+#chatMsgs { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 7px; }
+.cm { padding: 9px 11px; border-radius: 12px; font-size: .78rem; line-height: 1.6; max-width: 92%; }
+.cmu { background: #eff6ff; color: #1e40af; border-radius: 14px 14px 4px 14px; align-self: flex-end; }
+.cmb { background: #f8fafc; color: #1e293b; border: 1px solid #e2e8f0; border-radius: 14px 14px 14px 4px; align-self: flex-start; width: 92%; }
+.cans { background: white; border: 1px solid #e2e8f0; border-radius: 7px; padding: 8px 10px; font-size: .74rem; line-height: 1.65; white-space: pre-wrap; max-height: 150px; overflow-y: auto; margin-top: 5px; }
+.cref { display: inline-flex; align-items: center; gap: 3px; font-size: .67rem; font-weight: 700; padding: 4px 9px; border-radius: 6px; cursor: pointer; border: 1px solid ${primary}; background: transparent; color: ${primary}; font-family: inherit; margin: 3px 2px 0; transition: all .15s; }
+.cref:hover { background: ${primary}; color: white; }
+#chatFoot { padding: 8px; border-top: 1px solid #f1f5f9; display: flex; gap: 6px; flex-shrink: 0; }
+#chatIn { flex: 1; border: 1px solid #e2e8f0; border-radius: 7px; padding: 7px 10px; font-size: .78rem; outline: none; font-family: inherit; direction: ${dir}; transition: border-color .15s; }
+#chatIn:focus { border-color: ${primary}; }
+#chatSend { background: ${primary}; color: white; border: none; border-radius: 7px; padding: 7px 13px; cursor: pointer; font-weight: 700; font-size: .78rem; font-family: inherit; }
+.tdot { width: 5px; height: 5px; background: #94a3b8; border-radius: 50%; display: inline-block; animation: td .8s ease-in-out infinite; }
+.tdot:nth-child(2){animation-delay:.15s}.tdot:nth-child(3){animation-delay:.3s}
+@keyframes td{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+</style>
+</head>
+<body>
+
+<!-- ════ MAIN APP ════ -->
+<div id="app" style="display:grid">
+
+  <!-- ─── Topbar ─── -->
+  <header id="topbar">
+    ${logoB64 ? `<img src="${logoB64}" alt="logo" style="height:34px;max-width:120px;object-fit:contain;vertical-align:middle;">` : ''}
+    <span class="logo">${title}</span>
+    ${subtitle ? `<span class="subtitle">${subtitle}</span>` : ''}
+  </header>
+
+  <!-- ─── Sidebar ─── -->
+  <nav id="sidebar">
+    ${navHTML}
+  </nav>
+
+  <!-- ─── Content ─── -->
+  <main id="content">
+    <!-- sections injected by JS -->
+  </main>
+
+</div>
+
+<!-- ════ CHAT ════ -->
+<button id="chatBtn" onclick="toggleChat()" title="${isHe ? 'עוזר מסמך' : 'Doc Assistant'}">🤖</button>
+<div id="chatPanel">
+  <div id="chatHead">
+    <div>
+      <div style="font-weight:700;font-size:.84rem;">${isHe ? 'עוזר מסמך חכם' : 'Smart Doc Assistant'}</div>
+      <div style="font-size:.59rem;color:rgba(255,255,255,.7);font-weight:700;">● ${isHe ? 'ללא אינטרנט' : 'Offline'}</div>
+    </div>
+    <button onclick="toggleChat()" style="background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:1rem;line-height:1;">✕</button>
+  </div>
+  <div id="chatMsgs"></div>
+  <div id="chatFoot">
+    <input id="chatIn" placeholder="${isHe ? 'שאל שאלה...' : 'Ask a question...'}" onkeydown="if(event.key==='Enter')sendChat()"/>
+    <button id="chatSend" onclick="sendChat()">${isHe ? 'שלח' : 'Send'}</button>
+  </div>
+</div>
+
+<script>
+/* ════ DATA ════ */
+var SM = ${smJSON};
+var CD = ${chatJSON};
+var CONTENTS = ${contentsJSON};
+var IS_HE = ${isHe};
+var DOC_TITLE = ${safeJSON(title)};
+
+/* ════ STATE ════ */
+var _built = {};
+var _chatOpen = false;
+var _zoom = {};
+var _imgPending = [];
+
+/* ════ SECTION NAVIGATION ════ */
+var _navItems = [];
+
+function initNav() {
+  _navItems = Array.from(document.querySelectorAll('.nav-item[data-target]'));
+  _navItems.forEach(function(btn) {
+    btn.addEventListener('click', function() { showSection(btn.dataset.target); });
+  });
+}
+
+function showSection(id) {
+  var idx = CONTENTS.findIndex(function(s) { return 'sec-' + s.id === id; });
+  if (idx >= 0) buildSecDOM(idx);
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  _navItems.forEach(function(n) { n.classList.remove('active'); });
+  var target = document.getElementById(id);
+  if (target) target.classList.add('active');
+  var btn = document.querySelector('.nav-item[data-target="' + id + '"]');
+  if (btn) { btn.classList.add('active'); btn.scrollIntoView({ block: 'nearest' }); }
+  document.getElementById('content').scrollTop = 0;
+}
+
+/* ════ BUILD SECTION DOM ════ */
+function buildSecDOM(idx) {
+  var sec = CONTENTS[idx];
+  if (!sec || _built[sec.id]) return;
+  _built[sec.id] = true;
+  var sid = sec.id;
+
+  var _c1=0,_c2=0,_c3=0,_c4=0;
+  for(var _ni=0;_ni<=idx;_ni++){var _ns=CONTENTS[_ni];if(_ns.level===1){_c1++;_c2=0;_c3=0;_c4=0;}else if(_ns.level===2){_c2++;_c3=0;_c4=0;}else if(_ns.level===3){_c3++;_c4=0;}else if(_ns.level===4){_c4++;}}
+  var _numStr=sec.level===1?(IS_HE?'פרק ':'Ch.')+_c1:sec.level===2?_c1+'.'+_c2:sec.level===3?_c1+'.'+_c2+'.'+_c3:sec.level===4?_c1+'.'+_c2+'.'+_c3+'.'+_c4:'';
+  var heading=_numStr?'<h1 class="section-heading"><span class="section-num">'+_numStr+'</span> '+sec.title+'</h1>':'<h1 class="section-heading">'+sec.title+'</h1>';
+  var body = '';
+
+  if (sec.hasImg) {
+    var tmpDiv = document.createElement('div');
+    tmpDiv.innerHTML = sec.content;
+    var allImgEls = Array.prototype.slice.call(tmpDiv.querySelectorAll('img[data-imgid]'));
+    var imgCount = allImgEls.length;
+    var figLabels = allImgEls.map(function(img) { return img.alt || ''; });
+
+    var textHtml = sec.content
+      .replace(/<p[^>]*>(\\s*<br\\s*\\/?>)*\\s*<img[^>]+>\\s*(\\s*<br\\s*\\/?>)*<\\/p>/gi, '')
+      .replace(/<p[^>]*><img[^>]+><\\/p>/gi, '')
+      .replace(/<img[^>]+>/gi, '');
+
+    /* inject clickable ref pills for multi-image sections */
+    if (imgCount > 1) {
+      figLabels.forEach(function(lbl, idx) {
+        var m = lbl.match(/(\\d+[-\\u2013]\\d+)/);
+        if (!m) return;
+        var numStr = m[1];
+        var esc = numStr.replace(/-/g, '[-\\u2013]');
+        var re = new RegExp('(\\u05d0\\u05d9\\u05d5\\u05e8\\s+' + esc + '|figure\\s+' + numStr + ')', 'gi');
+        textHtml = textHtml.replace(re, '<button class="fig-ref-pill" data-fig-idx="' + idx + '">$1 &#8599;</button>');
+      });
+      /* split content into chunks at every "Refer to Figure / ראה איור" paragraph */
+      var _cd = document.createElement('div');
+      _cd.innerHTML = textHtml;
+      var _chunks = [], _cIdx = -1, _preHtml = '';
+      var _rp = /refer\s+to\s+fig|see\s+fig|\u05e8\u05d0\u05d4\s+\u05d0\u05d9\u05d5\u05e8/i;
+      Array.from(_cd.children).forEach(function(node) {
+        if (_rp.test(node.textContent || '') && _chunks.length < imgCount) {
+          _cIdx++; _chunks.push({ hdr: node.outerHTML, body: '' });
+        } else {
+          if (_cIdx < 0) _preHtml += node.outerHTML;
+          else _chunks[_cIdx].body += node.outerHTML;
+        }
+      });
+      if (_chunks.length >= imgCount) {
+        textHtml = _preHtml + _chunks.map(function(ch, i) {
+          return '<div class="fig-chunk" data-fig-idx="' + i + '">' +
+            '<div class="fig-chunk-hdr" data-fig-idx="' + i + '">' + ch.hdr + '</div>' +
+            ch.body + '</div>';
+        }).join('');
+      }
+    }
+
+    var imgHtmlAll = allImgEls.map(function(img) { return img.outerHTML; }).join('');
+    var firstLabel = figLabels[0] || '';
+    var navBar = imgCount > 1
+      ? '<div class="fig-nav-bar">' +
+          '<button class="fig-nav-btn fig-prev">&#8249;</button>' +
+          '<span class="fig-counter" id="fcnt_' + sid + '">1 / ' + imgCount + '</span>' +
+          '<button class="fig-nav-btn fig-next">&#8250;</button>' +
+        '</div>'
+      : '';
+
+    body = '<div class="section-body">' +
+      '<div class="figure-panel">' +
+        '<div class="figure-zoom-bar">' +
+          '<button class="zoom-btn zoom-out" title="${zoomOut}">\u2212</button>' +
+          '<span class="zoom-label">100%</span>' +
+          '<button class="zoom-btn zoom-in" title="${zoomIn}">+</button>' +
+        '</div>' +
+        '<div class="figure-label-bar" id="flab_' + sid + '">' + firstLabel + '</div>' +
+        '<div class="img-scroll">' +
+          '<div class="img-hotspot-wrapper">' + imgHtmlAll + '</div>' +
+        '</div>' +
+        navBar +
+      '</div>' +
+      '<div class="resize-handle"></div>' +
+      '<div class="table-panel">' +
+        '<div class="table-title">' + sec.title + '</div>' +
+        '<div class="doc-content">' + textHtml + '</div>' +
+      '</div>' +
+    '</div>';
+  } else {
+    body = '<div class="text-section">' + sec.content + '</div>';
+  }
+
+  var secEl = document.createElement('div');
+  secEl.className = 'section';
+  secEl.id = 'sec-' + sid;
+  secEl.innerHTML = heading + body;
+  document.getElementById('content').appendChild(secEl);
+
+  /* ── multi-image carousel wiring ── */
+  if (sec.hasImg && imgCount > 1) {
+    var _mImgs = Array.prototype.slice.call(secEl.querySelectorAll('.img-hotspot-wrapper img'));
+    var _mLbls = figLabels;
+    var _mCur = 0;
+    var _mLabelEl = document.getElementById('flab_' + sid);
+    var _mCountEl = document.getElementById('fcnt_' + sid);
+    _mImgs.forEach(function(img, i) { if (i > 0) img.style.display = 'none'; });
+    var _mShow = function(idx) {
+      _mImgs.forEach(function(img, i) { img.style.display = i === idx ? '' : 'none'; });
+      if (_mLabelEl) _mLabelEl.textContent = _mLbls[idx] || '';
+      if (_mCountEl) _mCountEl.textContent = (idx + 1) + ' / ' + _mImgs.length;
+      _mCur = idx;
+      secEl.querySelectorAll('.fig-chunk').forEach(function(ck, i) { ck.classList.toggle('chunk-active', i === idx); });
+    };
+    var _mPrev = secEl.querySelector('.fig-prev');
+    var _mNext = secEl.querySelector('.fig-next');
+    if (_mPrev) _mPrev.addEventListener('click', function() { _mShow((_mCur - 1 + _mImgs.length) % _mImgs.length); });
+    if (_mNext) _mNext.addEventListener('click', function() { _mShow((_mCur + 1) % _mImgs.length); });
+    secEl.querySelectorAll('.fig-ref-pill').forEach(function(pill) {
+      var _pi = parseInt(pill.getAttribute('data-fig-idx')) || 0;
+      pill.addEventListener('click', function() { _mShow(_pi); });
+      pill.addEventListener('mouseenter', function() { _mShow(_pi); });
+    });
+    /* scroll-based auto-switch */
+    var _tPanel = secEl.querySelector('.table-panel');
+    var _figCks = Array.prototype.slice.call(secEl.querySelectorAll('.fig-chunk'));
+    if (_tPanel && _figCks.length >= imgCount) {
+      _tPanel.addEventListener('scroll', function() {
+        var pr = _tPanel.getBoundingClientRect();
+        var threshold = pr.top + pr.height * 0.35;
+        var active = 0;
+        _figCks.forEach(function(ck, i) { if (ck.getBoundingClientRect().top <= threshold) active = i; });
+        if (active !== _mCur) _mShow(active);
+      });
+      secEl.querySelectorAll('.fig-chunk-hdr').forEach(function(hdr) {
+        hdr.addEventListener('click', function(e) {
+          if (e.target.closest && e.target.closest('.fig-ref-pill')) return;
+          _mShow(parseInt(this.getAttribute('data-fig-idx')) || 0);
+        });
+      });
+    }
+  }
+
+  /* ── callout cross-highlight wiring ── */
+  if (sec.hasImg) {
+    var _figP = secEl.querySelector('.figure-panel');
+    var _cRows = [];
+    secEl.querySelectorAll('.table-panel .doc-content tr').forEach(function(tr) {
+      var fc = tr.querySelector('td');
+      if (!fc) return;
+      var m = fc.textContent.trim().match(/^(\d+)/);
+      if (!m) return;
+      tr.setAttribute('data-callout', m[1]);
+      _cRows.push({ tr: tr, num: m[1] });
+    });
+    if (_cRows.length > 0 && _figP) {
+      var _strip = document.createElement('div');
+      _strip.className = 'callout-strip';
+      _cRows.forEach(function(item) {
+        var _btn = document.createElement('button');
+        _btn.className = 'callout-btn';
+        _btn.textContent = item.num;
+        _btn.setAttribute('data-callout', item.num);
+        _strip.appendChild(_btn);
+      });
+      _figP.appendChild(_strip);
+      /* table row → strip button */
+      _cRows.forEach(function(item) {
+        item.tr.addEventListener('mouseenter', function() {
+          var n = this.getAttribute('data-callout');
+          _strip.querySelectorAll('.callout-btn[data-callout="' + n + '"]').forEach(function(b) { b.classList.add('callout-active'); });
+        });
+        item.tr.addEventListener('mouseleave', function() {
+          _strip.querySelectorAll('.callout-btn.callout-active').forEach(function(b) { b.classList.remove('callout-active'); });
+        });
+      });
+      /* strip button → table row */
+      _strip.querySelectorAll('.callout-btn').forEach(function(btn) {
+        btn.addEventListener('mouseenter', function() {
+          var n = this.getAttribute('data-callout');
+          secEl.querySelectorAll('tr[data-callout="' + n + '"]').forEach(function(r) { r.classList.add('callout-active'); });
+        });
+        btn.addEventListener('mouseleave', function() {
+          secEl.querySelectorAll('tr.callout-active').forEach(function(r) { r.classList.remove('callout-active'); });
+        });
+      });
+    }
+  }
+
+  secEl.querySelectorAll('img[data-imgid]').forEach(function(img) {
+    var n = img.getAttribute('data-imgid');
+    var s = document.getElementById('_di' + n);
+    if (s) { img.src = s.src; }
+    else { (function(el, id) { _imgPending.push(function() { var x = document.getElementById('_di' + id); if (x) el.src = x.src; }); })(img, n); }
+  });
+}
+
+/* ════ NAV COLLAPSE ════ */
+document.querySelectorAll('.nav-chapter[data-body]').forEach(function(hdr) {
+  hdr.addEventListener('click', function() {
+    var body = document.getElementById(this.dataset.body);
+    var icon = this.querySelector('.toggle-icon');
+    if (!body) return;
+    var collapsed = body.classList.toggle('nav-collapsed');
+    icon.style.transform = collapsed ? 'rotate(-90deg)' : '';
+  });
+});
+document.querySelectorAll('.nav-sub-btn[data-body]').forEach(function(btn) {
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var body = document.getElementById(this.dataset.body);
+    var arrow = this.querySelector('.sub-arrow');
+    if (!body) return;
+    var collapsed = body.classList.toggle('nav-collapsed');
+    if (arrow) arrow.style.transform = collapsed ? 'rotate(-90deg)' : '';
+  });
+});
+
+/* ════ IMAGE ZOOM ════ */
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest && e.target.closest('.zoom-btn');
+  if (!btn) return;
+  var panel = btn.closest('.figure-panel');
+  if (!panel) return;
+  var wrapper = panel.querySelector('.img-hotspot-wrapper');
+  var label = panel.querySelector('.zoom-label');
+  if (!wrapper) return;
+  var sec = panel.closest('.section');
+  var id = sec ? sec.id : 'x';
+  if (!_zoom[id]) _zoom[id] = 100;
+  if (btn.classList.contains('zoom-in')) _zoom[id] = Math.min(200, _zoom[id] + 20);
+  else _zoom[id] = Math.max(40, _zoom[id] - 20);
+  wrapper.style.width = _zoom[id] + '%';
+  if (label) label.textContent = _zoom[id] + '%';
+});
+
+/* ════ PANEL RESIZE ════ */
+var _activeResize = null;
+document.addEventListener('mousedown', function(e) {
+  if (!e.target.classList.contains('resize-handle')) return;
+  var handle = e.target;
+  var body = handle.parentElement;
+  var figurePanel = body.querySelector('.figure-panel');
+  if (!figurePanel) return;
+  _activeResize = { handle: handle, figurePanel: figurePanel, startX: e.clientX, startWidth: figurePanel.offsetWidth };
+  handle.classList.add('dragging');
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+  e.preventDefault();
+});
+document.addEventListener('mousemove', function(e) {
+  if (!_activeResize) return;
+  var deltaX = e.clientX - _activeResize.startX;
+  var bodyWidth = _activeResize.handle.parentElement.offsetWidth;
+  var newWidth = Math.max(150, Math.min(bodyWidth - 200, _activeResize.startWidth + deltaX));
+  _activeResize.figurePanel.style.width = newWidth + 'px';
+});
+document.addEventListener('mouseup', function() {
+  if (!_activeResize) return;
+  _activeResize.handle.classList.remove('dragging');
+  document.body.style.cursor = '';
+  document.body.style.userSelect = '';
+  _activeResize = null;
+});
+
+/* ════ CHAT ENGINE ════ */
+var _STOP=${heStopArr};
+var _PFXS=${hePfxArr};
+var _inv={},_idf={};
+(function(){
+  CD.forEach(function(doc,i){
+    var toks=_tokN(doc.title+' '+doc.text);var freq={};
+    toks.forEach(function(t){freq[t]=(freq[t]||0)+1;});
+    Object.keys(freq).forEach(function(t){if(!_inv[t])_inv[t]=[];_inv[t].push({i:i,tf:freq[t]/toks.length});});
+  });
+  var N=CD.length;
+  Object.keys(_inv).forEach(function(t){_idf[t]=Math.log(1+N/_inv[t].length);});
+})();
+function _tok(t){return t.toLowerCase().replace(/[^\u0590-\u05FFa-z0-9\\s]/g,' ').split(/\\s+/).filter(function(w){return w.length>1&&_STOP.indexOf(w)<0;});}
+function _sp(w){for(var i=0;i<_PFXS.length;i++){if(w.startsWith(_PFXS[i])&&w.length>_PFXS[i].length+2)return w.slice(_PFXS[i].length);}return w;}
+function _tokN(t){return _tok(t).map(_sp);}
+function _srch(q){
+  var toks=_tokN(q);if(!toks.length)return[];
+  var sc=new Array(CD.length).fill(0);
+  toks.forEach(function(qt){
+    (_inv[qt]||[]).forEach(function(d){sc[d.i]+=d.tf*(_idf[qt]||1);});
+    if(qt.length>=3){var pre=qt.slice(0,Math.ceil(qt.length*.72));Object.keys(_inv).forEach(function(term){if(term!==qt&&term.startsWith(pre)){(_inv[term]||[]).forEach(function(d){sc[d.i]+=d.tf*0.4;});}});}
+  });
+  return sc.map(function(s,i){return{score:s,idx:i};}).filter(function(r){return r.score>0;}).sort(function(a,b){return b.score-a.score;}).slice(0,5);
+}
+function _ans(docIdx,qTN){
+  var doc=CD[docIdx];var el=document.createElement('div');el.innerHTML=doc.html||doc.text;
+  var text=el.textContent.replace(/\\s+/g,' ').trim();
+  if(text.length<=350)return text;
+  var lines=text.split(/[.!?\\n]/).map(function(l){return l.trim();}).filter(function(l){return l.length>8;});
+  var best=0,bestSc=-1;
+  lines.forEach(function(line,idx){var lt=_tokN(line);var sc=0;qTN.forEach(function(qt){lt.forEach(function(lw){if(lw===qt)sc+=2;else if(qt.length>=3&&lw.length>=3){var p=qt.slice(0,Math.ceil(qt.length*.72));if(lw.startsWith(p))sc+=0.7;}});});if(sc>bestSc){bestSc=sc;best=idx;}});
+  var s=Math.max(0,best-1),e=Math.min(lines.length-1,best+5);
+  return lines.slice(s,e+1).join('. ').slice(0,480);
+}
+function toggleChat(){
+  _chatOpen=!_chatOpen;
+  document.getElementById('chatPanel').style.display=_chatOpen?'flex':'none';
+  if(_chatOpen&&document.getElementById('chatMsgs').childElementCount===0){
+    _addBot(IS_HE?'שלום! אני עוזר המסמך.\\nשאל אותי שאלות על התוכן.':"Hello! I'm the document assistant.\\nAsk me anything about the content.");
+  }
+  if(_chatOpen)setTimeout(function(){document.getElementById('chatIn').focus();},100);
+}
+function _addBot(text){var msgs=document.getElementById('chatMsgs');var d=document.createElement('div');d.className='cm cmb';d.style.whiteSpace='pre-wrap';d.textContent=text;msgs.appendChild(d);msgs.scrollTop=9999;}
+function _addUser(text){var msgs=document.getElementById('chatMsgs');var d=document.createElement('div');d.className='cm cmu';d.textContent=text;msgs.appendChild(d);msgs.scrollTop=9999;}
+function sendChat(){
+  var inp=document.getElementById('chatIn');var q=(inp.value||'').trim();if(!q)return;
+  inp.value='';_addUser(q);
+  var ty=document.createElement('div');ty.className='cm cmb';ty.id='_ty';
+  ty.innerHTML='<span class="tdot"></span><span class="tdot"></span><span class="tdot"></span>';
+  document.getElementById('chatMsgs').appendChild(ty);document.getElementById('chatMsgs').scrollTop=9999;
+  setTimeout(function(){
+    ty.remove();
+    var res=_srch(q);
+    if(!res.length){_addBot(IS_HE?'לא מצאתי מידע רלוונטי.':'No relevant info found.');return;}
+    var qTN=_tokN(q);
+    var answer=_ans(res[0].idx,qTN);
+    var sec=CD[res[0].idx];
+    var d=document.createElement('div');d.className='cm cmb';
+    d.innerHTML='<div style="font-size:.64rem;font-weight:700;color:#64748b;margin-bottom:4px;">📄 '+(IS_HE?'לפי: ':'From: ')+'"'+sec.title+'"</div>';
+    if(answer){var a=document.createElement('div');a.className='cans';a.textContent=answer;d.appendChild(a);}
+    var btn=document.createElement('button');btn.className='cref';btn.textContent=IS_HE?'← עבור לסעיף':'→ Go to section';
+    btn.onclick=function(){showSection('sec-'+sec.id);if(_chatOpen)toggleChat();};d.appendChild(btn);
+    document.getElementById('chatMsgs').appendChild(d);document.getElementById('chatMsgs').scrollTop=9999;
+  },320+Math.random()*230);
+}
+
+/* ════ INIT ════ */
+initNav();
+if (CONTENTS.length > 0) showSection('sec-' + CONTENTS[0].id);
+window.addEventListener('load', function() {
+  _imgPending.forEach(function(fn) { fn(); });
+  _imgPending = [];
+});
+${'<'+'/script>'}
+
+<!-- ════ IMAGE STORE ════ -->
+<div id="_imgs" style="display:none">${imgStoreHTML}</div>
+</body>
+</html>`;
+};
+
+/* ══════════════════════════════════════════════════════
+   CONVERTER UI COMPONENTS
+══════════════════════════════════════════════════════ */
+
+/* ── NavItem (preview sidebar) ── */
+const NavItem = ({item,activeId,onSelect,depth,primary})=>{
+  const [open,setOpen]=useState(true);
+  const active=activeId===item.id, hasKids=item.children?.length>0;
+  return(
+    <div className="flex flex-col text-[12px]">
+      <div className={`flex items-center py-2 px-4 cursor-pointer transition-colors ${active?'nav-active':'text-slate-400 hover:bg-slate-800'}`}
+        style={{paddingInlineStart:`${depth*.8+1}rem`,...(active?{backgroundColor:primary}:{})}}
+        onClick={()=>onSelect(item.id)}>
+        {hasKids
+          ?<span className={`mr-1.5 ml-1.5 inline-block transition-transform ${open?'rotate-90':''}`}
+              onClick={e=>{e.stopPropagation();setOpen(!open);}}>
+            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" strokeWidth={3} strokeLinecap="round"/></svg>
+          </span>
+          :<span className="w-4"/>}
+        <span className="truncate">{item.title}</span>
+      </div>
+      {hasKids&&open&&<div className="bg-black/10">{item.children.map(c=><NavItem key={c.id} item={c} activeId={activeId} onSelect={onSelect} depth={depth+1} primary={primary}/>)}</div>}
+    </div>
+  );
+};
+
+/* ── Config Screen ── */
+const ConfigScreen=({data,onBack,onConfirm,outputDirHandle,selectFolder})=>{
+  const [title,setTitle]=useState(data.meta.title);
+  const [subtitle,setSubtitle]=useState('');
+  const [logoB64,setLogoB64]=useState(null);
+  const [logoName,setLogoName]=useState('');
+  const [themeIdx,setThemeIdx]=useState(0);
+  const [useCustom,setUseCustom]=useState(false);
+  const [custP,setCustP]=useState('#2563eb');
+  const [custS,setCustS]=useState('#0f172a');
+  const [dir,setDir]=useState(data.meta.dir);
+  const theme=useCustom?{p:custP,s:custS}:THEMES[themeIdx];
+
+  const handleLogo=e=>{
+    const f=e.target.files[0]; if(!f)return;
+    setLogoName(f.name);
+    const r=new FileReader(); r.onload=ev=>setLogoB64(ev.target.result); r.readAsDataURL(f);
+  };
+
+  const doConfirm=()=>onConfirm({title,subtitle,logoB64,primary:theme.p,sidebar:theme.s,dir});
+
+  return(
+    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-6" dir="rtl">
+      <div className="w-full max-w-2xl">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-xl" style={{backgroundColor:theme.p}}>
+            <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+          </div>
+          <h1 className="text-3xl font-black text-white mb-1">הגדרות האתר</h1>
+          <p className="text-slate-500 text-sm">Digi-TAM {VERSION}</p>
+        </div>
+
+        <div className="bg-slate-800 rounded-3xl p-8 border border-slate-700 space-y-7">
+          {/* Logo */}
+          <div>
+            <label className="cfg-label">לוגו (אופציונלי)</label>
+            <div className="flex items-center gap-4">
+              {logoB64&&<img src={logoB64} alt="logo" className="h-11 max-w-[110px] object-contain rounded-lg bg-white p-1 shrink-0"/>}
+              <label className="flex-1 cursor-pointer">
+                <input type="file" accept="image/*" className="hidden" onChange={handleLogo}/>
+                <div className="cfg-input text-center py-3 hover:border-blue-500 cursor-pointer text-slate-400 text-sm">
+                  {logoName?`✓ ${logoName}`:'+ בחר תמונה (PNG / SVG / JPG)'}
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* Title */}
+          <div>
+            <label className="cfg-label">שם האתר / מסמך</label>
+            <input className="cfg-input" value={title} onChange={e=>setTitle(e.target.value)} placeholder="שם המסמך"/>
+          </div>
+
+          {/* Subtitle */}
+          <div>
+            <label className="cfg-label">כותרת משנה (אופציונלי)</label>
+            <input className="cfg-input" value={subtitle} onChange={e=>setSubtitle(e.target.value)} placeholder="תת-כותרת, מהדורה, וכו'"/>
+          </div>
+
+          {/* Output Folder – שלב 3 */}
+          <div>
+            <label className="cfg-label">תיקיית שמירה (אופציונלי)</label>
+            <div className="flex items-center gap-3">
+              <div className="cfg-input flex-1 flex items-center gap-2 text-sm"
+                style={{color:outputDirHandle?'#4ade80':'#475569'}}>
+                <span>{outputDirHandle?'📁':'📂'}</span>
+                <span className="truncate">
+                  {outputDirHandle?outputDirHandle.name:'לא נבחרה תיקייה – ייצוא יוריד קובץ'}
+                </span>
+              </div>
+              <button onClick={selectFolder}
+                className="flex-shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition-all">
+                {outputDirHandle?'שנה':'בחר'}
+              </button>
+            </div>
+          </div>
+
+          {/* Direction */}
+          <div>
+            <label className="cfg-label">כיוון טקסט</label>
+            <div className="flex gap-3">
+              {['rtl','ltr'].map(d=>(
+                <button key={d} onClick={()=>setDir(d)}
+                  className={`flex-1 py-2.5 rounded-xl text-sm font-bold border transition-all ${dir===d?'border-blue-500 text-blue-400 bg-blue-950':'border-slate-600 text-slate-400 hover:border-slate-400'}`}>
+                  {d==='rtl'?'עברית / ערבית (RTL)':'English (LTR)'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Theme */}
+          <div>
+            <label className="cfg-label">ערכת צבעים</label>
+            <div className="flex gap-2 flex-wrap">
+              {THEMES.map((t,i)=>(
+                <button key={i} onClick={()=>{setThemeIdx(i);setUseCustom(false);}}
+                  className={`swatch ${!useCustom&&themeIdx===i?'on':''}`}
+                  style={{backgroundColor:t.p}} title={t.name}/>
+              ))}
+              <button onClick={()=>setUseCustom(true)}
+                className={`swatch flex items-center justify-center text-xs ${useCustom?'on border-white':''}`}
+                style={{background:'linear-gradient(135deg,#6366f1,#ec4899)',color:'white'}}>✎</button>
+            </div>
+            {useCustom&&(
+              <div className="flex gap-3 mt-3">
+                <div className="flex-1">
+                  <label className="cfg-label">צבע ראשי</label>
+                  <div className="flex gap-2 items-center">
+                    <input type="color" value={custP} onChange={e=>setCustP(e.target.value)} className="w-10 h-10 rounded-lg cursor-pointer border-0 bg-transparent"/>
+                    <input className="cfg-input flex-1" value={custP} onChange={e=>setCustP(e.target.value)} placeholder="#2563eb"/>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <label className="cfg-label">צבע סיידבר</label>
+                  <div className="flex gap-2 items-center">
+                    <input type="color" value={custS} onChange={e=>setCustS(e.target.value)} className="w-10 h-10 rounded-lg cursor-pointer border-0 bg-transparent"/>
+                    <input className="cfg-input flex-1" value={custS} onChange={e=>setCustS(e.target.value)} placeholder="#0f172a"/>
+                  </div>
+                </div>
+              </div>
+            )}
+            {/* Preview swatch */}
+            <div className="mt-3 flex gap-2 items-center">
+              <div className="w-7 h-7 rounded-lg" style={{backgroundColor:theme.p}}/>
+              <div className="w-7 h-7 rounded-lg" style={{backgroundColor:theme.s}}/>
+              <span className="text-slate-500 text-xs">תצוגה מקדימה של הצבעים</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex gap-4 mt-6">
+          <button onClick={onBack} className="flex-1 py-3.5 rounded-2xl border border-slate-600 text-slate-400 font-bold text-sm hover:border-slate-400 transition-colors">
+            ← חזרה
+          </button>
+          <button onClick={doConfirm} className="flex-2 px-10 py-3.5 rounded-2xl font-black text-white text-sm shadow-lg transition-all hover:opacity-90 active:scale-95"
+            style={{backgroundColor:theme.p,flex:2}}>
+            המשך לתצוגה מקדימה →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ── Preview Screen ── */
+const PreviewScreen=({data,cfg,onBack,onExport})=>{
+  const [activeId,setActiveId]=useState(data.allSections[0]?.id||'');
+  const {primary,sidebar:sidebarColor,dir,title,subtitle,logoB64}=cfg;
+  const isHe=data.meta.lang==='he';
+  const activeSec=data.allSections.find(s=>s.id===activeId);
+  const activeIdx=data.allSections.findIndex(s=>s.id===activeId);
+
+  const hasImg=activeSec&&/<img[\s>]/i.test(activeSec.content);
+  const hasOl=activeSec&&/<ol[\s>]/i.test(activeSec.content);
+
+  return(
+    <div className="h-screen flex flex-col overflow-hidden" style={{fontFamily:"'Assistant','Inter',sans-serif"}}>
+      {/* Header */}
+      <div className="h-[60px] flex items-center justify-between px-5 flex-shrink-0 border-b border-white/10" style={{backgroundColor:sidebarColor}}>
+        <div className="flex items-center gap-3">
+          {logoB64
+            ?<img src={logoB64} alt="logo" className="h-8 max-w-[110px] object-contain"/>
+            :<div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white text-sm" style={{backgroundColor:primary}}>{(title[0]||'D').toUpperCase()}</div>}
+          <div>
+            <div className="font-bold text-white text-sm">{title}</div>
+            {subtitle&&<div className="text-[10px] text-white/40">{subtitle}</div>}
+          </div>
+          <span className="ml-2 px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider border border-white/10" style={{backgroundColor:'rgba(255,255,255,.07)',color:primary}}>
+            {isHe?'ספרות טכנית דיגיטלית':'Digital Technical Manual'}
+          </span>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={onBack} className="px-3 py-1.5 rounded-lg text-xs font-bold text-white/60 hover:text-white border border-white/10 hover:border-white/30 transition-all">
+            ← עריכה
+          </button>
+          <button onClick={onExport} className="px-4 py-1.5 rounded-lg text-xs font-black text-white shadow transition-all hover:opacity-90"
+            style={{backgroundColor:primary}}>
+            ⬇ ייצוא HTML
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <div className="w-[250px] flex flex-col overflow-hidden flex-shrink-0" style={{backgroundColor:sidebarColor}}>
+          <div className="px-4 pt-3 pb-1 text-[9px] font-bold text-slate-500 uppercase tracking-widest">{isHe?'ניווט':'Navigation'}</div>
+          <div className="flex-1 overflow-y-auto">
+            {data.structure.map(item=>(
+              <NavItem key={item.id} item={item} activeId={activeId} onSelect={setActiveId} depth={0} primary={primary}/>
+            ))}
+          </div>
+          <div className="px-4 py-2 text-[9px] font-bold text-slate-600 uppercase tracking-wider border-t border-white/5 text-center">
+            Digi-TAM {VERSION} © 2025
+          </div>
+        </div>
+
+        {/* Main */}
+        <div className="flex-1 overflow-hidden flex flex-col bg-white">
+          {/* Breadcrumb */}
+          <div className="h-9 border-b border-slate-100 px-6 flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex-shrink-0 sticky top-0 bg-white/90 z-10">
+            <span>{title}</span>
+            {activeSec&&<><span className="text-slate-200">›</span><span style={{color:primary}}>{activeSec.title}</span></>}
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto p-8">
+            {activeSec?(
+              <div className="fade-in">
+                <div className="mb-5">
+                  {activeSec.level===1&&<h1 className="text-3xl font-black text-slate-900 border-b-2 border-slate-100 pb-2">{activeSec.title}</h1>}
+                  {activeSec.level===2&&<h2 className="text-2xl font-bold text-slate-800 border-l-4 pl-3" style={{borderColor:primary}}>{activeSec.title}</h2>}
+                  {activeSec.level>=3&&<h3 className="text-lg font-bold text-slate-600">{activeSec.title}</h3>}
+                </div>
+
+                {hasImg&&hasOl?(
+                  /* Step section preview */
+                  <div>
+                    <div className="flex gap-1 mb-4 border-b border-slate-100 pb-0">
+                      {['Image','Video','3D'].map((t,i)=>(
+                        <button key={t} className={`px-4 py-2 text-xs font-bold border-b-2 -mb-px transition-colors ${i===0?'border-b-2':'border-transparent text-slate-400'}`}
+                          style={i===0?{color:primary,borderColor:primary}:{}}>{t}</button>
+                      ))}
+                    </div>
+                    <div className="flex gap-4 min-h-[320px]">
+                      <div className="flex-1 doc-content" dir={dir} dangerouslySetInnerHTML={{__html:activeSec.content.replace(/<img[^>]+>/gi,'').replace(/<p[^>]*>\s*<\/p>/gi,'')}}/>
+                      <div className="w-[42%] flex-shrink-0 bg-slate-50 rounded-xl border border-slate-200 flex flex-col overflow-hidden">
+                        <div className="flex gap-1 p-1.5 border-b border-slate-100 bg-white/90">
+                          {['+','−','⟳'].map(b=><button key={b} className="w-7 h-7 border border-slate-200 rounded text-xs font-bold text-slate-500 hover:border-blue-400 hover:text-blue-500 transition-all">{b}</button>)}
+                        </div>
+                        <div className="flex-1 flex items-center justify-center p-3 overflow-auto">
+                          <div className="doc-content" dangerouslySetInnerHTML={{__html:(activeSec.content.match(/<img[^>]+>/i)||[''])[0]}}/>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ):(
+                  <div className="doc-content" dir={dir} dangerouslySetInnerHTML={{__html:activeSec.content}}/>
+                )}
+
+                {/* Signature fields preview */}
+                {(hasOl||activeSec.level<=2)&&(
+                  <div className="mt-8 pt-5 border-t-2 border-dashed border-slate-200">
+                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3">{isHe?'אישורים':'Sign-off'}</div>
+                    <div className="flex gap-6">
+                      {[isHe?'טכנאי':'Technician',isHe?'טכנאי 2':'2nd Technician',isHe?'תאריך':'Date'].map(l=>(
+                        <div key={l} className="flex-1">
+                          <div className="text-[10px] font-semibold text-slate-500 mb-1.5">{l}</div>
+                          <div className="h-px bg-slate-200 w-full"/>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ):(
+              <div className="text-center text-slate-400 mt-20">בחר סעיף מהתפריט</div>
+            )}
+          </div>
+
+          {/* Nav footer */}
+          <div className="flex items-center justify-between px-6 py-3 border-t border-slate-100 flex-shrink-0">
+            <button disabled={activeIdx<=0}
+              onClick={()=>setActiveId(data.allSections[Math.max(0,activeIdx-1)].id)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-500 hover:border-blue-400 hover:text-blue-500 disabled:opacity-30 disabled:pointer-events-none transition-all">
+              ← {isHe?'הקודם':'Previous'}
+            </button>
+            <span className="text-[10px] font-bold text-slate-400">{activeIdx+1} / {data.allSections.length}</span>
+            <button disabled={activeIdx>=data.allSections.length-1}
+              onClick={()=>setActiveId(data.allSections[Math.min(data.allSections.length-1,activeIdx+1)].id)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-500 hover:border-blue-400 hover:text-blue-500 disabled:opacity-30 disabled:pointer-events-none transition-all">
+              {isHe?'הבא':'Next'} →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ══════════════════════════════════════════════════════
+   EDIT SCREEN (Config + Preview – שלב 4)
+══════════════════════════════════════════════════════ */
+const EditScreen=({data,onBack,onExport,outputDirHandle,selectFolder})=>{
+  const [title,setTitle]=useState(data.meta.title);
+  const [subtitle,setSubtitle]=useState('');
+  const [logoB64,setLogoB64]=useState(null);
+  const [logoName,setLogoName]=useState('');
+  const [themeIdx,setThemeIdx]=useState(0);
+  const [useCustom,setUseCustom]=useState(false);
+  const [custP,setCustP]=useState('#2563eb');
+  const [custS,setCustS]=useState('#0f172a');
+  const [dir,setDir]=useState(data.meta.dir);
+  const [activeId,setActiveId]=useState(data.allSections[0]?.id||'');
+
+  const theme=useCustom?{p:custP,s:custS}:THEMES[themeIdx];
+  const primary=theme.p, sidebarColor=theme.s;
+  const isHe=data.meta.lang==='he';
+  const liveCfg={title,subtitle,logoB64,primary,sidebar:sidebarColor,dir};
+
+  const handleLogo=e=>{
+    const f=e.target.files[0]; if(!f)return;
+    setLogoName(f.name);
+    const r=new FileReader(); r.onload=ev=>setLogoB64(ev.target.result); r.readAsDataURL(f);
+  };
+
+  const activeSec=data.allSections.find(s=>s.id===activeId);
+  const activeIdx=data.allSections.findIndex(s=>s.id===activeId);
+  const hasImg=activeSec&&/<img[\s>]/i.test(activeSec.content);
+  const hasOl=activeSec&&/<ol[\s>]/i.test(activeSec.content);
+
+  return(
+    <div className="h-screen flex flex-col overflow-hidden" style={{fontFamily:"'Assistant','Inter',sans-serif"}}>
+
+      {/* ── Header ── */}
+      <div className="h-[56px] flex items-center justify-between px-5 flex-shrink-0 border-b border-white/10" style={{backgroundColor:sidebarColor}}>
+        <div className="flex items-center gap-3">
+          {logoB64
+            ?<img src={logoB64} alt="logo" className="h-8 max-w-[110px] object-contain"/>
+            :<div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white text-sm" style={{backgroundColor:primary}}>{(title[0]||'D').toUpperCase()}</div>}
+          <div>
+            <div className="font-bold text-white text-sm">{title}</div>
+            {subtitle&&<div className="text-[10px] text-white/40">{subtitle}</div>}
+          </div>
+          <span className="px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider border border-white/10"
+            style={{backgroundColor:'rgba(255,255,255,.07)',color:primary}}>
+            {isHe?'ספרות טכנית דיגיטלית':'Digital Technical Manual'}
+          </span>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={onBack} className="px-3 py-1.5 rounded-lg text-xs font-bold text-white/60 hover:text-white border border-white/10 hover:border-white/30 transition-all">
+            ← חזרה
+          </button>
+          <button onClick={()=>onExport(liveCfg)} className="px-4 py-1.5 rounded-lg text-xs font-black text-white shadow transition-all hover:opacity-90"
+            style={{backgroundColor:primary}}>
+            ⬇ ייצוא HTML
+          </button>
+        </div>
+      </div>
+
+      {/* ── Body ── */}
+      <div className="flex flex-1 overflow-hidden">
+
+        {/* ── LEFT: הגדרות ── */}
+        <div className="w-[300px] flex-shrink-0 overflow-y-auto bg-[#0f172a] border-l border-white/10 p-5 space-y-5" dir="rtl">
+
+          {/* Logo */}
+          <div>
+            <label className="cfg-label">לוגו (אופציונלי)</label>
+            <div className="flex items-center gap-3">
+              {logoB64&&<img src={logoB64} alt="logo" className="h-10 max-w-[90px] object-contain rounded-lg bg-white p-1 shrink-0"/>}
+              <label className="flex-1 cursor-pointer">
+                <input type="file" accept="image/*" className="hidden" onChange={handleLogo}/>
+                <div className="cfg-input text-center py-2.5 hover:border-blue-500 cursor-pointer text-slate-400 text-xs">
+                  {logoName?`✓ ${logoName}`:'+ בחר תמונה'}
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* Title */}
+          <div>
+            <label className="cfg-label">שם המסמך</label>
+            <input className="cfg-input" value={title} onChange={e=>setTitle(e.target.value)} placeholder="שם המסמך"/>
+          </div>
+
+          {/* Subtitle */}
+          <div>
+            <label className="cfg-label">כותרת משנה (אופציונלי)</label>
+            <input className="cfg-input" value={subtitle} onChange={e=>setSubtitle(e.target.value)} placeholder="תת-כותרת, מהדורה..."/>
+          </div>
+
+          {/* Output Folder */}
+          <div>
+            <label className="cfg-label">תיקיית שמירה (אופציונלי)</label>
+            <div className="flex items-center gap-2">
+              <div className="cfg-input flex-1 flex items-center gap-2 text-xs"
+                style={{color:outputDirHandle?'#4ade80':'#475569'}}>
+                <span>{outputDirHandle?'📁':'📂'}</span>
+                <span className="truncate">{outputDirHandle?outputDirHandle.name:'הורדה רגילה'}</span>
+              </div>
+              <button onClick={selectFolder}
+                className="flex-shrink-0 px-3 py-2 rounded-xl text-xs font-bold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition-all">
+                {outputDirHandle?'שנה':'בחר'}
+              </button>
+            </div>
+          </div>
+
+          {/* Direction */}
+          <div>
+            <label className="cfg-label">כיוון טקסט</label>
+            <div className="flex gap-2">
+              {['rtl','ltr'].map(d=>(
+                <button key={d} onClick={()=>setDir(d)}
+                  className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${dir===d?'border-blue-500 text-blue-400 bg-blue-950':'border-slate-600 text-slate-400 hover:border-slate-400'}`}>
+                  {d==='rtl'?'RTL עברית':'LTR English'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Theme */}
+          <div>
+            <label className="cfg-label">ערכת צבעים</label>
+            <div className="flex gap-2 flex-wrap">
+              {THEMES.map((t,i)=>(
+                <button key={i} onClick={()=>{setThemeIdx(i);setUseCustom(false);}}
+                  className={`swatch ${!useCustom&&themeIdx===i?'on':''}`}
+                  style={{backgroundColor:t.p}} title={t.name}/>
+              ))}
+              <button onClick={()=>setUseCustom(true)}
+                className={`swatch flex items-center justify-center text-xs ${useCustom?'on border-white':''}`}
+                style={{background:'linear-gradient(135deg,#6366f1,#ec4899)',color:'white'}}>✎</button>
+            </div>
+            {useCustom&&(
+              <div className="flex gap-2 mt-3">
+                <div className="flex-1">
+                  <label className="cfg-label">ראשי</label>
+                  <div className="flex gap-2 items-center">
+                    <input type="color" value={custP} onChange={e=>setCustP(e.target.value)} className="w-8 h-8 rounded cursor-pointer border-0 bg-transparent"/>
+                    <input className="cfg-input flex-1 text-xs py-2" value={custP} onChange={e=>setCustP(e.target.value)}/>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <label className="cfg-label">סיידבר</label>
+                  <div className="flex gap-2 items-center">
+                    <input type="color" value={custS} onChange={e=>setCustS(e.target.value)} className="w-8 h-8 rounded cursor-pointer border-0 bg-transparent"/>
+                    <input className="cfg-input flex-1 text-xs py-2" value={custS} onChange={e=>setCustS(e.target.value)}/>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div className="mt-2 flex gap-2 items-center">
+              <div className="w-5 h-5 rounded" style={{backgroundColor:primary}}/>
+              <div className="w-5 h-5 rounded" style={{backgroundColor:sidebarColor}}/>
+              <span className="text-slate-500 text-[10px]">תצוגה מקדימה צבעים</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── RIGHT: תצוגה מקדימה ── */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex flex-1 overflow-hidden">
+
+            {/* Preview sidebar */}
+            <div className="w-[220px] flex flex-col overflow-hidden flex-shrink-0" style={{backgroundColor:sidebarColor}}>
+              <div className="px-3 pt-3 pb-1 text-[9px] font-bold text-slate-500 uppercase tracking-widest">{isHe?'ניווט':'Navigation'}</div>
+              <div className="flex-1 overflow-y-auto">
+                {data.structure.map(item=>(
+                  <NavItem key={item.id} item={item} activeId={activeId} onSelect={setActiveId} depth={0} primary={primary}/>
+                ))}
+              </div>
+              <div className="px-3 py-2 text-[9px] font-bold text-slate-600 uppercase tracking-wider border-t border-white/5 text-center">
+                Digi-TAM {VERSION} © 2025
+              </div>
+            </div>
+
+            {/* Preview content */}
+            <div className="flex-1 overflow-hidden flex flex-col bg-white">
+              <div className="h-9 border-b border-slate-100 px-4 flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex-shrink-0 bg-white/90 z-10">
+                <span>{title}</span>
+                {activeSec&&<><span className="text-slate-200">›</span><span style={{color:primary}}>{activeSec.title}</span></>}
+              </div>
+              <div className="flex-1 overflow-y-auto p-6">
+                {activeSec?(
+                  <div className="fade-in">
+                    <div className="mb-4">
+                      {activeSec.level===1&&<h1 className="text-2xl font-black text-slate-900 border-b-2 border-slate-100 pb-2">{activeSec.title}</h1>}
+                      {activeSec.level===2&&<h2 className="text-xl font-bold text-slate-800 border-l-4 pl-3" style={{borderColor:primary}}>{activeSec.title}</h2>}
+                      {activeSec.level>=3&&<h3 className="text-base font-bold text-slate-600">{activeSec.title}</h3>}
+                    </div>
+                    {hasImg&&hasOl?(
+                      <div className="flex gap-4 min-h-[260px]">
+                        <div className="flex-1 doc-content" dir={dir} dangerouslySetInnerHTML={{__html:activeSec.content.replace(/<img[^>]+>/gi,'').replace(/<p[^>]*>\s*<\/p>/gi,'')}}/>
+                        <div className="w-[38%] flex-shrink-0 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-center p-3 overflow-auto">
+                          <div className="doc-content" dangerouslySetInnerHTML={{__html:(activeSec.content.match(/<img[^>]+>/i)||[''])[0]}}/>
+                        </div>
+                      </div>
+                    ):(
+                      <div className="doc-content" dir={dir} dangerouslySetInnerHTML={{__html:activeSec.content}}/>
+                    )}
+                  </div>
+                ):(
+                  <div className="text-center text-slate-400 mt-16">בחר סעיף מהתפריט</div>
+                )}
+              </div>
+              <div className="flex items-center justify-between px-4 py-2.5 border-t border-slate-100 flex-shrink-0">
+                <button disabled={activeIdx<=0}
+                  onClick={()=>setActiveId(data.allSections[Math.max(0,activeIdx-1)].id)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-500 hover:border-blue-400 hover:text-blue-500 disabled:opacity-30 disabled:pointer-events-none transition-all">
+                  ← {isHe?'הקודם':'Previous'}
+                </button>
+                <span className="text-[10px] font-bold text-slate-400">{activeIdx+1} / {data.allSections.length}</span>
+                <button disabled={activeIdx>=data.allSections.length-1}
+                  onClick={()=>setActiveId(data.allSections[Math.min(data.allSections.length-1,activeIdx+1)].id)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-500 hover:border-blue-400 hover:text-blue-500 disabled:opacity-30 disabled:pointer-events-none transition-all">
+                  {isHe?'הבא':'Next'} →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ══════════════════════════════════════════════════════
+   APP
+══════════════════════════════════════════════════════ */
+const App=()=>{
+  const [stage,setStage]=useState('upload'); // upload | edit
+  const [data,setData]=useState(null);
+  const [cfg,setCfg]=useState(null);
+  const [loading,setLoading]=useState(false);
+  const [err,setErr]=useState('');
+  const [dragging,setDragging]=useState(false);
+  const [outputDirHandle,setOutputDirHandle]=useState(null); // שלב 1: תיקיית פלט
+  const fileRef=useRef(null);
+
+  const selectFolder=async()=>{
+    try{
+      const handle=await window.showDirectoryPicker({mode:'readwrite'});
+      setOutputDirHandle(handle);
+    }catch(e){ /* המשתמש ביטל */ }
+  };
+
+  const processFile=async file=>{
+    if(!file||!file.name.match(/\.docx$/i)){setErr('נא לבחור קובץ DOCX תקין.');return;}
+    setLoading(true); setErr('');
+    try{
+      const buf=await file.arrayBuffer();
+      const res=await mammoth.convertToHtml({arrayBuffer:buf},{
+        convertImage:mammoth.images.imgElement(img=>{
+          return img.read('base64').then(b64=>{return {src:`data:${img.contentType};base64,${b64}`};});
+        })
+      });
+      const parsed=parseDoc(res.value,file.name);
+      setData(parsed); setStage('edit');
+    }catch(e){setErr('שגיאה בעיבוד הקובץ: '+(e.message||e));}
+    setLoading(false);
+  };
+
+  const handleFile=e=>{ if(e.target.files[0]) processFile(e.target.files[0]); };
+  const handleDrop=e=>{ e.preventDefault(); setDragging(false); if(e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); };
+
+  const doExport=async(cfgOverride)=>{
+    const exportCfg=cfgOverride||cfg;
+    const html=buildExportHTML(data,exportCfg);
+    const fileName=(exportCfg.title||'output').replace(/[^a-zA-Z0-9א-ת\-_ ]/g,'').trim()+'.html';
+
+    if(outputDirHandle){
+      /* ── שמירה לתיקייה: HTML + images/ ── */
+      try{
+        // 1. חלץ תמונות base64 מה-HTML וצור images/
+        const imgDir=await outputDirHandle.getDirectoryHandle('images',{create:true});
+        let imgIdx=0;
+        const htmlWithPaths=html.replace(/src="data:([^;]+);base64,([^"]+)"/g,(_,mime,b64)=>{
+          const ext=mime.split('/')[1]?.replace('jpeg','jpg')||'png';
+          const name=`image${imgIdx}.${ext}`;
+          // כתוב את קובץ התמונה לתיקייה
+          imgDir.getFileHandle(name,{create:true}).then(fh=>
+            fh.createWritable().then(w=>{
+              const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+              w.write(bytes); w.close();
+            })
+          );
+          imgIdx++;
+          return `src="images/${name}"`;
+        });
+
+        // 2. כתוב את קובץ ה-HTML
+        const fh=await outputDirHandle.getFileHandle(fileName,{create:true});
+        const w=await fh.createWritable();
+        await w.write(htmlWithPaths);
+        await w.close();
+
+        alert(`✅ נשמר בהצלחה!\n📄 ${fileName}\n🖼 ${imgIdx} תמונות בתיקיית images/`);
+      }catch(e){
+        alert('שגיאה בשמירה: '+(e.message||e));
+      }
+    } else {
+      /* ── הורדה רגילה (ללא תיקייה) ── */
+      const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url;
+      a.download=fileName;
+      a.click(); URL.revokeObjectURL(url);
+    }
+  };
+
+  /* ── Upload Screen ── */
+  if(stage==='upload') return(
+    <div className="min-h-screen bg-[#0f172a] flex flex-col items-center justify-center p-6" dir="rtl">
+      {/* Branding */}
+      <div className="text-center mb-10">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600 mb-4 shadow-xl shadow-blue-900/40">
+          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <h1 className="text-4xl font-black text-white tracking-tight">Digi-TAM</h1>
+        <p className="text-slate-500 mt-1 text-sm font-medium">{VERSION} · ממיר ספרות טכנית דיגיטלית</p>
+      </div>
+
+      {/* Drop zone */}
+      <div className={`w-full max-w-lg border-2 border-dashed rounded-3xl p-14 text-center cursor-pointer transition-all duration-200
+          ${dragging?'border-blue-500 bg-blue-950/30':'border-slate-700 hover:border-slate-500 hover:bg-slate-800/30'}`}
+        onClick={()=>fileRef.current?.click()}
+        onDragOver={e=>{e.preventDefault();setDragging(true);}}
+        onDragLeave={()=>setDragging(false)}
+        onDrop={handleDrop}>
+        <input ref={fileRef} type="file" accept=".docx" className="hidden" onChange={handleFile}/>
+        {loading?(
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex gap-1.5"><span className="tdot"/><span className="tdot"/><span className="tdot"/></div>
+            <p className="text-slate-400 text-sm font-medium">ממיר את הקובץ...</p>
+          </div>
+        ):(
+          <>
+            <div className="text-5xl mb-4">{dragging?'📂':'📄'}</div>
+            <p className="text-white font-bold text-lg mb-2">{dragging?'שחרר כאן':'גרור קובץ DOCX לכאן'}</p>
+            <p className="text-slate-500 text-sm mb-4">או לחץ לבחירת קובץ</p>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+              בחר קובץ
+            </div>
+          </>
+        )}
+      </div>
+
+      {err&&<div className="mt-4 px-4 py-3 rounded-xl bg-red-950/50 border border-red-800 text-red-400 text-sm max-w-lg w-full text-center">{err}</div>}
+
+      {/* Features */}
+      <div className="mt-10 grid grid-cols-2 gap-3 max-w-lg w-full">
+        {[
+          {ic:'🏠',t:'Landing Page',d:'דף בית עם כרטיסיות'},
+          {ic:'📸',t:'Hotspot System',d:'hover מסנכרן תמונה + טקסט'},
+          {ic:'☑️',t:'Checkboxes',d:'שלבי הרכבה עם סימון'},
+          {ic:'✍️',t:'Signatures',d:'שדות חתימה ותאריך'},
+          {ic:'🔍',t:'Smart Search',d:'עוזר מסמך ללא אינטרנט'},
+          {ic:'📑',t:'Image/Video/3D',d:'tabs לכל סעיף'},
+        ].map(f=>(
+          <div key={f.t} className="flex items-center gap-3 bg-slate-800/60 border border-slate-700/50 rounded-2xl px-4 py-3">
+            <span className="text-xl flex-shrink-0">{f.ic}</span>
+            <div><div className="text-white text-xs font-bold">{f.t}</div><div className="text-slate-500 text-[10px]">{f.d}</div></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  if(stage==='edit') return <EditScreen data={data} onBack={()=>setStage('upload')} onExport={doExport} outputDirHandle={outputDirHandle} selectFolder={selectFolder}/>;
+
+  return null;
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
