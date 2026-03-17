@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת איתור ופתרון תקלות</title>
+    
+    <!-- ייבוא ספריות העיצוב וה-React ישירות מהרשת -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- תמיכה בהצגת מודלים תלת-ממדיים (3D Models) -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+
+    <style>
+        /* אנימציות מותאמות אישית המשמשות באפליקציה */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideInFromBottom { from { transform: translateY(1rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes pulseBorder { 0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); } 70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
+        
+        .animate-in { animation-fill-mode: both; }
+        .fade-in { animation-name: fadeIn; }
+        .slide-in-from-bottom-4 { animation-name: slideInFromBottom; }
+        .zoom-in-95 { animation-name: zoomIn; }
+        .duration-300 { animation-duration: 300ms; }
+        .duration-500 { animation-duration: 500ms; }
+        .active-node { animation: pulseBorder 2s infinite; }
+        
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        
+        /* עיצוב רכיב התלת-ממד */
+        model-viewer {
+            width: 100%;
+            height: 300px;
+            background-color: #f1f5f9;
+            border-radius: 0.75rem;
+            outline: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    
+    <!-- כאן האפליקציה תוצג -->
+    <div id="root"></div>
+
+    <!-- הלוגיקה והאפליקציה -->
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- אייקונים ---
+        const AlertCircle = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
+        const CheckCircle2 = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>;
+        const ChevronRight = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>;
+        const Monitor = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>;
+        const VideoIcon = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>;
+        const Zap = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+        const Wifi = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" x2="12.01" y1="20" y2="20"/></svg>;
+        const RotateCcw = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>;
+        const Crosshair = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" x2="18" y1="12" y2="12"/><line x1="6" x2="2" y1="12" y2="12"/><line x1="12" x2="12" y1="6" y2="2"/><line x1="12" x2="12" y1="22" y2="18"/></svg>;
+        const PhoneCall = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/><path d="M14.05 2a9 9 0 0 1 8 7.94"/><path d="M14.05 6A5 5 0 0 1 18 10"/></svg>;
+        const ArrowRight = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>;
+        const Settings = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>;
+        const Info = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
+        const Network = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>;
+        const MapPin = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+
+        // --- רכיב תצוגת מדיה ---
+        // תומך בתמונות (image), סרטונים (video), ואפילו מודלים תלת מימדיים (3d)!
+        const MediaViewer = ({ media }) => {
+            if (!media) return null;
+
+            return (
+                <div className="w-full mb-6 rounded-xl overflow-hidden border border-slate-200 shadow-md bg-white">
+                    {media.type === 'image' && (
+                        <img 
+                            src={media.url} 
+                            alt={media.alt || "תמונת המחשה"} 
+                            className="w-full h-auto max-h-[350px] object-cover"
+                        />
+                    )}
+                    
+                    {media.type === 'video' && (
+                        <video 
+                            src={media.url} 
+                            controls 
+                            className="w-full h-auto max-h-[350px] bg-black"
+                        >
+                            הדפדפן שלך אינו תומך בניגון וידאו.
+                        </video>
+                    )}
+
+                    {media.type === '3d' && (
+                        <div className="relative w-full h-[300px]">
+                            {/* רכיב חכם של גוגל להצגת מודלים תלת מימדיים פורמט GLB/GLTF */}
+                            <model-viewer 
+                                src={media.url} 
+                                alt={media.alt || "מודל תלת מימדי"} 
+                                auto-rotate 
+                                camera-controls
+                                shadow-intensity="1"
+                            ></model-viewer>
+                            <div className="absolute top-2 left-2 bg-slate-800/70 text-white text-xs px-2 py-1 rounded shadow pointer-events-none">
+                                🖱️ גרור כדי לסובב
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // --- מנוע הנתונים (מבוסס על המסמך + תמיכה במדיה) ---
+        // שים לב איך הוספתי "media" לחלק מהשלבים כדוגמה!
+        const flows = {
+          main: {
+            title: "זיהוי התקלה",
+            icon: <AlertCircle className="w-8 h-8 text-blue-500" />,
+            steps: {
+              start: {
+                type: "menu",
+                text: "מהי התקלה שאותה תרצה לפתור? (בחר מהרשימה)",
+                options: [
+                  { label: "לא רואים וידאו מהמצלמה", nextFlow: "video_flow", icon: <VideoIcon className="w-5 h-5"/> },
+                  { label: "לא מצליחים לנהג את המצלמה", nextFlow: "steer_flow", icon: <ArrowRight className="w-5 h-5"/> },
+                  { label: "המצלמה לא מצליחה להתפקס", nextFlow: "focus_flow", icon: <Crosshair className="w-5 h-5"/> },
+                  { label: "אין נתוני מכ\"מ", nextFlow: "radar_data_flow", icon: <Wifi className="w-5 h-5"/> },
+                  { label: "מסך שחור", nextFlow: "black_screen_flow", icon: <Monitor className="w-5 h-5"/> },
+                  { label: "אין רשת / אפליקציה לא עולה", nextFlow: "network_flow", icon: <Settings className="w-5 h-5"/> },
+                ]
+              }
+            }
+          },
+
+          steer_flow: {
+            title: "תקלת ניהוג מצלמה",
+            steps: {
+              start: {
+                type: "question",
+                text: "וודא חיבור תקין של בקר השליטה למחשב (מחבר USB). האם התקלה הסתדרה?",
+                yes: "success",
+                no: "step2"
+              },
+              step2: {
+                type: "question",
+                text: "בדוק בסביבת המצלמה האם משהו מפריע לתנועה (קרח, לכלוך או עצם כלשהו) ונקה במידת הצורך. האם התקלה הסתדרה?",
+                yes: "success",
+                no: "step3"
+              },
+              step3: {
+                type: "question",
+                text: "החלף בקר שליטה. האם התקלה הסתדרה?",
+                yes: "success",
+                no: "kela"
+              }
+            }
+          },
+
+          focus_flow: {
+            title: "תקלת פוקוס במצלמה",
+            steps: {
+              start: {
+                type: "question",
+                text: "בצע ניקיון עדשות. האם התקלה הסתדרה?",
+                yes: "success",
+                no: "kela"
+              }
+            }
+          },
+
+          video_flow: {
+            title: "איתור תקלות וידאו",
+            steps: {
+              start: {
+                type: "action",
+                text: "גש למצלמה ובעדינות נסה לסובב אותה ימינה ושמאלה.",
+                // הדגמה של תמונת המחשה (או אנימציית GIF)
+                media: {
+                    type: "image",
+                    url: "https://images.unsplash.com/photo-1557800636-894a64c1696f?auto=format&fit=crop&w=600&q=80",
+                    alt: "סיבוב מצלמה להמחשה"
+                },
+                next: "step2"
+              },
+              step2: {
+                type: "question",
+                text: "האם יש התנגדות מכאנית בסיבוב?",
+                yes: { nextFlow: "comm_flow", label: "כן - עבור לאיתור תקלות תקשורת" },
+                no: { nextFlow: "power_flow", label: "לא - עבור לאיתור תקלות מתחים" }
+              }
+            }
+          },
+
+          comm_flow: {
+            title: "איתור תקלות תקשורת מכ\"מ",
+            steps: {
+              start: {
+                type: "question",
+                text: "החלף כבל תקשורת המחבר בין המכ\"מ לסוויץ'. האם התקלה סודרה?",
+                yes: "success",
+                no: "step2"
+              },
+              step2: {
+                type: "question",
+                text: "החלף כבל תקשורת המחבר בין סוויץ' EDGE לסוויץ' FOB. האם התקלה סודרה?",
+                yes: "success",
+                no: "step3"
+              },
+              step3: {
+                type: "question",
+                text: "החלף כבל תקשורת המחבר בין סוויץ' FOB למחשב שרת. האם התקלה סודרה?",
+                yes: "success",
+                no: "step4"
+              },
+              step4: {
+                type: "question",
+                text: "החלף כבל תקשורת המחבר בין סוויץ' FOB למחשב מפעיל. האם התקלה סודרה?",
+                yes: "success",
+                no: "step5"
+              },
+              step5: {
+                type: "question",
+                text: "החלף סוויץ' EDGE. האם התקלה סודרה?",
+                yes: "success",
+                no: "step6"
+              },
+              step6: {
+                type: "question",
+                text: "החלף סוויץ' FOB. האם התקלה סודרה?",
+                yes: "success",
+                no: "kela"
+              }
+            }
+          },
+
+          power_flow: {
+            title: "איתור תקלות מתחים",
+            steps: {
+              start: {
+                type: "question",
+                text: "בדוק האם כל רכיבי המערכת דולקים (נוריות דולקות במסכי מפעיל, מחשב מפעיל, מחשב שרת וסוויץ' PWF FOB)?",
+                yes: "all_on",
+                no: "not_all_on"
+              },
+              all_on: {
+                type: "question",
+                text: "האם נורית אדומה של PWF-Edge סוויץ' דולקת?",
+                yes: "success",
+                no: "all_on_step2"
+              },
+              all_on_step2: {
+                type: "question",
+                text: "נתק כבל חשמל של ממיר המתח וחבר במקומו מטען עם טלפון. האם הטלפון נטען?",
+                yes: "all_on_step3",
+                no: "infrastructure"
+              },
+              all_on_step3: {
+                type: "question",
+                text: "החלף את הכבל מתח קיר של המטען. האם נורית הסוויץ' נדלקה?",
+                yes: "success",
+                no: "all_on_step4"
+              },
+              all_on_step4: {
+                type: "question",
+                text: "החלף את כבל ה- DC של המטען. האם נורית הסוויץ' נדלקה?",
+                yes: "success",
+                no: "all_on_step5"
+              },
+              all_on_step5: {
+                type: "question",
+                text: "החלף סוויץ'. האם נורית הסוויץ' נדלקה?",
+                yes: "success",
+                no: "kela"
+              },
+              not_all_on: {
+                type: "question",
+                text: "נתק כבל חשמל של הרכיב החשוד שכבה, וחבר במקומו מטען עם טלפון. האם הטלפון נטען?",
+                yes: "not_all_on_step2",
+                no: "infrastructure"
+              },
+              not_all_on_step2: {
+                type: "question",
+                text: "החלף כבל חשמל של היחידה החשודה. האם התקלה סודרה?",
+                yes: "success",
+                no: "kela"
+              }
+            }
+          },
+
+          network_flow: {
+            title: "אין רשת / אפליקציה לא עולה",
+            steps: {
+              start: {
+                type: "action",
+                text: "בצע RESET למכשירים הבאים: סוויץ' PWF-FOB, מחשב שרת, מחשב מפעיל. המתן לעלייתם.",
+                next: "step2"
+              },
+              step2: {
+                type: "question",
+                text: "בדוק את הנוריות בתוך סוויץ' PWF-FOB. האם הנוריות דולקות בירוק?",
+                yes: "step3_yes",
+                no: "step3_no"
+              },
+              step3_yes: {
+                type: "question",
+                text: "וודא שיש רשת / האפליקציה עולה. האם התקלה סודרה?",
+                yes: "success",
+                no: "kela"
+              },
+              step3_no: {
+                type: "question",
+                text: "החלף סוויץ' FOB. האם התקלה סודרה?",
+                yes: "success",
+                no: "kela"
+              }
+            }
+          },
+
+          black_screen_flow: {
+            title: "תקלת מסך שחור",
+            steps: {
+              start: {
+                type: "question",
+                text: "בדוק חיבור תקין של כבל המתח למסך. האם התקלה סודרה?",
+                yes: "success",
+                no: "step2"
+              },
+              step2: {
+                type: "question",
+                text: "בדוק חיבור תקין של כבל ה- HDMI/DP למסך. האם התקלה סודרה?",
+                yes: "success",
+                no: "step3"
+              },
+              step3: {
+                type: "question",
+                text: "וודא כי מחשב המפעיל עובד ודולק. האם התקלה סודרה?",
+                yes: "success",
+                no: { nextFlow: "power_flow", label: "לא - נעבור לאיתור תקלות מתחים" }
+              }
+            }
+          },
+
+          radar_data_flow: {
+            title: "אין נתוני מכ\"מ",
+            steps: {
+              start: {
+                type: "question",
+                text: "כבה והדלק את כפתור הכיבוי של סוויץ' PWF-SWITCH והמתן 3 דקות. האם התקלה סודרה?",
+                // הדגמה של מודל תלת-ממדי (אסטרונאוט ציבורי של גוגל לדוגמה - תוכל להחליף במודל של המכ"ם)
+                media: {
+                    type: "3d",
+                    url: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
+                    alt: "הדמיית מכשיר תלת-ממדית"
+                },
+                yes: "success",
+                no: "step2"
+              },
+              step2: {
+                type: "question",
+                text: "בצע RESET למחשב השרת והמתן 3 דקות. האם התקלה סודרה?",
+                yes: "success",
+                no: "step3"
+              },
+              step3: {
+                type: "menu",
+                text: "התקלה טרם נפתרה. באיזה ערוץ בדיקה תרצה להמשיך?",
+                options: [
+                  { label: "בדיקת תקלות מתחים", nextFlow: "power_flow", icon: <Zap className="w-5 h-5"/> },
+                  { label: "בדיקת תקלות תקשורת", nextFlow: "comm_flow", icon: <Wifi className="w-5 h-5"/> },
+                  { label: "יצירת קשר עם KELA", nextFlow: "kela", icon: <PhoneCall className="w-5 h-5"/> }
+                ]
+              }
+            }
+          }
+        };
+
+        // --- רכיבי תרשים הזרימה ---
+        const FlowEdge = ({ label, colorClass = "text-slate-500 border-slate-200" }) => (
+          <div className="flex flex-col items-center">
+            <div className="w-px h-4 bg-slate-300"></div>
+            {label && (
+              <div className={`text-xs font-bold px-2 py-0.5 bg-white border rounded-full z-10 my-1 ${colorClass} max-w-[120px] text-center shadow-sm`}>
+                {label}
+              </div>
+            )}
+            <div className="w-px h-4 bg-slate-300"></div>
+            <div className="w-2 h-2 border-b-2 border-r-2 border-slate-400 transform rotate-45 -mt-1.5 mb-2"></div>
+          </div>
+        );
+
+        const TreeNode = ({ stepId, flowId, edgeLabel, edgeColor, visited = [], currentStepId }) => {
+          // מניעת לולאות אין סופיות ומידע על השלב
+          const isObj = typeof stepId === 'object';
+          const stepKey = isObj ? stepId.nextFlow : stepId;
+          if (visited.includes(stepKey)) return null;
+          const newVisited = [...visited, stepKey];
+
+          // בדיקה האם המשתמש נמצא בשלב זה כרגע
+          const isCurrent = currentStepId === stepId || (isObj && currentStepId === stepKey);
+
+          // אייקון "אתה כאן" (מוצג רק בתיבה הפעילה)
+          const YouAreHereBadge = () => isCurrent && (
+            <div className="absolute -top-3 -right-3 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-md z-20 animate-in zoom-in-95">
+              <MapPin className="w-3 h-3" /> אתה כאן
+            </div>
+          );
+
+          // מעבר לתרשים אחר
+          if (isObj && stepId.nextFlow) {
+            return (
+              <div className="flex flex-col items-center">
+                {edgeLabel && <FlowEdge label={edgeLabel} colorClass={edgeColor} />}
+                <div className={`relative bg-indigo-50 border-2 text-indigo-800 p-3 rounded-xl shadow-sm max-w-[200px] text-center text-sm font-bold flex flex-col items-center gap-2 transition-all duration-300 ${isCurrent ? 'border-indigo-500 ring-4 ring-indigo-200 scale-105' : 'border-indigo-300'}`}>
+                  {YouAreHereBadge()}
+                  <Network className="w-5 h-5" />
+                  עבור לתרשים: {flows[stepId.nextFlow]?.title || stepId.label}
+                </div>
+              </div>
+            );
+          }
+
+          // סיומים שונים (הצלחה/כישלון)
+          if (stepId === 'success') {
+            return (
+              <div className="flex flex-col items-center">
+                {edgeLabel && <FlowEdge label={edgeLabel} colorClass={edgeColor} />}
+                <div className={`relative p-3 rounded-xl shadow-sm flex items-center gap-2 font-bold text-sm transition-all duration-300 ${isCurrent ? 'bg-emerald-100 border-2 border-emerald-500 text-emerald-800 ring-4 ring-emerald-200 scale-110 shadow-lg' : 'bg-emerald-50 border-2 border-emerald-400 text-emerald-700'}`}>
+                  {YouAreHereBadge()}
+                  <CheckCircle2 className="w-4 h-4" /> התקלה סודרה
+                </div>
+              </div>
+            );
+          }
+          if (stepId === 'kela') {
+            return (
+              <div className="flex flex-col items-center">
+                {edgeLabel && <FlowEdge label={edgeLabel} colorClass={edgeColor} />}
+                <div className={`relative p-3 rounded-xl shadow-sm flex items-center gap-2 font-bold text-sm transition-all duration-300 ${isCurrent ? 'bg-rose-100 border-2 border-rose-500 text-rose-800 ring-4 ring-rose-200 scale-110 shadow-lg' : 'bg-rose-50 border-2 border-rose-400 text-rose-700'}`}>
+                  {YouAreHereBadge()}
+                  <PhoneCall className="w-4 h-4" /> צור קשר עם KELA
+                </div>
+              </div>
+            );
+          }
+          if (stepId === 'infrastructure') {
+            return (
+              <div className="flex flex-col items-center">
+                {edgeLabel && <FlowEdge label={edgeLabel} colorClass={edgeColor} />}
+                <div className={`relative p-3 rounded-xl shadow-sm flex items-center gap-2 font-bold text-sm transition-all duration-300 ${isCurrent ? 'bg-orange-100 border-2 border-orange-500 text-orange-800 ring-4 ring-orange-200 scale-110 shadow-lg' : 'bg-orange-50 border-2 border-orange-400 text-orange-700'}`}>
+                  {YouAreHereBadge()}
+                  <Zap className="w-4 h-4" /> תקלת חשמל/תשתית
+                </div>
+              </div>
+            );
+          }
+
+          // שלב רגיל (שאלה/פעולה/תפריט)
+          const flow = flows[flowId];
+          const step = flow?.steps[stepId];
+          if (!step) return null;
+
+          return (
+            <div className="flex flex-col items-center px-2">
+              {edgeLabel && <FlowEdge label={edgeLabel} colorClass={edgeColor} />}
+              
+              <div className={`bg-white border-2 p-4 rounded-xl shadow-md w-48 md:w-56 lg:w-64 text-center text-sm relative z-10 transition-all duration-300 ${isCurrent ? 'border-blue-500 ring-4 ring-blue-200 scale-105 shadow-xl font-bold active-node' : 'border-slate-300'}`}>
+                {YouAreHereBadge()}
+                {step.text}
+                {/* אייקון קטן בתרשים אם יש מדיה בשלב הזה */}
+                {step.media && (
+                   <div className="absolute bottom-1 left-2 text-slate-400 opacity-50" title="שלב זה כולל מדיה">
+                     {step.media.type === 'image' && <VideoIcon className="w-3 h-3" />}
+                     {step.media.type === 'video' && <Monitor className="w-3 h-3" />}
+                     {step.media.type === '3d' && <Settings className="w-3 h-3" />}
+                   </div>
+                )}
+              </div>
+
+              {step.type === 'question' && (
+                <div className="flex gap-4 mt-2 items-start relative">
+                  <div className="absolute top-0 left-1/4 right-1/4 h-px bg-slate-300"></div>
+                  <div className="flex-1 flex flex-col items-center pt-2">
+                    <TreeNode stepId={step.yes} flowId={flowId} edgeLabel="כן" edgeColor="text-emerald-600 border-emerald-200 bg-emerald-50" visited={newVisited} currentStepId={currentStepId} />
+                  </div>
+                  <div className="flex-1 flex flex-col items-center pt-2">
+                    <TreeNode stepId={step.no} flowId={flowId} edgeLabel="לא" edgeColor="text-rose-600 border-rose-200 bg-rose-50" visited={newVisited} currentStepId={currentStepId} />
+                  </div>
+                </div>
+              )}
+
+              {step.type === 'action' && (
+                <div className="mt-2">
+                  <TreeNode stepId={step.next} flowId={flowId} visited={newVisited} currentStepId={currentStepId} />
+                </div>
+              )}
+
+              {step.type === 'menu' && (
+                <div className="flex flex-wrap justify-center gap-4 mt-4 pt-2 relative">
+                  <div className="absolute top-0 left-10 right-10 h-px bg-slate-300"></div>
+                  {step.options.map((opt, idx) => (
+                    <div key={idx} className="flex flex-col items-center pt-2">
+                      <TreeNode stepId={opt} flowId={flowId} edgeLabel={opt.label} edgeColor="text-blue-600 border-blue-200 text-[10px]" visited={newVisited} currentStepId={currentStepId} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        };
+
+        // --- קומפוננטה ראשית ---
+        function App() {
+          const [history, setHistory] = useState([{ flowId: 'main', stepId: 'start' }]);
+          
+          const currentStatus = history[history.length - 1];
+          const currentFlowId = currentStatus.flowId;
+          const currentStepId = currentStatus.stepId;
+
+          // חילוץ נתוני השלב הנוכחי
+          const flow = flows[currentFlowId];
+          let step = null;
+          
+          if (currentStepId === 'success') {
+            step = { type: 'end_success' };
+          } else if (currentStepId === 'kela') {
+            step = { type: 'end_kela' };
+          } else if (currentStepId === 'infrastructure') {
+            step = { type: 'end_infrastructure' };
+          } else {
+            step = flow?.steps[currentStepId];
+          }
+
+          const navigateTo = (flowId, stepId) => {
+            setHistory([...history, { flowId, stepId }]);
+            // גלילה חלקה לראש האשף במעבר שלב
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          };
+
+          const goBack = () => {
+            if (history.length > 1) {
+              setHistory(history.slice(0, -1));
+            }
+          };
+
+          const startOver = () => {
+            setHistory([{ flowId: 'main', stepId: 'start' }]);
+          };
+
+          const handleAnswer = (answer) => {
+            if (typeof answer === 'string') {
+              navigateTo(currentFlowId, answer);
+            } else if (answer.nextFlow) {
+              navigateTo(answer.nextFlow, 'start');
+            }
+          };
+
+          return (
+            <div className="min-h-screen selection:bg-blue-200 flex flex-col">
+              
+              {/* כותרת עליונה */}
+              <header className="bg-slate-900 text-white p-4 shadow-md sticky top-0 z-50">
+                <div className="max-w-7xl mx-auto flex justify-between items-center">
+                  <div className="flex items-center gap-3">
+                    <Zap className="w-6 h-6 text-yellow-400" />
+                    <h1 className="text-xl font-bold">מערכת איתור ופתרון תקלות</h1>
+                  </div>
+                  
+                  <button 
+                    onClick={startOver}
+                    className="flex items-center gap-2 text-sm bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg transition-colors border border-slate-700"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    <span className="hidden sm:inline">התחל מחדש</span>
+                  </button>
+                </div>
+              </header>
+
+              {/* אזור תוכן מרכזי - מחולק ל-2 עמודות במסכים גדולים */}
+              <main className="max-w-[1600px] w-full mx-auto p-4 py-8 flex flex-col lg:flex-row gap-8 items-start flex-1">
+                
+                {/* ---------- צד ימין: אשף השלבים ---------- */}
+                <div className="w-full lg:w-5/12 xl:w-4/12 flex flex-col gap-6 lg:sticky lg:top-24 z-10">
+                  
+                  {/* כפתור חזור */}
+                  {history.length > 1 && (
+                    <div className="flex items-center justify-between bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200 animate-in fade-in">
+                      <button 
+                        onClick={goBack}
+                        className="text-slate-500 hover:text-blue-600 flex items-center gap-1 transition-colors font-medium"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                        חזור לשלב הקודם
+                      </button>
+                      <span className="text-sm text-slate-400 bg-slate-100 px-2 py-1 rounded-md">
+                        {flow?.title}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* חלונית התוכן הפעילה (האשף) */}
+                  <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden transition-all animate-in slide-in-from-bottom-4 duration-300">
+                    
+                    {flow && currentStepId !== 'success' && currentStepId !== 'kela' && currentStepId !== 'infrastructure' && (
+                      <div className="bg-blue-50/50 p-5 border-b border-blue-100 flex items-center gap-4">
+                        <div className="bg-blue-100 p-2.5 rounded-full text-blue-600 shrink-0">
+                          {flow.icon || <Info className="w-6 h-6" />}
+                        </div>
+                        <h2 className="text-xl md:text-2xl font-bold text-slate-800 leading-tight">{flow.title}</h2>
+                      </div>
+                    )}
+
+                    <div className="p-6 md:p-8">
+                      
+                      {/* === הצגת חלון המדיה אם הוגדר בשלב === */}
+                      <MediaViewer media={step?.media} />
+                      
+                      {/* תפריט בחירה */}
+                      {step?.type === 'menu' && (
+                        <div className="space-y-6">
+                          <h3 className="text-lg md:text-xl font-medium text-slate-700 mb-6">{step.text}</h3>
+                          <div className="grid grid-cols-1 gap-3">
+                            {step.options.map((opt, idx) => (
+                              <button
+                                key={idx}
+                                onClick={() => navigateTo(opt.nextFlow, 'start')}
+                                className="flex items-center gap-4 p-4 text-right rounded-xl border-2 border-slate-100 hover:border-blue-400 hover:bg-blue-50 transition-all group shadow-sm"
+                              >
+                                <div className="bg-slate-100 p-2 rounded-lg text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
+                                  {opt.icon || <ChevronRight className="w-5 h-5" />}
+                                </div>
+                                <span className="font-medium flex-1 text-slate-700 group-hover:text-blue-800">{opt.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* שלב ביצוע פעולה */}
+                      {step?.type === 'action' && (
+                        <div className="space-y-8 text-center py-4">
+                          <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 inline-block w-full">
+                            <p className="text-lg text-amber-900 font-medium leading-relaxed">{step.text}</p>
+                          </div>
+                          <div>
+                            <button
+                              onClick={() => navigateTo(currentFlowId, step.next)}
+                              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3.5 px-8 rounded-xl shadow-md hover:shadow-lg transition-all text-lg w-full sm:w-auto"
+                            >
+                              ביצעתי, המשך לשלב הבא
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* שאלת כן/לא */}
+                      {step?.type === 'question' && (
+                        <div className="space-y-8 py-2">
+                          <h3 className="text-xl md:text-2xl font-medium text-slate-800 text-center leading-relaxed">
+                            {step.text}
+                          </h3>
+                          <div className="flex flex-col sm:flex-row justify-center gap-4 pt-2">
+                            <button
+                              onClick={() => handleAnswer(step.yes)}
+                              className="flex-1 flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 border-2 border-emerald-500 hover:bg-emerald-500 hover:text-white font-bold py-3.5 px-6 rounded-xl transition-all text-lg shadow-sm hover:shadow-md"
+                            >
+                              <CheckCircle2 className="w-6 h-6" />
+                              {typeof step.yes === 'object' ? step.yes.label : 'כן'}
+                            </button>
+                            <button
+                              onClick={() => handleAnswer(step.no)}
+                              className="flex-1 flex items-center justify-center gap-2 bg-rose-50 text-rose-700 border-2 border-rose-500 hover:bg-rose-500 hover:text-white font-bold py-3.5 px-6 rounded-xl transition-all text-lg shadow-sm hover:shadow-md"
+                            >
+                              <AlertCircle className="w-6 h-6" />
+                              {typeof step.no === 'object' ? step.no.label : 'לא'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* מסכי סיום */}
+                      {step?.type === 'end_success' && (
+                        <div className="text-center py-8 space-y-6 animate-in zoom-in-95 duration-500">
+                          <div className="mx-auto w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
+                            <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+                          </div>
+                          <h2 className="text-2xl font-bold text-emerald-600">התקלה סודרה!</h2>
+                          <p className="text-slate-500 text-base">המערכת חזרה לתפקוד תקין. שלב "וידוא התיקון" הושלם בהצלחה.</p>
+                          <div className="pt-6">
+                            <button onClick={startOver} className="text-blue-600 hover:text-blue-800 font-medium underline">
+                              חזרה למסך הראשי
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {step?.type === 'end_kela' && (
+                        <div className="text-center py-8 space-y-6 animate-in zoom-in-95 duration-500">
+                          <div className="mx-auto w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center mb-4">
+                            <PhoneCall className="w-10 h-10 text-rose-500" />
+                          </div>
+                          <h2 className="text-2xl font-bold text-rose-600">נדרשת התערבות טכנית</h2>
+                          <p className="text-slate-700 text-base">מיצינו את שלבי פתרון התקלות הבסיסיים.</p>
+                          <div className="bg-slate-50 p-4 rounded-xl inline-block mt-2 border border-slate-200">
+                            <p className="font-bold text-lg text-slate-800">אנא צור קשר עם חברת KELA</p>
+                          </div>
+                          <div className="pt-6">
+                            <button onClick={startOver} className="text-slate-500 hover:text-slate-800 font-medium underline">
+                              התחל תהליך מחדש
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {step?.type === 'end_infrastructure' && (
+                        <div className="text-center py-8 space-y-6 animate-in zoom-in-95 duration-500">
+                          <div className="mx-auto w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+                            <Zap className="w-10 h-10 text-orange-500" />
+                          </div>
+                          <h2 className="text-2xl font-bold text-orange-600">תקלת תשתית / חשמל</h2>
+                          <p className="text-slate-700 text-base">נראה כי הבעיה נובעת מתשתית החשמל המקומית ולא מרכיבי המערכת.</p>
+                          <div className="bg-slate-50 p-4 rounded-xl inline-block mt-2 border border-slate-200">
+                            <p className="font-bold text-lg text-slate-800">צור קשר עם היחידה הבינוי / אחזקה המקומית</p>
+                          </div>
+                          <div className="pt-6">
+                            <button onClick={startOver} className="text-slate-500 hover:text-slate-800 font-medium underline">
+                              התחל תהליך מחדש
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* מידע כללי - מוצג רק במסך הראשון */}
+                  {history.length === 1 && (
+                    <div className="bg-white/60 p-5 rounded-2xl border border-slate-200 text-xs sm:text-sm text-slate-600 shadow-sm">
+                      <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <Info className="w-4 h-4" />
+                        5 שלבי האיתור המרכזיים
+                      </h4>
+                      <ol className="list-decimal list-inside space-y-1 pr-2">
+                        <li>הגדרת הבעיה</li>
+                        <li>ניתוח ראשוני</li>
+                        <li>בידוד התקלה</li>
+                        <li>יישום הפתרון</li>
+                        <li>וידוא תיקון</li>
+                      </ol>
+                    </div>
+                  )}
+                </div>
+
+                {/* ---------- צד שמאל: תרשים הזרימה ---------- */}
+                <div className="w-full lg:w-7/12 xl:w-8/12 bg-white rounded-2xl shadow-lg border border-slate-200 p-4 sm:p-8 overflow-x-auto min-h-[500px] flex flex-col z-0">
+                  <div className="mb-6 text-center border-b border-slate-100 pb-4 sticky left-0 right-0">
+                    <h2 className="text-xl md:text-2xl font-bold text-slate-800 flex items-center justify-center gap-2">
+                      <Network className="w-6 h-6 text-blue-500" />
+                      תרשים זרימה: {flow?.title}
+                    </h2>
+                    <p className="text-slate-500 text-sm mt-1">
+                      התרשים מתעדכן בהתאם לשלב שבו אתה נמצא (סומן ב-<strong className="text-blue-600">כחול</strong>).
+                    </p>
+                  </div>
+                  
+                  {/* תוכן התרשים עצמו */}
+                  <div className="flex justify-center min-w-max p-4 flex-1 items-start">
+                    <TreeNode stepId="start" flowId={currentFlowId} currentStepId={currentStepId} />
+                  </div>
+                </div>
+
+              </main>
+            </div>
+          );
+        }
+
+        // טעינת האפליקציה אל ה-DOM
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

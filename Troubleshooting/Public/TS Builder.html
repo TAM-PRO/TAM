@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מחולל איתור תקלות</title>
+    
+    <!-- ייבוא ספריות העיצוב וה-React -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: #f8fafc; }
+        /* עיצוב פס גלילה */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- אייקונים לשימוש במחולל ---
+        const Icons = {
+            Plus: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>,
+            Trash: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>,
+            Download: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>,
+            Image: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>,
+            Settings: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>,
+        };
+
+        // --- תבנית ה-HTML שתיווצר בסוף ---
+        // זוהי מחרוזת ענקית שמכילה את האפליקציה שבנינו קודם (השחקן), שמוזרק אליה ה-JSON.
+        const generatePlayerHTML = (nodesData) => {
+            const jsonString = JSON.stringify(nodesData, null, 2);
+            
+            return `<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת איתור ופתרון תקלות</title>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin><\/script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin><\/script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"><\/script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideInFromBottom { from { transform: translateY(1rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes pulseBorder { 0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); } 70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
+        .animate-in { animation-fill-mode: both; } .fade-in { animation-name: fadeIn; } .slide-in-from-bottom-4 { animation-name: slideInFromBottom; } .zoom-in-95 { animation-name: zoomIn; } .duration-300 { animation-duration: 300ms; } .duration-500 { animation-duration: 500ms; } .active-node { animation: pulseBorder 2s infinite; }
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        model-viewer { width: 100%; height: 300px; background-color: #f1f5f9; border-radius: 0.75rem; outline: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    <div id="root"></div>
+    <script>
+        // הזרקת הנתונים שנבנו במחולל!
+        window.__FLOW_DATA__ = ${jsonString};
+    <\/script>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const nodes = window.__FLOW_DATA__;
+
+        // --- Icons ---
+        const AlertCircle = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
+        const CheckCircle2 = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>;
+        const ChevronRight = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>;
+        const Zap = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+        const RotateCcw = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>;
+        const Network = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>;
+        const MapPin = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+
+        const MediaViewer = ({ media }) => {
+            if (!media || media.type === 'none' || !media.url) return null;
+            return (
+                <div className="w-full mb-6 rounded-xl overflow-hidden border border-slate-200 shadow-md bg-white">
+                    {media.type === 'image' && <img src={media.url} className="w-full h-auto max-h-[350px] object-contain bg-slate-100" />}
+                    {media.type === 'video' && <video src={media.url} controls className="w-full h-auto max-h-[350px] bg-black">הדפדפן לא תומך בוידאו.</video>}
+                    {media.type === '3d' && (
+                        <div className="relative w-full h-[300px]">
+                            <model-viewer src={media.url} auto-rotate camera-controls shadow-intensity="1"></model-viewer>
+                            <div className="absolute top-2 left-2 bg-slate-800/70 text-white text-xs px-2 py-1 rounded shadow pointer-events-none">🖱️ גרור כדי לסובב</div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const FlowEdge = ({ label, colorClass = "text-slate-500 border-slate-200" }) => (
+          <div className="flex flex-col items-center">
+            <div className="w-px h-6 bg-slate-300"></div>
+            {label && <div className={\`text-xs font-bold px-2 py-0.5 bg-white border rounded-full z-10 my-1 \${colorClass} max-w-[120px] text-center shadow-sm\`}>{label}</div>}
+            {label && <div className="w-px h-6 bg-slate-300"></div>}
+            <div className="w-2 h-2 border-b-2 border-r-2 border-slate-400 transform rotate-45 -mt-1.5 mb-2"></div>
+          </div>
+        );
+
+        const TreeNode = ({ stepId, visited = [], currentStepId }) => {
+          if (!stepId || !nodes[stepId] || visited.includes(stepId)) return null;
+          const newVisited = [...visited, stepId];
+          const isCurrent = currentStepId === stepId;
+          const step = nodes[stepId];
+
+          const YouAreHereBadge = () => isCurrent && (
+            <div className="absolute -top-3 -right-3 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-md z-20 animate-in zoom-in-95">
+              <MapPin className="w-3 h-3" /> אתה כאן
+            </div>
+          );
+
+          if (step.type === 'end') {
+            const colors = step.endType === 'success' ? 'bg-emerald-100 border-emerald-500 text-emerald-800 ring-emerald-200' : 'bg-rose-100 border-rose-500 text-rose-800 ring-rose-200';
+            const Icon = step.endType === 'success' ? CheckCircle2 : AlertCircle;
+            return (
+              <div className="flex flex-col items-center px-2">
+                <div className={\`relative p-3 rounded-xl border-2 shadow-sm flex items-center gap-2 font-bold text-sm transition-all duration-300 \${isCurrent ? \`\${colors} ring-4 scale-110 shadow-lg\` : \`\${colors} opacity-80\`}\`}>
+                  {YouAreHereBadge()} <Icon className="w-4 h-4" /> {step.text}
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <div className="flex flex-col items-center px-2">
+              <div className={\`bg-white border-2 p-4 rounded-xl shadow-md w-48 md:w-56 lg:w-64 text-center text-sm relative z-10 transition-all duration-300 \${isCurrent ? 'border-blue-500 ring-4 ring-blue-200 scale-105 shadow-xl font-bold active-node' : 'border-slate-300'}\`}>
+                {YouAreHereBadge()}
+                {step.text}
+              </div>
+
+              {step.type === 'question' && (
+                <div className="flex gap-4 mt-2 items-start relative">
+                  <div className="absolute top-0 left-1/4 right-1/4 h-px bg-slate-300"></div>
+                  <div className="flex-1 flex flex-col items-center pt-2">
+                    <FlowEdge label={step.yesLabel || "כן"} colorClass="text-emerald-600 border-emerald-200 bg-emerald-50" />
+                    <TreeNode stepId={step.yesTarget} visited={newVisited} currentStepId={currentStepId} />
+                  </div>
+                  <div className="flex-1 flex flex-col items-center pt-2">
+                    <FlowEdge label={step.noLabel || "לא"} colorClass="text-rose-600 border-rose-200 bg-rose-50" />
+                    <TreeNode stepId={step.noTarget} visited={newVisited} currentStepId={currentStepId} />
+                  </div>
+                </div>
+              )}
+
+              {step.type === 'action' && (
+                <div className="flex flex-col items-center pt-2">
+                  <FlowEdge label={step.nextLabel || "המשך"} />
+                  <TreeNode stepId={step.nextTarget} visited={newVisited} currentStepId={currentStepId} />
+                </div>
+              )}
+
+              {step.type === 'menu' && (
+                <div className="flex flex-wrap justify-center gap-4 mt-4 pt-2 relative">
+                  <div className="absolute top-0 left-10 right-10 h-px bg-slate-300"></div>
+                  {step.options && step.options.map((opt, idx) => (
+                    <div key={idx} className="flex flex-col items-center pt-2">
+                      <FlowEdge label={opt.label} colorClass="text-blue-600 border-blue-200 text-[10px]" />
+                      <TreeNode stepId={opt.targetId} visited={newVisited} currentStepId={currentStepId} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        };
+
+        function App() {
+          const [history, setHistory] = useState(['start']);
+          const currentStepId = history[history.length - 1];
+          const step = nodes[currentStepId] || null;
+
+          const navigateTo = (targetId) => {
+            if(targetId && nodes[targetId]) {
+                setHistory([...history, targetId]);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          };
+          const goBack = () => { if (history.length > 1) setHistory(history.slice(0, -1)); };
+          const startOver = () => setHistory(['start']);
+
+          if (!step) return <div className="p-10 text-center">הצומת לא נמצא. אנא בדוק את ההגדרות.</div>;
+
+          return (
+            <div className="min-h-screen flex flex-col">
+              <header className="bg-slate-900 text-white p-4 shadow-md sticky top-0 z-50">
+                <div className="max-w-7xl mx-auto flex justify-between items-center">
+                  <div className="flex items-center gap-3"><Zap className="w-6 h-6 text-yellow-400" /><h1 className="text-xl font-bold">מערכת איתור ופתרון תקלות</h1></div>
+                  <button onClick={startOver} className="flex items-center gap-2 text-sm bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700"><RotateCcw className="w-4 h-4" /><span className="hidden sm:inline">התחל מחדש</span></button>
+                </div>
+              </header>
+
+              <main className="max-w-[1600px] w-full mx-auto p-4 py-8 flex flex-col lg:flex-row gap-8 items-start flex-1">
+                <div className="w-full lg:w-5/12 xl:w-4/12 flex flex-col gap-6 lg:sticky lg:top-24 z-10">
+                  {history.length > 1 && (
+                    <div className="flex items-center justify-between bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200 animate-in fade-in">
+                      <button onClick={goBack} className="text-slate-500 hover:text-blue-600 flex items-center gap-1 font-medium"><ChevronRight className="w-5 h-5" />חזור לשלב הקודם</button>
+                    </div>
+                  )}
+
+                  <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+                    {step.type !== 'end' && (
+                      <div className="bg-blue-50/50 p-5 border-b border-blue-100 flex items-center gap-4">
+                        <div className="bg-blue-100 p-2.5 rounded-full text-blue-600 shrink-0"><AlertCircle className="w-6 h-6" /></div>
+                        <h2 className="text-xl md:text-2xl font-bold text-slate-800 leading-tight">{step.title}</h2>
+                      </div>
+                    )}
+
+                    <div className="p-6 md:p-8">
+                      <MediaViewer media={step.media} />
+                      
+                      {step.type === 'menu' && (
+                        <div className="space-y-6">
+                          <h3 className="text-lg md:text-xl font-medium text-slate-700 mb-6">{step.text}</h3>
+                          <div className="grid grid-cols-1 gap-3">
+                            {step.options?.map((opt, idx) => (
+                              <button key={idx} onClick={() => navigateTo(opt.targetId)} className="flex items-center gap-4 p-4 text-right rounded-xl border-2 border-slate-100 hover:border-blue-400 hover:bg-blue-50 transition-all group shadow-sm">
+                                <div className="bg-slate-100 p-2 rounded-lg text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600"><ChevronRight className="w-5 h-5" /></div>
+                                <span className="font-medium flex-1 text-slate-700 group-hover:text-blue-800">{opt.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {step.type === 'action' && (
+                        <div className="space-y-8 text-center py-4">
+                          <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 inline-block w-full">
+                            <p className="text-lg text-amber-900 font-medium leading-relaxed" style={{whiteSpace: 'pre-line'}}>{step.text}</p>
+                          </div>
+                          <button onClick={() => navigateTo(step.nextTarget)} className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3.5 px-8 rounded-xl shadow-md transition-all text-lg w-full sm:w-auto">{step.nextLabel || "המשך לשלב הבא"}</button>
+                        </div>
+                      )}
+
+                      {step.type === 'question' && (
+                        <div className="space-y-8 py-2">
+                          <h3 className="text-xl md:text-2xl font-medium text-slate-800 text-center leading-relaxed" style={{whiteSpace: 'pre-line'}}>{step.text}</h3>
+                          <div className="flex flex-col sm:flex-row justify-center gap-4 pt-2">
+                            <button onClick={() => navigateTo(step.yesTarget)} className="flex-1 flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 border-2 border-emerald-500 hover:bg-emerald-500 hover:text-white font-bold py-3.5 px-6 rounded-xl transition-all text-lg shadow-sm"><CheckCircle2 className="w-6 h-6" />{step.yesLabel || "כן"}</button>
+                            <button onClick={() => navigateTo(step.noTarget)} className="flex-1 flex items-center justify-center gap-2 bg-rose-50 text-rose-700 border-2 border-rose-500 hover:bg-rose-500 hover:text-white font-bold py-3.5 px-6 rounded-xl transition-all text-lg shadow-sm"><AlertCircle className="w-6 h-6" />{step.noLabel || "לא"}</button>
+                          </div>
+                        </div>
+                      )}
+
+                      {step.type === 'end' && (
+                        <div className="text-center py-8 space-y-6 animate-in zoom-in-95 duration-500">
+                          <div className={\`mx-auto w-20 h-20 rounded-full flex items-center justify-center mb-4 \${step.endType === 'success' ? 'bg-emerald-100 text-emerald-500' : 'bg-rose-100 text-rose-500'}\`}>
+                            {step.endType === 'success' ? <CheckCircle2 className="w-10 h-10" /> : <AlertCircle className="w-10 h-10" />}
+                          </div>
+                          <h2 className={\`text-2xl font-bold \${step.endType === 'success' ? 'text-emerald-600' : 'text-rose-600'}\`}>{step.title}</h2>
+                          <div className="bg-slate-50 p-4 rounded-xl inline-block mt-2 border border-slate-200">
+                            <p className="text-lg text-slate-800 whitespace-pre-line">{step.text}</p>
+                          </div>
+                          <div className="pt-6"><button onClick={startOver} className="text-blue-600 hover:text-blue-800 font-medium underline">התחל תהליך מחדש</button></div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="w-full lg:w-7/12 xl:w-8/12 bg-white rounded-2xl shadow-lg border border-slate-200 p-4 sm:p-8 overflow-x-auto min-h-[500px] flex flex-col z-0">
+                  <div className="mb-6 text-center border-b border-slate-100 pb-4 sticky left-0 right-0">
+                    <h2 className="text-xl md:text-2xl font-bold text-slate-800 flex items-center justify-center gap-2"><Network className="w-6 h-6 text-blue-500" />תרשים זרימה מלא</h2>
+                  </div>
+                  <div className="flex justify-center min-w-max p-4 flex-1 items-start">
+                    <TreeNode stepId="start" currentStepId={currentStepId} />
+                  </div>
+                </div>
+              </main>
+            </div>
+          );
+        }
+        const root = ReactDOM.createRoot(document.getElementById('root')); root.render(<App />);
+    <\/script>
+</body>
+</html>`;
+        };
+
+        // --- הגיון המחולל (Builder App) ---
+        function Builder() {
+            // טעינה משמירה מקומית או נתונים ראשוניים
+            const loadInitialData = () => {
+                const saved = localStorage.getItem('troubleshooter_data');
+                if (saved) {
+                    try { return JSON.parse(saved); } catch (e) {}
+                }
+                return {
+                    "start": {
+                        id: "start",
+                        name: "מסך פתיחה",
+                        title: "בחירת תקלה",
+                        type: "menu",
+                        text: "במה אוכל לעזור לך היום?",
+                        options: [],
+                        media: { type: "none", url: "" }
+                    }
+                };
+            };
+
+            const [nodes, setNodes] = useState(loadInitialData);
+            const [selectedId, setSelectedId] = useState("start");
+
+            // שמירה אוטומטית לדפדפן
+            useEffect(() => {
+                localStorage.setItem('troubleshooter_data', JSON.stringify(nodes));
+            }, [nodes]);
+
+            // פונקציה לייצוא הקובץ
+            const exportHTML = () => {
+                const htmlContent = generatePlayerHTML(nodes);
+                const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'index.html';
+                a.click();
+                URL.revokeObjectURL(url);
+            };
+
+            const addNode = () => {
+                const newId = "node_" + Date.now().toString().slice(-6);
+                setNodes({
+                    ...nodes,
+                    [newId]: {
+                        id: newId,
+                        name: "שלב חדש",
+                        title: "כותרת לשלב",
+                        type: "question",
+                        text: "תאר את הבעיה/שאלה כאן...",
+                        yesLabel: "כן", yesTarget: "",
+                        noLabel: "לא", noTarget: "",
+                        media: { type: "none", url: "" }
+                    }
+                });
+                setSelectedId(newId);
+            };
+
+            const deleteNode = (id) => {
+                if (id === "start") return alert("לא ניתן למחוק את מסך הפתיחה (start)");
+                if (!confirm("האם אתה בטוח שברצונך למחוק שלב זה?")) return;
+                const newNodes = { ...nodes };
+                delete newNodes[id];
+                setNodes(newNodes);
+                setSelectedId("start");
+            };
+
+            const updateNode = (field, value) => {
+                setNodes(prev => ({
+                    ...prev,
+                    [selectedId]: { ...prev[selectedId], [field]: value }
+                }));
+            };
+
+            const updateMedia = (field, value) => {
+                setNodes(prev => ({
+                    ...prev,
+                    [selectedId]: { 
+                        ...prev[selectedId], 
+                        media: { ...(prev[selectedId].media || {type:'none', url:''}), [field]: value } 
+                    }
+                }));
+            };
+
+            const activeNode = nodes[selectedId];
+
+            // רשימת כל השלבים לבחירה ב-Dropdowns
+            const nodeOptions = Object.values(nodes).map(n => (
+                <option key={n.id} value={n.id}>{n.name} (ID: {n.id})</option>
+            ));
+
+            return (
+                <div className="flex h-screen overflow-hidden text-slate-800">
+                    
+                    {/* צד ימין - רשימת השלבים (Sidebar) */}
+                    <div className="w-80 bg-slate-900 text-white flex flex-col h-full border-l border-slate-700">
+                        <div className="p-4 border-b border-slate-800 flex items-center gap-3">
+                            <Icons.Settings />
+                            <h1 className="font-bold text-lg">מחולל תקלות</h1>
+                        </div>
+                        
+                        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                            <h2 className="text-xs uppercase text-slate-400 font-bold mb-3 tracking-wider">כל השלבים בעץ</h2>
+                            {Object.values(nodes).map(node => (
+                                <button 
+                                    key={node.id}
+                                    onClick={() => setSelectedId(node.id)}
+                                    className={`w-full text-right p-3 rounded-lg text-sm flex justify-between items-center transition-colors ${selectedId === node.id ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+                                >
+                                    <span className="truncate pr-2">{node.name}</span>
+                                    {node.id === "start" && <span className="bg-blue-800 text-[10px] px-2 py-0.5 rounded">ראשי</span>}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="p-4 border-t border-slate-800 space-y-3">
+                            <button onClick={addNode} className="w-full bg-slate-700 hover:bg-slate-600 text-white p-3 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors">
+                                <Icons.Plus /> צור שלב חדש
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* צד שמאל - עורך השלב (Editor) */}
+                    <div className="flex-1 flex flex-col h-full bg-slate-50 overflow-hidden">
+                        
+                        {/* תפריט עליון (Export) */}
+                        <div className="bg-white p-4 shadow-sm border-b flex justify-between items-center z-10">
+                            <div>
+                                <h2 className="text-xl font-bold text-slate-800">עריכת שלב: <span className="text-blue-600">{activeNode?.name}</span></h2>
+                                <p className="text-sm text-slate-500">ערוך את השאלות, התשובות והניתובים לשלבים הבאים</p>
+                            </div>
+                            <button onClick={exportHTML} className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg flex items-center gap-2 font-bold shadow-md transition-transform hover:scale-105">
+                                <Icons.Download />
+                                יצא וסיים (הורד HTML)
+                            </button>
+                        </div>
+
+                        {/* טופס העריכה */}
+                        {activeNode ? (
+                            <div className="flex-1 overflow-y-auto p-8">
+                                <div className="max-w-3xl mx-auto space-y-8 pb-20">
+                                    
+                                    {/* הגדרות כלליות */}
+                                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-5">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <h3 className="text-lg font-bold flex items-center gap-2"><span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">1</span> הגדרות בסיסיות</h3>
+                                            {activeNode.id !== "start" && (
+                                                <button onClick={() => deleteNode(activeNode.id)} className="text-rose-500 hover:bg-rose-50 p-2 rounded-lg transition-colors" title="מחק שלב">
+                                                    <Icons.Trash />
+                                                </button>
+                                            )}
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-slate-700 mb-1">שם פנימי (לא יוצג למשתמש)</label>
+                                                <input type="text" value={activeNode.name || ""} onChange={e => updateNode('name', e.target.value)} className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="לדוגמה: בדיקת כבל רשת" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-slate-700 mb-1">כותרת החלונית (תוצג למעלה)</label>
+                                                <input type="text" value={activeNode.title || ""} onChange={e => updateNode('title', e.target.value)} className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="לדוגמה: איתור תקלות תקשורת" />
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-1">סוג השלב (קובע את הכפתורים שיוצגו)</label>
+                                            <select value={activeNode.type} onChange={e => updateNode('type', e.target.value)} className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50">
+                                                <option value="question">שאלה (כן / לא)</option>
+                                                <option value="action">פעולה לביצוע (כפתור "המשך" יחיד)</option>
+                                                <option value="menu">תפריט בחירה (מספר אפשרויות לניווט)</option>
+                                                <option value="end">מסך סיום (סוף התהליך)</option>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-1">תוכן השלב (השאלה / ההנחיה למשתמש)</label>
+                                            <textarea rows="3" value={activeNode.text || ""} onChange={e => updateNode('text', e.target.value)} className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-y" placeholder="הקלד כאן את השאלה או הפעולה שעל המשתמש לבצע..."></textarea>
+                                        </div>
+                                    </div>
+
+                                    {/* הגדרות מדיה */}
+                                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-5">
+                                        <h3 className="text-lg font-bold flex items-center gap-2"><span className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">2</span> מדיה להמחשה (אופציונלי)</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-slate-700 mb-1">סוג מדיה</label>
+                                                <select value={activeNode.media?.type || "none"} onChange={e => updateMedia('type', e.target.value)} className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-50">
+                                                    <option value="none">ללא מדיה</option>
+                                                    <option value="image">תמונה (.jpg, .png, .gif)</option>
+                                                    <option value="video">וידאו (.mp4)</option>
+                                                    <option value="3d">מודל תלת מימדי (.glb)</option>
+                                                </select>
+                                            </div>
+                                            <div className="md:col-span-2">
+                                                <label className="block text-sm font-medium text-slate-700 mb-1 flex justify-between">
+                                                    <span>נתיב לקובץ (URL או קובץ מקומי)</span>
+                                                    <span className="text-slate-400 text-xs">דוגמה: images/photo.jpg</span>
+                                                </label>
+                                                <div className="flex gap-2">
+                                                    <div className="bg-slate-100 border border-slate-300 rounded-lg px-3 flex items-center text-slate-500"><Icons.Image /></div>
+                                                    <input type="text" value={activeNode.media?.url || ""} onChange={e => updateMedia('url', e.target.value)} disabled={activeNode.media?.type === "none"} className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-slate-100 disabled:opacity-50" dir="ltr" placeholder="./images/your_file.jpg" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* הגדרות ניתוב בהתאם לסוג */}
+                                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-blue-200 bg-blue-50/30 space-y-5">
+                                        <h3 className="text-lg font-bold flex items-center gap-2"><span className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center">3</span> לאן ממשיכים מכאן?</h3>
+                                        
+                                        {/* ניתוב: שאלה */}
+                                        {activeNode.type === 'question' && (
+                                            <div className="grid grid-cols-2 gap-6">
+                                                <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+                                                    <label className="block font-bold text-emerald-800 mb-2">תשובה חיובית (כן)</label>
+                                                    <input type="text" value={activeNode.yesLabel || "כן"} onChange={e => updateNode('yesLabel', e.target.value)} className="w-full mb-2 p-2 text-sm border border-emerald-200 rounded outline-none focus:ring-1 focus:ring-emerald-400" placeholder="טקסט כפתור (ברירת מחדל: כן)" />
+                                                    <select value={activeNode.yesTarget || ""} onChange={e => updateNode('yesTarget', e.target.value)} className="w-full p-2 text-sm border border-emerald-200 rounded outline-none focus:ring-1 focus:ring-emerald-400">
+                                                        <option value="">-- בחר לאן לעבור --</option>
+                                                        {nodeOptions}
+                                                    </select>
+                                                </div>
+                                                <div className="bg-rose-50 p-4 rounded-xl border border-rose-100">
+                                                    <label className="block font-bold text-rose-800 mb-2">תשובה שלילית (לא)</label>
+                                                    <input type="text" value={activeNode.noLabel || "לא"} onChange={e => updateNode('noLabel', e.target.value)} className="w-full mb-2 p-2 text-sm border border-rose-200 rounded outline-none focus:ring-1 focus:ring-rose-400" placeholder="טקסט כפתור (ברירת מחדל: לא)" />
+                                                    <select value={activeNode.noTarget || ""} onChange={e => updateNode('noTarget', e.target.value)} className="w-full p-2 text-sm border border-rose-200 rounded outline-none focus:ring-1 focus:ring-rose-400">
+                                                        <option value="">-- בחר לאן לעבור --</option>
+                                                        {nodeOptions}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* ניתוב: פעולה */}
+                                        {activeNode.type === 'action' && (
+                                            <div className="bg-white p-4 rounded-xl border border-slate-200">
+                                                <label className="block font-bold text-slate-800 mb-2">לאן עוברים לאחר הלחיצה?</label>
+                                                <input type="text" value={activeNode.nextLabel || "המשך לשלב הבא"} onChange={e => updateNode('nextLabel', e.target.value)} className="w-full mb-3 p-2 border border-slate-300 rounded outline-none focus:ring-1 focus:ring-blue-400" placeholder="טקסט כפתור המשך" />
+                                                <select value={activeNode.nextTarget || ""} onChange={e => updateNode('nextTarget', e.target.value)} className="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-blue-400">
+                                                    <option value="">-- בחר לאן לעבור --</option>
+                                                    {nodeOptions}
+                                                </select>
+                                            </div>
+                                        )}
+
+                                        {/* ניתוב: תפריט */}
+                                        {activeNode.type === 'menu' && (
+                                            <div>
+                                                <label className="block font-bold text-slate-800 mb-3">אפשרויות לבחירה:</label>
+                                                <div className="space-y-3 mb-4">
+                                                    {(activeNode.options || []).map((opt, idx) => (
+                                                        <div key={idx} className="flex gap-2 items-center bg-white p-2 rounded-lg border border-slate-200">
+                                                            <input type="text" value={opt.label} onChange={e => {
+                                                                const newOpts = [...activeNode.options];
+                                                                newOpts[idx].label = e.target.value;
+                                                                updateNode('options', newOpts);
+                                                            }} className="flex-1 p-2 text-sm border border-slate-300 rounded outline-none focus:border-blue-400" placeholder="טקסט האפשרות (למשל: תקלת וידאו)" />
+                                                            
+                                                            <select value={opt.targetId || ""} onChange={e => {
+                                                                const newOpts = [...activeNode.options];
+                                                                newOpts[idx].targetId = e.target.value;
+                                                                updateNode('options', newOpts);
+                                                            }} className="flex-1 p-2 text-sm border border-slate-300 rounded outline-none focus:border-blue-400">
+                                                                <option value="">-- יעד --</option>
+                                                                {nodeOptions}
+                                                            </select>
+                                                            
+                                                            <button onClick={() => {
+                                                                const newOpts = activeNode.options.filter((_, i) => i !== idx);
+                                                                updateNode('options', newOpts);
+                                                            }} className="p-2 text-rose-500 hover:bg-rose-50 rounded"><Icons.Trash /></button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <button onClick={() => {
+                                                    const newOpts = [...(activeNode.options || []), { label: "", targetId: "" }];
+                                                    updateNode('options', newOpts);
+                                                }} className="text-sm bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg font-medium">+ הוסף אפשרות בחירה</button>
+                                            </div>
+                                        )}
+
+                                        {/* ניתוב: סיום */}
+                                        {activeNode.type === 'end' && (
+                                            <div className="bg-white p-4 rounded-xl border border-slate-200">
+                                                <label className="block font-bold text-slate-800 mb-2">סטטוס סיום:</label>
+                                                <select value={activeNode.endType || "success"} onChange={e => updateNode('endType', e.target.value)} className="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-blue-400">
+                                                    <option value="success">הצלחה (ירוק - הבעיה נפתרה)</option>
+                                                    <option value="error">כישלון / הפניה לתמיכה (אדום - נדרשת מעורבות טכנאי)</option>
+                                                </select>
+                                                <p className="text-xs text-slate-500 mt-2">מסך זה לא יוביל לשלבים נוספים, אלא יציג הודעת סיום ויאפשר למשתמש להתחיל את התהליך מחדש.</p>
+                                            </div>
+                                        )}
+
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex-1 flex items-center justify-center text-slate-400">בחר שלב מהרשימה בצד ימין או צור שלב חדש</div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // טעינה ל-DOM
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<Builder />);
+    </script>
+</body>
+</html>
