@@ -1,0 +1,2412 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" id="html-root" data-export-dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת איתור ופתרון תקלות</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideInFromBottom { from { transform: translateY(1rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes pulseBorder { 0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); } 70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
+        .animate-in { animation-fill-mode: both; } .fade-in { animation-name: fadeIn; } .slide-in-from-bottom-4 { animation-name: slideInFromBottom; } .zoom-in-95 { animation-name: zoomIn; } .duration-300 { animation-duration: 300ms; } .duration-500 { animation-duration: 500ms; } .active-node { animation: pulseBorder 2s infinite; }
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        model-viewer { width: 100%; height: 300px; background-color: #f1f5f9; border-radius: 0.75rem; outline: none; }
+        :root { --theme-header:#1e293b; --theme-header-text:#ffffff; --theme-bg:#f8fafc; --theme-accent:#2563eb; --theme-card:#ffffff; --theme-card-border:#e2e8f0; }
+        body { background: var(--theme-bg) !important; }
+        .chart-inner { transform: scale(2); transform-origin: top center; padding-bottom: 200px; }
+        /* ── Stitch Modern theme – full app ── */
+        body.stitch-theme { background:#0b1622; background-image:radial-gradient(circle at 50% 0%,#112c3b 0%,#0b1622 70%); color:#fff; font-family:'Inter',system-ui,sans-serif; }
+        body.stitch-theme .body-flex,.body.stitch-theme,.stitch-theme .chart-panel { background:#0b1622 !important; }
+        body.stitch-theme .process-panel { background:#0d1f2d !important; border-color:rgba(81,196,211,0.15) !important; }
+        /* landing cards */
+        body.stitch-theme .sm-glow { box-shadow:0 0 15px rgba(81,196,211,0.3); border:1px solid rgba(81,196,211,0.5); }
+        body.stitch-theme .sm-glass { background:rgba(255,255,255,0.03); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.08); }
+        body.stitch-theme .sm-card { background:linear-gradient(180deg,rgba(255,255,255,0.08) 0%,rgba(255,255,255,0.02) 100%); border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:28px 20px; text-align:center; cursor:pointer; transition:all 0.25s; }
+        body.stitch-theme .sm-card:hover { background:rgba(30,41,59,0.6); border-color:rgba(81,196,211,0.4); box-shadow:0 0 16px rgba(81,196,211,0.2); transform:translateY(-3px); }
+        body.stitch-theme .sm-card h3 { color:#fff; font-size:1.1rem; font-weight:700; margin:0 0 6px; }
+        body.stitch-theme .sm-card p  { color:#8a9cae; font-size:0.8rem; margin:0; }
+        body.stitch-theme .sm-search  { position:relative; width:100%; max-width:640px; margin:0 auto 36px; }
+        body.stitch-theme .sm-search input { width:100%; box-sizing:border-box; border:1px solid rgba(81,196,211,0.3); border-radius:999px; padding:13px 20px 13px 46px; font-size:1rem; outline:none; background:rgba(255,255,255,0.06); color:#e2e8f0; }
+        body.stitch-theme .sm-search input::placeholder { color:#64748b; }
+        body.stitch-theme .sm-search svg { position:absolute; left:14px; top:50%; transform:translateY(-50%); width:20px; height:20px; color:#94a3b8; pointer-events:none; }
+        /* step cards */
+        body.stitch-theme .sm-step { background:rgba(255,255,255,0.04); border:1px solid rgba(81,196,211,0.2); border-radius:14px; padding:16px; color:#e2e8f0; line-height:1.6; font-size:14px; }
+        body.stitch-theme .sm-step-q { background:rgba(81,196,211,0.08); border:1.5px solid rgba(81,196,211,0.35); border-radius:12px; padding:14px; color:#a5f3fc; font-size:14px; font-weight:600; text-align:center; line-height:1.5; }
+        body.stitch-theme .sm-btn-yes { flex:1; background:rgba(16,185,129,0.15); color:#6ee7b7; border:1.5px solid #10b981; border-radius:10px; padding:10px 6px; cursor:pointer; font-weight:700; font-size:14px; transition:background 0.15s; }
+        body.stitch-theme .sm-btn-no  { flex:1; background:rgba(239,68,68,0.12); color:#fca5a5; border:1.5px solid #ef4444; border-radius:10px; padding:10px 6px; cursor:pointer; font-weight:700; font-size:14px; transition:background 0.15s; }
+        body.stitch-theme .sm-btn-next { width:100%; background:linear-gradient(135deg,#51c4d3,#2563eb); color:#fff; border:none; border-radius:10px; padding:11px; cursor:pointer; font-weight:700; font-size:14px; }
+        body.stitch-theme .sm-btn-option { width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(81,196,211,0.18); border-radius:10px; padding:10px 14px; cursor:pointer; color:#cbd5e1; font-weight:500; font-size:13px; display:flex; align-items:center; justify-content:space-between; transition:border-color 0.15s,background 0.15s; }
+        body.stitch-theme .sm-btn-option:hover { border-color:rgba(81,196,211,0.5); background:rgba(81,196,211,0.08); }
+        body.stitch-theme .sm-end-ok  { background:rgba(16,185,129,0.1); border:2px solid #10b981; border-radius:14px; padding:20px; text-align:center; color:#6ee7b7; }
+        body.stitch-theme .sm-end-fail{ background:rgba(239,68,68,0.1);  border:2px solid #ef4444; border-radius:14px; padding:20px; text-align:center; color:#fca5a5; }
+        .flow-node-wrap { transition: opacity 0.2s ease, transform 0.2s ease; }
+        .drag-handle { width:5px; cursor:col-resize; background:#e2e8f0; flex-shrink:0; transition:background 0.15s; user-select:none; }
+        .drag-handle:hover { background:#93c5fd; }
+        .chart-collapse-btn { background:rgba(0,0,0,0.04); border:none; cursor:pointer; padding:4px 8px; border-radius:4px; font-size:11px; color:#64748b; flex-shrink:0; }
+        .chart-collapse-btn:hover { background:#e2e8f0; }
+        @media (max-width: 768px) {
+          .body-flex { flex-direction: column !important; overflow-y: auto !important; overflow-x: hidden !important; height: auto !important; }
+          .process-panel { width: 100% !important; max-width: none !important; min-width: unset !important; border-left: none !important; border-right: none !important; border-bottom: 1px solid #e2e8f0 !important; }
+          .chart-panel { min-height: 65vh !important; overflow: auto !important; }
+          .chart-inner { transform: scale(1.4); transform-origin: top center; padding-bottom: 100px; }
+          .drag-handle { display:none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    <script>
+    (function(){
+      var d = document.getElementById('html-root').getAttribute('data-export-dir') || localStorage.getItem('__viewer_dir') || 'rtl';
+      document.documentElement.dir = d;
+      document.documentElement.lang = d === 'rtl' ? 'he' : 'en';
+      var themes = {
+        classic:       {header:'#1e293b', headerTxt:'#ffffff', bg:'#f8fafc', accent:'#2563eb', card:'#ffffff', cardBorder:'#e2e8f0'},
+        corporate:     {header:'#1d4ed8', headerTxt:'#ffffff', bg:'#f0f9ff', accent:'#1d4ed8', card:'#ffffff', cardBorder:'#bfdbfe'},
+        dark:          {header:'#0f172a', headerTxt:'#e2e8f0', bg:'#1e293b', accent:'#38bdf8', card:'#0f172a', cardBorder:'#334155'},
+        green:         {header:'#064e3b', headerTxt:'#ffffff', bg:'#f0fdf4', accent:'#059669', card:'#ffffff', cardBorder:'#bbf7d0'},
+        stitch_modern: {header:'#0b1622', headerTxt:'#ffffff', bg:'#0b1622', accent:'#51c4d3', card:'rgba(255,255,255,0.05)', cardBorder:'rgba(255,255,255,0.1)'}
+      };
+      var th = themes[window.__DESIGN_THEME__] || themes.classic;
+      var r  = document.documentElement.style;
+      r.setProperty('--theme-header',     th.header);
+      r.setProperty('--theme-header-text',th.headerTxt);
+      r.setProperty('--theme-bg',         th.bg);
+      r.setProperty('--theme-accent',     th.accent);
+      r.setProperty('--theme-card',       th.card);
+      r.setProperty('--theme-card-border',th.cardBorder);
+    })();
+    </script>
+    <div id="root"></div>
+    <script>
+        window.__FLOW_DATA__ = {
+  "start": {
+    "id": "start",
+    "name": "Radar",
+    "title": "Radar",
+    "type": "landing",
+    "text": "Which radar would you like to handle?",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "המשך",
+    "nextTarget": "",
+    "options": [
+      {
+        "label": "MHR",
+        "targetId": "start2",
+        "icon": "Images\\MHR.png"
+      },
+      {
+        "label": "ieMHR",
+        "targetId": "node_844548",
+        "icon": "ieMHR.png"
+      },
+      {
+        "label": "aCHR",
+        "targetId": "node_844548",
+        "icon": "aCHR.png"
+      },
+      {
+        "label": "exMHR",
+        "targetId": "node_844548",
+        "icon": "exMHR.png"
+      },
+      {
+        "label": "nMHR",
+        "targetId": "node_844548",
+        "icon": "https://cdn.leonardodrs.com/uploads/wp-content/uploads/sites/4/2024/07/nmhr-960x420-720x420.png"
+      }
+    ],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "start2": {
+    "id": "start2",
+    "name": "MHR Stations",
+    "title": "MHR Stations",
+    "type": "landing",
+    "text": "Which MHR station would you like to work on?",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "המשך",
+    "nextTarget": "",
+    "options": [
+      {
+        "label": "Inclinometer",
+        "targetId": "node_844548"
+      },
+      {
+        "label": "OCXO",
+        "targetId": "node_844548"
+      },
+      {
+        "label": "ESS",
+        "targetId": "node_844548"
+      },
+      {
+        "label": "ATP Calibration",
+        "targetId": "start3"
+      },
+      {
+        "label": "Bonding",
+        "targetId": "node_844548"
+      },
+      {
+        "label": "Leakage",
+        "targetId": "node_844548"
+      }
+    ],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "start3": {
+    "id": "start3",
+    "name": "MHR ATP Calibration",
+    "title": "MHR ATP Calibration",
+    "type": "landing",
+    "text": "Which process would you like to perform?",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "המשך",
+    "nextTarget": "",
+    "options": [
+      {
+        "label": "AGC Failure",
+        "targetId": "start_agc"
+      },
+      {
+        "label": "Velocity Measurement Failure",
+        "targetId": "start_velocity"
+      },
+      {
+        "label": "ALC Failure",
+        "targetId": "node_844548"
+      },
+      {
+        "label": "Offset Failure",
+        "targetId": "node_844548"
+      },
+      {
+        "label": "High Current/Low Tx Power Failure",
+        "targetId": "node_844548"
+      },
+      {
+        "label": "Tx Element Failure",
+        "targetId": "node_844548"
+      },
+      {
+        "label": "Rx Channel Failure",
+        "targetId": "node_844548"
+      },
+      {
+        "label": "Sensitivity SNR Failure",
+        "targetId": "node_844548"
+      }
+    ],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "start4": {
+    "id": "start4",
+    "name": "Main Menu - MHR Calibration",
+    "title": "MHR Calibration",
+    "type": "landing",
+    "text": "Which failure are you experiencing?",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "המשך",
+    "nextTarget": "",
+    "options": [
+      {
+        "label": "AGC Failure",
+        "targetId": "start_agc"
+      },
+      {
+        "label": "Velocity Failure",
+        "targetId": "start_velocity"
+      }
+    ],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "start_agc": {
+    "id": "start_agc",
+    "name": "Select Role - AGC",
+    "title": "AGC Failure Troubleshooting",
+    "type": "landing",
+    "text": "Select Role - Who are you?",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "המשך",
+    "nextTarget": "",
+    "options": [
+      {
+        "label": "Test Technician",
+        "targetId": "test_tech_step1"
+      },
+      {
+        "label": "Radar Technician",
+        "targetId": "fault_tech_step1"
+      }
+    ],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "test_tech_step1": {
+    "id": "test_tech_step1",
+    "name": "Disable LRU",
+    "title": "AGC Failure Troubleshooting",
+    "type": "action",
+    "text": "Send to Radar Tech.",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Continue",
+    "nextTarget": "test_tech_step2",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "test_tech_step2": {
+    "id": "test_tech_step2",
+    "name": "Next LRU",
+    "title": "AGC Failure Troubleshooting",
+    "type": "action",
+    "text": "Move to the next LRU. (End of process)",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Finish",
+    "nextTarget": "end",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "fault_tech_step1": {
+    "id": "fault_tech_step1",
+    "name": "Remove Cover",
+    "title": "AGC Failure Troubleshooting",
+    "type": "action",
+    "text": "Remove the cover of U144 and U83.",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Continue",
+    "nextTarget": "fault_tech_step2",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "fault_tech_step2": {
+    "id": "fault_tech_step2",
+    "name": "Measure Resistance",
+    "title": "AGC Failure Troubleshooting",
+    "type": "action",
+    "text": "Using a DVM, measure the resistance between the input to ground and the output to ground.",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Continue",
+    "nextTarget": "fault_tech_decision_open_circuit",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "image",
+      "url": "C:\\Users\\HeziAbramov\\TAM Projects\\TAM Projects LTD - מסמכים\\Projects\\Rada\\Troubleshooting\\Images\\1.jpg"
+    }
+  },
+  "fault_tech_decision_open_circuit": {
+    "id": "fault_tech_decision_open_circuit",
+    "name": "Check Electrical break",
+    "title": "AGC Failure Troubleshooting",
+    "type": "question",
+    "text": "Is there an Electrical break?",
+    "yesLabel": "Yes",
+    "yesTarget": "fault_tech_step_spectrum",
+    "noLabel": "No",
+    "noTarget": "fault_tech_step_check_solder",
+    "nextLabel": "המשך",
+    "nextTarget": "",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "fault_tech_step_spectrum": {
+    "id": "fault_tech_step_spectrum",
+    "name": "Spectrum Analyzer",
+    "title": "AGC Failure Troubleshooting",
+    "type": "action",
+    "text": "Using a spectrum analyzer, measure signal amplified between the the input and output",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Continue",
+    "nextTarget": "fault_tech_decision_power",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "image",
+      "url": "C:\\Users\\HeziAbramov\\TAM Projects\\TAM Projects LTD - מסמכים\\Projects\\Rada\\Troubleshooting\\Images\\2.png"
+    }
+  },
+  "fault_tech_decision_power": {
+    "id": "fault_tech_decision_power",
+    "name": "Check Power",
+    "title": "AGC Failure Troubleshooting",
+    "type": "question",
+    "text": "Is the signal decrease more then 2 dbm?",
+    "yesLabel": "Yes",
+    "yesTarget": "fault_tech_step_check_solder",
+    "noLabel": "No",
+    "noTarget": "fault_tech_step_production_eng",
+    "nextLabel": "המשך",
+    "nextTarget": "",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "fault_tech_step_production_eng": {
+    "id": "fault_tech_step_production_eng",
+    "name": "Refer Production Eng",
+    "title": "AGC Failure Troubleshooting",
+    "type": "action",
+    "text": "Refer to Production Engineer",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Finish",
+    "nextTarget": "end",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "fault_tech_step_check_solder": {
+    "id": "fault_tech_step_check_solder",
+    "name": "Check Solder Quality",
+    "title": "AGC Failure Troubleshooting",
+    "type": "action",
+    "text": "Check solder quality",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Continue",
+    "nextTarget": "fault_tech_decision_solder_good",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "image",
+      "url": "C:\\Users\\HeziAbramov\\TAM Projects\\TAM Projects LTD - מסמכים\\Projects\\Rada\\Troubleshooting\\Images\\3.png"
+    }
+  },
+  "fault_tech_decision_solder_good": {
+    "id": "fault_tech_decision_solder_good",
+    "name": "Is Soldering Good",
+    "title": "AGC Failure Troubleshooting",
+    "type": "question",
+    "text": "Is the soldering good?",
+    "yesLabel": "Yes",
+    "yesTarget": "fault_tech_step_replace_component",
+    "noLabel": "No",
+    "noTarget": "fault_tech_step_repair_solder",
+    "nextLabel": "המשך",
+    "nextTarget": "",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "fault_tech_step_replace_component": {
+    "id": "fault_tech_step_replace_component",
+    "name": "Replace Component",
+    "title": "AGC Failure Troubleshooting",
+    "type": "action",
+    "text": "Replace the suspect component U144 or U83.",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Continue",
+    "nextTarget": "fault_tech_step_atp",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "fault_tech_step_repair_solder": {
+    "id": "fault_tech_step_repair_solder",
+    "name": "Repair Soldering",
+    "title": "AGC Failure Troubleshooting",
+    "type": "action",
+    "text": "Repair the soldering",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Continue",
+    "nextTarget": "fault_tech_step_atp",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "fault_tech_step_atp": {
+    "id": "fault_tech_step_atp",
+    "name": "Continue to ATP",
+    "title": "AGC Failure Troubleshooting",
+    "type": "end",
+    "text": "Perform AGC ATP",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Finish",
+    "nextTarget": "end",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "start_velocity": {
+    "id": "start_velocity",
+    "name": "Select Role - velocity",
+    "title": "Velocity Measurement Failure",
+    "type": "landing",
+    "text": "Select Role - Who are you?",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "המשך",
+    "nextTarget": "",
+    "options": [
+      {
+        "label": "Test Technician",
+        "targetId": "test_step1"
+      },
+      {
+        "label": "Radar Technician",
+        "targetId": "radar_step1"
+      }
+    ],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "radar_step1": {
+    "id": "radar_step1",
+    "name": "Radar Disassembly",
+    "title": "Velocity Measurement Failure",
+    "type": "action",
+    "text": "Disassemble the Radar",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Continue",
+    "nextTarget": "radar_step2",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "radar_step2": {
+    "id": "radar_step2",
+    "name": "Radar Pass",
+    "title": "Velocity Measurement Failure",
+    "type": "action",
+    "text": "Replace OCXO in the RxTx card",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Continue",
+    "nextTarget": "radar_step3",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "radar_step3": {
+    "id": "radar_step3",
+    "name": "OCXO Calibration",
+    "title": "Velocity Measurement Failure",
+    "type": "action",
+    "text": "Perform OCXO Calibration in anechoic chamber",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Continue",
+    "nextTarget": "radar_step4",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "radar_step4": {
+    "id": "radar_step4",
+    "name": "Perform Radar ATP",
+    "title": "Velocity Measurement Failure",
+    "type": "action",
+    "text": "Perform Radar ATP",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Continue",
+    "nextTarget": "radar_decision_pass1",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "radar_decision_pass1": {
+    "id": "radar_decision_pass1",
+    "name": "ATP Pass?",
+    "title": "Velocity Measurement Failure",
+    "type": "question",
+    "text": "Pass?",
+    "yesLabel": "Yes",
+    "yesTarget": "node_234294",
+    "noLabel": "No",
+    "noTarget": "radar_step5",
+    "nextLabel": "המשך",
+    "nextTarget": "",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "radar_step5": {
+    "id": "radar_step5",
+    "name": "Replace RxTx Card",
+    "title": "Velocity Measurement Failure",
+    "type": "action",
+    "text": "Replace RxTx Card",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Continue",
+    "nextTarget": "radar_step6",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "radar_step6": {
+    "id": "radar_step6",
+    "name": "Check Radar",
+    "title": "Velocity Measurement Failure",
+    "type": "action",
+    "text": "Check Radar in anechoic chamber",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Continue",
+    "nextTarget": "radar_decision_pass2",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "radar_decision_pass2": {
+    "id": "radar_decision_pass2",
+    "name": "Check Pass?",
+    "title": "Velocity Measurement Failure",
+    "type": "question",
+    "text": "Pass?",
+    "yesLabel": "Yes",
+    "yesTarget": "radar_step8",
+    "noLabel": "No",
+    "noTarget": "radar_step7",
+    "nextLabel": "המשך",
+    "nextTarget": "",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "radar_step7": {
+    "id": "radar_step7",
+    "name": "Contact Prod Eng",
+    "title": "Velocity Measurement Failure",
+    "type": "end",
+    "text": "Contact with Production Engineer",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Finish",
+    "nextTarget": "end",
+    "options": [],
+    "endType": "error",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "radar_step8": {
+    "id": "radar_step8",
+    "name": "Send RxTx Card",
+    "title": "Velocity Measurement Failure",
+    "type": "end",
+    "text": "Send RxTx Card to Cards department",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Finish",
+    "nextTarget": "end",
+    "options": [],
+    "endType": "error",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "test_step1": {
+    "id": "test_step1",
+    "name": "OCXO Calib",
+    "title": "Velocity Measurement Failure",
+    "type": "action",
+    "text": "Perform OCXO Calibration",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Continue",
+    "nextTarget": "test_step2",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "test_step2": {
+    "id": "test_step2",
+    "name": "Check Radar",
+    "title": "Velocity Measurement Failure",
+    "type": "action",
+    "text": "Check Radar in anechoic chamber",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Continue",
+    "nextTarget": "test_decision_pass1",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "test_decision_pass1": {
+    "id": "test_decision_pass1",
+    "name": "Check Pass?",
+    "title": "Velocity Measurement Failure",
+    "type": "question",
+    "text": "Pass?",
+    "yesLabel": "Yes",
+    "yesTarget": "node_234294",
+    "noLabel": "No",
+    "noTarget": "test_step3",
+    "nextLabel": "המשך",
+    "nextTarget": "",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "test_step3": {
+    "id": "test_step3",
+    "name": "Send to Radar Tech",
+    "title": "Velocity Measurement Failure",
+    "type": "end",
+    "text": "Send to Radar Technician",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "Finish",
+    "nextTarget": "end",
+    "options": [],
+    "endType": "error",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "node_234294": {
+    "id": "node_234294",
+    "name": "End!",
+    "title": "Completion",
+    "type": "end",
+    "text": "The test has been completed.",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "המשך",
+    "nextTarget": "",
+    "options": [],
+    "endType": "success",
+    "media": {
+      "type": "none",
+      "url": ""
+    }
+  },
+  "node_844548": {
+    "id": "node_844548",
+    "name": "404",
+    "title": "404",
+    "type": "end",
+    "text": "This page will be added in the future",
+    "yesLabel": "כן",
+    "yesTarget": "",
+    "noLabel": "לא",
+    "noTarget": "",
+    "nextLabel": "המשך",
+    "nextTarget": "",
+    "options": [],
+    "endType": "landing",
+    "media": {
+      "type": "image",
+      "url": "RADA_LOGO.png"
+    }
+  }
+};
+        window.__GEMINI_API_KEY__ = "";
+        window.__LANDING_TITLE__ = "";
+        window.__LANDING_SUBTITLE__ = "";
+        window.__EXPORT_LOGO__ = "";
+        window.__VISIBLE_PROCESSES__ = null;
+        window.__DESIGN_THEME__ = "stitch_modern";
+        window.__LANDING_BG__ = "#f8fafc";
+        if (window.__DESIGN_THEME__ === 'stitch_modern') document.body.classList.add('stitch-theme');
+    </script>
+    <script type="text/babel">
+
+// ── 1. Destructure ALL React hooks globally so they are available without
+//       the React. prefix everywhere in this file (Babel Standalone safe).
+const {
+  useState, useEffect, useRef, useCallback,
+  useContext, createContext, Fragment, useMemo
+} = React;
+
+// ── 2. Translation dictionary ─────────────────────────────────────────────
+const DICT = {
+  he: {
+    appTitle:         window.__LANDING_TITLE__ || 'מערכת פתרון תקלות',
+    selectProcess:    window.__LANDING_SUBTITLE__ || 'בחר תהליך להתחלה',
+    search:           'חיפוש...',
+    noResults:        'לא נמצאו תוצאות',
+    back:             'חזור',
+    home:             'בית',
+    currentStep:      'שלב נוכחי',
+    flowchart:        'תרשים זרימה',
+    yes:              'כן',
+    no:               'לא',
+    continue:         'המשך',
+    finish:           'סיום',
+    backToMenu:       'חזור לתפריט',
+    youAreHere:       'אתה כאן',
+    aiAssistant:      'עוזר AI',
+    askQuestion:      'שאל שאלה על השלב הנוכחי',
+    typeMessage:      'הקלד הודעה...',
+    apiNotConfigured: 'מפתח API לא מוגדר.',
+    networkError:     'שגיאת רשת',
+    selectStep:       'בחר שלב',
+    stepNotFound:     'שלב לא נמצא',
+    switchLang:       'EN'
+  },
+  en: {
+    appTitle:         window.__LANDING_TITLE__ || 'Troubleshooting System',
+    selectProcess:    window.__LANDING_SUBTITLE__ || 'Select a process to begin',
+    search:           'Search...',
+    noResults:        'No results found',
+    back:             'Back',
+    home:             'Home',
+    currentStep:      'Current Step',
+    flowchart:        'Flowchart',
+    yes:              'Yes',
+    no:               'No',
+    continue:         'Continue',
+    finish:           'Finish',
+    backToMenu:       'Back to Menu',
+    youAreHere:       'You Are Here',
+    aiAssistant:      'AI Assistant',
+    askQuestion:      'Ask a question about the current step',
+    typeMessage:      'Type a message...',
+    apiNotConfigured: 'API key not configured.',
+    networkError:     'Network error',
+    selectStep:       'Select a step',
+    stepNotFound:     'Step not found',
+    switchLang:       'HE'
+  }
+};
+
+// ── 3. Language Context ───────────────────────────────────────────────────
+const LangContext = createContext({
+  lang: 'he',
+  isRTL: true,
+  t: function(k) { return DICT.he[k] || k; },
+  setLang: function() {}
+});
+
+// ── 4. Global app data ────────────────────────────────────────────────────
+const nodes     = window.__FLOW_DATA__ || {};
+const GEMINI_KEY = window.__GEMINI_API_KEY__ || '';
+
+// Labels that should NOT get a badge on the flow connector arrow
+const SKIP = {
+  'Continue': true, 'המשך': true, 'continue': true,
+  'next': true, 'Next': true, 'Finish': true, 'סיום': true
+};
+
+// ── 5. Inline SVG icon components  ────────────────────────────────────────
+//    Each accepts: size (number), style (object), className (string)
+//    NO external imports — every path is hardcoded here.
+
+function IconBase(props) {
+  var s  = props.size || 16;
+  var st = props.style || {};
+  var cl = props.className || '';
+  return (
+    <svg
+      width={s} height={s} viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2"
+      strokeLinecap="round" strokeLinejoin="round"
+      style={st} className={cl}
+    >
+      {props.children}
+    </svg>
+  );
+}
+
+function SearchIcon(p) {
+  return (
+    <IconBase {...p}>
+      <circle cx="11" cy="11" r="8"/>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </IconBase>
+  );
+}
+function HomeIcon(p) {
+  return (
+    <IconBase {...p}>
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+      <polyline points="9 22 9 12 15 12 15 22"/>
+    </IconBase>
+  );
+}
+function ChevronRightIcon(p) {
+  return <IconBase {...p}><polyline points="9 18 15 12 9 6"/></IconBase>;
+}
+function ChevronLeftIcon(p) {
+  return <IconBase {...p}><polyline points="15 18 9 12 15 6"/></IconBase>;
+}
+function CheckCircleIcon(p) {
+  return (
+    <IconBase {...p}>
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+      <polyline points="22 4 12 14.01 9 11.01"/>
+    </IconBase>
+  );
+}
+function AlertCircleIcon(p) {
+  return (
+    <IconBase {...p}>
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </IconBase>
+  );
+}
+function MapPinIcon(p) {
+  return (
+    <IconBase {...p}>
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+      <circle cx="12" cy="10" r="3"/>
+    </IconBase>
+  );
+}
+function MessageCircleIcon(p) {
+  return (
+    <IconBase {...p}>
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </IconBase>
+  );
+}
+function SendIcon(p) {
+  return (
+    <IconBase {...p}>
+      <line x1="22" y1="2" x2="11" y2="13"/>
+      <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+    </IconBase>
+  );
+}
+function XIcon(p) {
+  return (
+    <IconBase {...p}>
+      <line x1="18" y1="6" x2="6" y2="18"/>
+      <line x1="6" y1="6" x2="18" y2="18"/>
+    </IconBase>
+  );
+}
+function GlobeIcon(p) {
+  return (
+    <IconBase {...p}>
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="2" y1="12" x2="22" y2="12"/>
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+    </IconBase>
+  );
+}
+
+// ── 6. ErrorBoundary ──────────────────────────────────────────────────────
+//    Shows error.message + full error.stack inside <pre> on crash.
+//    Wraps <App /> directly inside root.render().
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null, info: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { error: error };
+  }
+  componentDidCatch(error, info) {
+    console.error('[ErrorBoundary]', error, info);
+    this.setState({ error: error, info: info });
+  }
+  render() {
+    if (this.state.error) {
+      var e  = this.state.error;
+      var ei = this.state.info;
+      return (
+        <div style={{
+          padding: '24px', minHeight: '100vh', background: '#fff1f2',
+          fontFamily: 'ui-monospace, monospace', color: '#7f1d1d',
+          direction: 'ltr'
+        }}>
+          <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#dc2626', marginBottom: '8px' }}>
+            Application Error
+          </h2>
+          <p style={{ fontSize: '14px', marginBottom: '12px', fontFamily: 'sans-serif' }}>
+            {String(e.message || 'Unknown error')}
+          </p>
+          <pre style={{
+            background: '#fee2e2', padding: '14px', borderRadius: '8px',
+            fontSize: '11px', overflowX: 'auto', whiteSpace: 'pre-wrap',
+            lineHeight: '1.6', maxHeight: '55vh',
+            border: '1px solid #fca5a5'
+          }}>
+            {String(e.stack || '(no stack)')}
+            {ei ? '\n\n--- Component Stack ---\n' + String(ei.componentStack || '') : ''}
+          </pre>
+          <button
+            onClick={function() { window.location.reload(); }}
+            style={{
+              marginTop: '16px', padding: '9px 24px', background: '#dc2626',
+              color: '#fff', border: 'none', borderRadius: '8px',
+              cursor: 'pointer', fontSize: '14px', fontWeight: '700'
+            }}
+          >
+            Reload
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// ── 7. FlowConnector: vertical arrow with optional label badge ────────────
+function FlowConnector(props) {
+  var label = props.label || '';
+  var color = props.color || 'slate';
+  var skip  = !label || !!SKIP[label.trim()];
+
+  var colors = {
+    green: { text: '#065f46', border: '#6ee7b7', bg: '#ecfdf5' },
+    red:   { text: '#7f1d1d', border: '#fca5a5', bg: '#fff1f2' },
+    blue:  { text: '#1e3a5f', border: '#93c5fd', bg: '#eff6ff' },
+    slate: { text: '#475569', border: '#cbd5e1', bg: '#f8fafc' }
+  };
+  var c = colors[color] || colors.slate;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+      <div style={{ width: '1px', minHeight: '8px', background: '#94a3b8' }} />
+      {!skip && (
+        <div style={{
+          fontSize: '9px', fontWeight: '700', padding: '1px 8px',
+          border: '1.5px solid ' + c.border, borderRadius: '999px',
+          background: c.bg, color: c.text,
+          margin: '2px 0', maxWidth: '120px', textAlign: 'center',
+          lineHeight: '1.4', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+        }}>
+          {label}
+        </div>
+      )}
+      {!skip && <div style={{ width: '1px', height: '6px', background: '#94a3b8' }} />}
+      <div style={{
+        width: '6px', height: '6px',
+        borderRight: '2px solid #94a3b8',
+        borderBottom: '2px solid #94a3b8',
+        transform: 'rotate(45deg)',
+        marginBottom: '2px'
+      }} />
+    </div>
+  );
+}
+
+// ── 8. FlowNode ───────────────────────────────────────────────────────────
+//    CRITICAL FIX: useContext is called FIRST, before any early return.
+//    React hooks must never be called after a conditional return.
+function FlowNode(props) {
+  var stepId = props.stepId;
+  var role   = props.role || 'child';
+
+  // HOOKS FIRST — unconditionally, before any early return
+  var ctx   = useContext(LangContext);
+  var t     = ctx.t;
+  var isRTL = ctx.isRTL;
+
+  // Early returns are now safe (all hooks already called above)
+  var step = stepId ? (nodes[stepId] || null) : null;
+  if (!step) return null;
+
+  var isCurrent = role === 'current';
+  var isParent  = role === 'parent';
+  var dimOpacity = isParent ? 0.5 : 1;
+
+  // "You Are Here" badge – only for current node
+  var badge = isCurrent ? (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: '3px',
+      background: '#2563eb', color: '#fff',
+      fontSize: '9px', fontWeight: '700',
+      padding: '2px 8px', borderRadius: '999px', marginBottom: '4px',
+      boxShadow: '0 2px 8px rgba(37,99,235,0.4)', flexShrink: 0
+    }}>
+      <MapPinIcon size={9} />
+      <span>{t('youAreHere')}</span>
+    </div>
+  ) : null;
+
+  // ── END / TERMINATOR → pill shape ────────────────────────────────────
+  if (step.type === 'end') {
+    var ok     = step.endType !== 'failure';
+    var eColor = ok ? '#10b981' : '#ef4444';
+    var eBg    = isCurrent ? (ok ? '#d1fae5' : '#fee2e2') : (ok ? '#f0fdf4' : '#fff1f2');
+    var eTxt   = ok ? '#065f46' : '#7f1d1d';
+    var eBw    = isCurrent ? '3px' : '2px';
+    var eSh    = isCurrent
+      ? '0 0 0 3px ' + (ok ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)')
+      : '0 1px 3px rgba(0,0,0,0.08)';
+    return (
+      <div className="flow-node-wrap" style={{ opacity: dimOpacity, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {badge}
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: '5px',
+          padding: '5px 14px', borderRadius: '9999px',
+          background: eBg,
+          border: eBw + ' solid ' + eColor,
+          boxShadow: eSh,
+          fontSize: '10px', fontWeight: isCurrent ? '700' : '500', color: eTxt,
+          maxWidth: '160px', textAlign: 'center'
+        }}>
+          {ok ? <CheckCircleIcon size={11} /> : <AlertCircleIcon size={11} />}
+          <span style={{ overflowWrap: 'break-word', lineHeight: '1.3' }}>{step.text}</span>
+        </div>
+      </div>
+    );
+  }
+
+  // ── QUESTION / DECISION → diamond (rotate trick) ──────────────────────
+  if (step.type === 'question') {
+    var qColor = isCurrent ? '#f59e0b' : '#94a3b8';
+    var qBg    = isCurrent ? '#fffbeb' : '#fff';
+    var qTxt   = isCurrent ? '#78350f' : '#374151';
+    var qSh    = isCurrent ? '0 0 0 3px rgba(251,191,36,0.25)' : '0 1px 4px rgba(0,0,0,0.1)';
+    return (
+      <div className="flow-node-wrap" style={{ opacity: dimOpacity, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {badge}
+        <div style={{ width: '112px', height: '112px', position: 'relative', flexShrink: 0 }}>
+          <div style={{
+            position: 'absolute', top: '12px', left: '12px', right: '12px', bottom: '12px',
+            transform: 'rotate(45deg)', borderRadius: '3px',
+            background: qBg,
+            border: '2px solid ' + qColor,
+            boxShadow: qSh
+          }}>
+            <div style={{
+              position: 'absolute', inset: 0,
+              transform: 'rotate(-45deg)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '8px', textAlign: 'center',
+              fontSize: '10px', lineHeight: '1.3',
+              fontWeight: isCurrent ? '700' : '400',
+              color: qTxt, overflow: 'hidden'
+            }}>
+              {step.text}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── MENU → rounded rectangle (12px radius) ────────────────────────────
+  if (step.type === 'menu') {
+    var mColor = isCurrent ? '#3b82f6' : '#94a3b8';
+    var mBg    = isCurrent ? '#eff6ff' : '#f8fafc';
+    var mSh    = isCurrent ? '0 0 0 3px rgba(59,130,246,0.2)' : '0 1px 3px rgba(0,0,0,0.07)';
+    return (
+      <div className="flow-node-wrap" style={{ opacity: dimOpacity, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {badge}
+        <div style={{
+          minWidth: '120px', minHeight: '40px', padding: '8px 12px',
+          background: mBg,
+          border: '2px solid ' + mColor,
+          borderRadius: '12px',
+          boxShadow: mSh,
+          textAlign: 'center',
+          fontSize: '10px', lineHeight: '1.4',
+          fontWeight: isCurrent ? '700' : '400', color: '#1e293b',
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <span style={{ overflowWrap: 'break-word' }}>{step.text}</span>
+        </div>
+      </div>
+    );
+  }
+
+  // ── LANDING PAGE → hexagon-like shape ────────────────────────────────
+  if (step.type === 'landing') {
+    var lColor = isCurrent ? '#8b5cf6' : '#94a3b8';
+    var lBg    = isCurrent ? '#f3e8ff' : '#f8fafc';
+    var lSh    = isCurrent ? '0 0 0 3px rgba(139,92,246,0.2)' : '0 1px 3px rgba(0,0,0,0.07)';
+    return (
+      <div className="flow-node-wrap" style={{ opacity: dimOpacity, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {badge}
+        <div style={{
+          minWidth: '120px', minHeight: '40px', padding: '8px 12px',
+          background: lBg,
+          border: '2px solid ' + lColor,
+          borderRadius: '16px',
+          boxShadow: lSh,
+          textAlign: 'center',
+          fontSize: '10px', lineHeight: '1.4',
+          fontWeight: isCurrent ? '700' : '400', color: '#1e293b',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          position: 'relative'
+        }}>
+          <span style={{ overflowWrap: 'break-word' }}>🏠 {step.text}</span>
+        </div>
+      </div>
+    );
+  }
+
+  // ── ACTION / default → rectangle (4px radius) ────────────────────────
+  var aColor = isCurrent ? '#3b82f6' : '#cbd5e1';
+  var aBg    = isCurrent ? '#eff6ff' : '#fff';
+  var aSh    = isCurrent
+    ? '0 0 0 3px rgba(59,130,246,0.2), 0 4px 12px rgba(0,0,0,0.08)'
+    : '0 1px 3px rgba(0,0,0,0.06)';
+  return (
+    <div style={{ opacity: dimOpacity, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {badge}
+      <div style={{
+        width: '120px', minHeight: '42px', padding: '8px 10px',
+        background: aBg,
+        border: '2px solid ' + aColor,
+        borderRadius: '4px',
+        boxShadow: aSh,
+        textAlign: 'center',
+        fontSize: '10px', lineHeight: '1.4',
+        fontWeight: isCurrent ? '700' : '400', color: '#1e293b',
+        display: 'flex', alignItems: 'center', justifyContent: 'center'
+      }}>
+        <span style={{ overflowWrap: 'break-word' }}>{step.text}</span>
+      </div>
+    </div>
+  );
+}
+
+// ── 9. ContextualFlow: 3-level contextual view ───────────────────────────
+//    parent (dimmed) → current (highlighted + badge) → direct children
+function ContextualFlow(props) {
+  var currentStepId = props.currentStepId || null;
+  var history       = props.history || [];
+
+  // Hooks first
+  var ctx = useContext(LangContext);
+  var t   = ctx.t;
+
+  // Guard: nothing selected yet
+  if (!currentStepId) {
+    return (
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        height: '100%', color: '#94a3b8', fontSize: '13px', padding: '20px'
+      }}>
+        {t('selectStep')}
+      </div>
+    );
+  }
+
+  var step = nodes[currentStepId] || null;
+
+  // Guard: step ID exists but not in data
+  if (!step) {
+    return (
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        height: '100%', color: '#94a3b8', fontSize: '13px', padding: '20px'
+      }}>
+        {t('stepNotFound')}: {currentStepId}
+      </div>
+    );
+  }
+
+  // Parent node (second-to-last in history)
+  var parentId   = history.length >= 2 ? history[history.length - 2] : null;
+  var parentStep = (parentId && nodes[parentId]) ? nodes[parentId] : null;
+
+  // Edge label/colour from parent to current step
+  var parentLabel = '';
+  var parentColor = 'slate';
+  if (parentStep) {
+    if (parentStep.type === 'question') {
+      if (parentStep.yesTarget === currentStepId) {
+        parentLabel = parentStep.yesLabel || t('yes');
+        parentColor = 'green';
+      } else if (parentStep.noTarget === currentStepId) {
+        parentLabel = parentStep.noLabel || t('no');
+        parentColor = 'red';
+      }
+    } else if (parentStep.type === 'menu') {
+      var pOpts = parentStep.options || [];
+      for (var pi = 0; pi < pOpts.length; pi++) {
+        var pOpt = pOpts[pi];
+        if (pOpt && pOpt.targetId === currentStepId) {
+          parentLabel = pOpt.label || '';
+          parentColor = 'blue';
+          break;
+        }
+      }
+    } else {
+      parentLabel = parentStep.nextLabel || '';
+    }
+  }
+
+  // Build children list
+  var children = [];
+  if (step.type === 'question') {
+    if (step.yesTarget && nodes[step.yesTarget]) {
+      children.push({ id: step.yesTarget, label: step.yesLabel || t('yes'), color: 'green' });
+    }
+    if (step.noTarget && nodes[step.noTarget]) {
+      children.push({ id: step.noTarget, label: step.noLabel || t('no'), color: 'red' });
+    }
+  } else if (step.type === 'menu' || step.type === 'landing') {
+    var mOpts = step.options || [];
+    for (var mi = 0; mi < mOpts.length; mi++) {
+      var mOpt = mOpts[mi];
+      if (mOpt && mOpt.targetId && nodes[mOpt.targetId]) {
+        children.push({ id: mOpt.targetId, label: mOpt.label || '', color: 'blue' });
+      }
+    }
+  } else {
+    if (step.nextTarget && nodes[step.nextTarget]) {
+      children.push({ id: step.nextTarget, label: step.nextLabel || '', color: 'slate' });
+    }
+  }
+
+  return (
+    <div style={{
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      padding: '20px 8px', minHeight: '100%'
+    }}>
+
+      {/* Parent node (dimmed) */}
+      {parentStep && (
+        <Fragment>
+          <FlowNode stepId={parentId} role="parent" />
+          <FlowConnector label={parentLabel} color={parentColor} />
+        </Fragment>
+      )}
+
+      {/* Current node (highlighted) */}
+      <FlowNode stepId={currentStepId} role="current" />
+
+      {/* Single child */}
+      {children.length === 1 && (
+        <Fragment>
+          <FlowConnector label={children[0].label} color={children[0].color} />
+          <FlowNode stepId={children[0].id} role="child" />
+        </Fragment>
+      )}
+
+      {/* Multiple children – SVG T-junction */}
+      {children.length > 1 && (function(){
+        var COL_W = 150;
+        var totalW = children.length * COL_W;
+        var midX = totalW / 2;
+        return (
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
+            {/* stem down */}
+            <div style={{ width:'1px', height:'12px', background:'#94a3b8' }} />
+            {/* SVG horizontal bar */}
+            <svg width={totalW} height={14} style={{ overflow:'visible', flexShrink:0 }}>
+              <line x1={midX - (COL_W*(children.length-1))/2} y1={7} x2={midX + (COL_W*(children.length-1))/2} y2={7} stroke='#94a3b8' strokeWidth={1}/>
+              {children.map(function(ch, idx){
+                var x = COL_W*idx + COL_W/2;
+                return <line key={idx} x1={x} y1={7} x2={x} y2={14} stroke='#94a3b8' strokeWidth={1}/>;
+              })}
+            </svg>
+            {/* children row */}
+            <div style={{ display:'flex', flexDirection:'row', gap:'0', alignItems:'flex-start' }}>
+              {children.map(function(ch, idx){
+                return (
+                  <div key={ch.id||idx} style={{ width:COL_W+'px', display:'flex', flexDirection:'column', alignItems:'center' }}>
+                    <FlowConnector label={ch.label} color={ch.color} />
+                    <FlowNode stepId={ch.id} role="child" />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
+    </div>
+  );
+}
+
+// ── 10. LandingPage ───────────────────────────────────────────────────────
+function LandingPage(props) {
+  var onSelect      = props.onSelect;
+  var processOptions = props.processOptions || null; // [{label, targetId}] from landing step options
+  var iconSize      = parseInt(props.iconSize || '48', 10);
+
+  // Hooks
+  var ctx   = useContext(LangContext);
+  var t     = ctx.t;
+  var isRTL = ctx.isRTL;
+  var queryState = useState('');
+  var query    = queryState[0];
+  var setQuery = queryState[1];
+
+  // Compute root nodes (nodes not targeted by anyone)
+  var allNodes   = Object.values(nodes);
+  var allTargets = {};
+  for (var i = 0; i < allNodes.length; i++) {
+    var n = allNodes[i];
+    if (n.yesTarget)  allTargets[n.yesTarget]  = true;
+    if (n.noTarget)   allTargets[n.noTarget]    = true;
+    if (n.nextTarget) allTargets[n.nextTarget]  = true;
+    var opts = n.options || [];
+    for (var j = 0; j < opts.length; j++) {
+      if (opts[j] && opts[j].targetId) allTargets[opts[j].targetId] = true;
+    }
+  }
+  var roots = allNodes.filter(function(nd) { return !allTargets[nd.id]; });
+
+  // Filter by visible processes (main landing only)
+  if (!processOptions) {
+    var visFilter = window.__VISIBLE_PROCESSES__;
+    if (visFilter && Array.isArray(visFilter) && visFilter.length > 0) {
+      roots = roots.filter(function(nd) { return visFilter.indexOf(nd.id) !== -1; });
+    }
+  }
+
+  // Build display items: [{label, targetId, text}]
+  var displayItems;
+  var q = query.trim().toLowerCase();
+  if (processOptions && processOptions.length > 0 && !q) {
+    // Landing step: show option labels defined in builder section 3
+    displayItems = processOptions.map(function(o) {
+      var nd = nodes[o.targetId] || {};
+      return { label: o.label || nd.name || nd.id, targetId: o.targetId, text: nd.text || '', icon: o.icon || nd.icon || '' };
+    });
+  } else if (q) {
+    // Search: across all nodes
+    displayItems = allNodes
+      .filter(function(nd) {
+        var hay = ((nd.title || '') + ' ' + (nd.text || '') + ' ' + (nd.name || '')).toLowerCase();
+        return hay.indexOf(q) !== -1;
+      })
+      .map(function(nd) { return { label: nd.title || nd.name || nd.id, targetId: nd.id, text: nd.text || '', icon: nd.icon || '' }; });
+  } else {
+    // Main landing: show roots
+    displayItems = roots.map(function(nd) {
+      return { label: nd.title || nd.name || nd.id, targetId: nd.id, text: nd.text || '', icon: nd.icon || '' };
+    });
+  }
+
+  var padSide = isRTL ? { paddingRight: '34px', paddingLeft: '12px' } : { paddingLeft: '34px', paddingRight: '12px' };
+  var iconSide = isRTL ? { right: '10px', left: 'auto' } : { left: '10px', right: 'auto' };
+
+  // ── Stitch Modern layout ──────────────────────────────────────────────────
+  if (window.__DESIGN_THEME__ === 'stitch_modern') {
+    return (
+      <div style={{ display:'flex', flexDirection:'column', alignItems:'center', minHeight:'100vh', padding:'60px 16px 40px', background:'#0b1622' }}>
+        <header style={{ textAlign:'center', marginBottom:'40px' }}>
+          {window.__EXPORT_LOGO__ && (
+            <div style={{ marginBottom:'16px', display:'flex', justifyContent:'center' }}>
+              <img src={window.__EXPORT_LOGO__} alt="logo" style={{ height:'52px', maxWidth:'180px', objectFit:'contain' }} />
+            </div>
+          )}
+          <h1 style={{ fontSize:'clamp(1.8rem,5vw,3rem)', fontWeight:'800', color:'#fff', marginBottom:'10px', letterSpacing:'0.02em' }}>
+            {window.__LANDING_TITLE__ || t('selectProcess')}
+          </h1>
+          {window.__LANDING_SUBTITLE__ && (
+            <p style={{ color:'#8a9cae', fontSize:'1rem', margin:0 }}>{window.__LANDING_SUBTITLE__}</p>
+          )}
+        </header>
+
+        <div className="sm-search">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input
+            type="text" value={query}
+            onChange={function(e){ setQuery(e.target.value); }}
+            placeholder={t('search')}
+          />
+          <div className="sm-glow" style={{ position:'absolute', inset:0, borderRadius:'999px', zIndex:0, pointerEvents:'none' }} />
+        </div>
+
+        <main className="sm-glass" style={{ width:'100%', maxWidth:'900px', borderRadius:'20px', padding:'clamp(16px,4vw,36px)' }}>
+          {displayItems.length === 0 && (
+            <p style={{ color:'#94a3b8', textAlign:'center', padding:'20px 0' }}>{t('noResults')}</p>
+          )}
+          <div style={{ display:'flex', flexWrap:'wrap', justifyContent:'center', gap:'20px' }}>
+            {displayItems.map(function(item) {
+              return (
+                <div key={item.targetId} className="sm-card" style={{ flex:'0 1 240px', maxWidth:'280px' }} onClick={function(){ onSelect(item.targetId); }}>
+                  {item.icon && (
+                    item.icon.match(/.(png|jpe?g|gif|svg|webp)$/i)
+                      ? <img src={item.icon} alt="" style={{ width:iconSize+'px', height:iconSize+'px', objectFit:'contain', display:'block', margin:'0 auto 10px' }} />
+                      : <span style={{ fontSize:(iconSize/16)+'rem', display:'block', marginBottom:'8px', textAlign:'center' }}>{item.icon}</span>
+                  )}
+                  <h3>{item.label}</h3>
+                </div>
+              );
+            })}
+          </div>
+        </main>
+      </div>
+    );
+  }
+  // ── End Stitch Modern ─────────────────────────────────────────────────────
+
+  return (
+    <div style={{
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      minHeight: '100vh', padding: '48px 16px 32px',
+      background: window.__LANDING_BG__ || 'var(--theme-bg, #f8fafc)'
+    }}>
+      <h1 style={{
+        fontSize: '24px', fontWeight: '800', color: '#1e293b',
+        marginBottom: '6px', textAlign: 'center'
+      }}>
+        {t('appTitle')}
+      </h1>
+      <p style={{ color: '#64748b', marginBottom: '28px', fontSize: '14px', textAlign: 'center' }}>
+        {t('selectProcess')}
+      </p>
+
+      {/* Search input */}
+      <div style={{ position: 'relative', width: '100%', maxWidth: '420px', marginBottom: '28px' }}>
+        <div style={{
+          position: 'absolute', top: '50%', transform: 'translateY(-50%)',
+          color: '#94a3b8', pointerEvents: 'none',
+          right: iconSide.right, left: iconSide.left
+        }}>
+          <SearchIcon size={15} />
+        </div>
+        <input
+          type="text"
+          value={query}
+          onChange={function(e) { setQuery(e.target.value); }}
+          placeholder={t('search')}
+          style={{
+            width: '100%', boxSizing: 'border-box',
+            paddingTop: '9px', paddingBottom: '9px',
+            paddingLeft: padSide.paddingLeft, paddingRight: padSide.paddingRight,
+            border: '1.5px solid #e2e8f0', borderRadius: '10px',
+            fontSize: '14px', outline: 'none', background: '#fff', color: '#1e293b',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
+          }}
+        />
+      </div>
+
+      {displayItems.length === 0 && (
+        <p style={{ color: '#94a3b8', fontSize: '14px' }}>{t('noResults')}</p>
+      )}
+
+      <div style={{
+        display: 'flex', flexWrap: 'wrap', gap: '14px',
+        justifyContent: 'center', width: '100%', maxWidth: '720px'
+      }}>
+        {displayItems.map(function(item) {
+          return (
+            <div
+              key={item.targetId}
+              onClick={function() { onSelect(item.targetId); }}
+              style={{
+                cursor: 'pointer', background: '#fff',
+                border: '1.5px solid #e2e8f0', borderRadius: '14px',
+                padding: '18px 22px', minWidth: '160px', maxWidth: '240px',
+                textAlign: 'center',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                transition: 'box-shadow 0.18s, border-color 0.18s, transform 0.18s'
+              }}
+              onMouseEnter={function(e) {
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(59,130,246,0.15)';
+                e.currentTarget.style.borderColor = '#93c5fd';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={function(e) {
+                e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)';
+                e.currentTarget.style.borderColor = '#e2e8f0';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <div style={{ fontWeight: '700', color: '#1e293b', fontSize: '15px', marginBottom: '5px' }}>
+                {item.label}
+              </div>
+              {item.text && (
+                <div style={{ color: '#64748b', fontSize: '12px', lineHeight: '1.5' }}>
+                  {item.text}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── 11. Chatbot ───────────────────────────────────────────────────────────
+function Chatbot(props) {
+  var isOpen   = props.isOpen;
+  var onClose  = props.onClose;
+  var stepText = props.stepText || '';
+
+  // Hooks first (before the isOpen guard)
+  var ctx   = useContext(LangContext);
+  var t     = ctx.t;
+  var isRTL = ctx.isRTL;
+
+  var msgsState  = useState([]);
+  var messages   = msgsState[0];
+  var setMessages = msgsState[1];
+
+  var inputState = useState('');
+  var inputVal   = inputState[0];
+  var setInputVal = inputState[1];
+
+  var loadState = useState(false);
+  var loading   = loadState[0];
+  var setLoading = loadState[1];
+
+  var endRef = useRef(null);
+
+  useEffect(function() {
+    if (endRef.current) {
+      endRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
+  // Guard: only after all hooks
+  if (!isOpen) return null;
+
+  function sendMessage() {
+    var text = inputVal.trim();
+    if (!text || loading) return;
+
+    var next = messages.concat([{ role: 'user', content: text }]);
+    setMessages(next);
+    setInputVal('');
+    setLoading(true);
+
+    if (!GEMINI_KEY) {
+      setMessages(next.concat([{ role: 'assistant', content: t('apiNotConfigured') }]));
+      setLoading(false);
+      return;
+    }
+
+    var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' + GEMINI_KEY;
+    var body = JSON.stringify({
+      contents: [{
+        role: 'user',
+        parts: [{ text: 'Current step: ' + stepText + '\n\nQuestion: ' + text }]
+      }]
+    });
+
+    fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var reply = t('apiNotConfigured');
+        try {
+          reply = data.candidates[0].content.parts[0].text || reply;
+        } catch(err) {}
+        setMessages(next.concat([{ role: 'assistant', content: reply }]));
+        setLoading(false);
+      })
+      .catch(function() {
+        setMessages(next.concat([{ role: 'assistant', content: t('networkError') }]));
+        setLoading(false);
+      });
+  }
+
+  var chatSide = {};
+  if (isRTL) { chatSide.left = '18px'; } else { chatSide.right = '18px'; }
+
+  return (
+    <div style={Object.assign({
+      position: 'fixed', bottom: '78px', zIndex: 1000,
+      width: '310px', height: '420px', background: '#fff',
+      borderRadius: '16px', boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+      border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column'
+    }, chatSide)}>
+
+      {/* Header */}
+      <div style={{
+        padding: '12px 16px', borderBottom: '1px solid #e2e8f0',
+        background: '#1e293b', borderRadius: '16px 16px 0 0',
+        color: '#fff', display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <span style={{ fontWeight: '700', fontSize: '13px' }}>{t('aiAssistant')}</span>
+        <button onClick={onClose} style={{
+          background: 'none', border: 'none', cursor: 'pointer',
+          color: '#fff', padding: '2px', display: 'flex', alignItems: 'center'
+        }}>
+          <XIcon size={15} />
+        </button>
+      </div>
+
+      {/* Messages */}
+      <div style={{
+        flex: 1, overflowY: 'auto', padding: '12px',
+        display: 'flex', flexDirection: 'column', gap: '8px'
+      }}>
+        {messages.length === 0 && (
+          <p style={{
+            color: '#94a3b8', fontSize: '12px',
+            textAlign: 'center', marginTop: '16px'
+          }}>
+            {t('askQuestion')}
+          </p>
+        )}
+        {messages.map(function(m, i) {
+          var isUser = m.role === 'user';
+          return (
+            <div key={i} style={{ display: 'flex', justifyContent: isUser ? 'flex-end' : 'flex-start' }}>
+              <div style={{
+                background: isUser ? '#2563eb' : '#f1f5f9',
+                color: isUser ? '#fff' : '#1e293b',
+                borderRadius: isUser ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
+                padding: '8px 12px', fontSize: '12px', maxWidth: '85%', lineHeight: '1.5'
+              }}>
+                {m.content}
+              </div>
+            </div>
+          );
+        })}
+        {loading && (
+          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+            <div style={{
+              background: '#f1f5f9', borderRadius: '12px',
+              padding: '8px 14px', fontSize: '13px', color: '#94a3b8'
+            }}>...</div>
+          </div>
+        )}
+        <div ref={endRef} />
+      </div>
+
+      {/* Input */}
+      <div style={{ padding: '8px 10px', borderTop: '1px solid #e2e8f0', display: 'flex', gap: '6px' }}>
+        <input
+          type="text"
+          value={inputVal}
+          onChange={function(e) { setInputVal(e.target.value); }}
+          onKeyDown={function(e) { if (e.key === 'Enter') sendMessage(); }}
+          placeholder={t('typeMessage')}
+          style={{
+            flex: 1, padding: '7px 10px', border: '1.5px solid #e2e8f0',
+            borderRadius: '8px', fontSize: '12px', outline: 'none', minWidth: 0
+          }}
+        />
+        <button
+          onClick={sendMessage}
+          disabled={loading}
+          style={{
+            background: '#2563eb', color: '#fff', border: 'none',
+            borderRadius: '8px', padding: '7px 11px', cursor: 'pointer',
+            opacity: loading ? 0.6 : 1, flexShrink: 0,
+            display: 'flex', alignItems: 'center'
+          }}
+        >
+          <SendIcon size={13} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── 12. App ───────────────────────────────────────────────────────────────
+function App() {
+  // Read initial language from the direction set by the init script
+  var initDir  = document.documentElement.dir || 'rtl';
+  var initLang = initDir === 'ltr' ? 'en' : 'he';
+
+  // All state declarations
+  var langState        = useState(initLang);
+  var lang             = langState[0];
+  var setLang          = langState[1];
+
+  var stepState        = useState(null);
+  var currentStep      = stepState[0];
+  var setCurrentStep   = stepState[1];
+
+  var histState        = useState([]);
+  var history          = histState[0];
+  var setHistory       = histState[1];
+
+  var chatState        = useState(false);
+  var chatOpen         = chatState[0];
+  var setChatOpen      = chatState[1];
+
+  var procSearchState  = useState('');
+  var procSearch       = procSearchState[0];
+  var setProcSearch    = procSearchState[1];
+
+  var splitWState = useState(function(){ return parseInt(localStorage.getItem('__sw__')||'280'); });
+  var splitWidth  = splitWState[0];
+  var setSplitWidth = splitWState[1];
+
+  var chartVisState = useState(true);
+  var chartVisible  = chartVisState[0];
+  var setChartVisible = chartVisState[1];
+
+  var dragRef = useRef(false);
+  var startXRef = useRef(0);
+  var startWRef = useRef(280);
+
+  useEffect(function() {
+    function onMove(e) {
+      if (!dragRef.current) return;
+      var dx = e.clientX - startXRef.current;
+      var nw = Math.min(480, Math.max(160, startWRef.current + dx));
+      setSplitWidth(nw);
+      localStorage.setItem('__sw__', nw);
+    }
+    function onUp() { dragRef.current = false; document.body.style.cursor = ''; document.body.style.userSelect = ''; }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    return function() { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+  }, []);
+
+  // Derived values
+  var isRTL = lang === 'he';
+
+  // Translation function (closes over lang)
+  var t = function(key) {
+    var d = DICT[lang] || DICT.he;
+    return d[key] || key;
+  };
+
+  // Sync language change → document.dir + localStorage
+  useEffect(function() {
+    var dir = lang === 'he' ? 'rtl' : 'ltr';
+    document.documentElement.dir  = dir;
+    document.documentElement.lang = lang;
+    localStorage.setItem('__viewer_dir', dir);
+  }, [lang]);
+
+  // Navigation helpers
+  function goTo(stepId) {
+    if (!stepId) return;
+    if (!nodes[stepId]) return;
+    setHistory(function(prev) { return prev.concat([stepId]); });
+    setCurrentStep(stepId);
+  }
+
+  function goBack() {
+    if (history.length <= 1) {
+      setCurrentStep(null);
+      setHistory([]);
+    } else {
+      var next = history.slice(0, history.length - 1);
+      setCurrentStep(next[next.length - 1]);
+      setHistory(next);
+    }
+  }
+
+  function goHome() {
+    setCurrentStep(null);
+    setHistory([]);
+    setChatOpen(false);
+  }
+
+  function toggleLang() {
+    setLang(function(prev) { return prev === 'he' ? 'en' : 'he'; });
+  }
+
+  var ctxValue = { lang: lang, isRTL: isRTL, t: t, setLang: setLang };
+  var currentStepData = currentStep ? (nodes[currentStep] || null) : null;
+  var stepText = currentStepData ? (currentStepData.text || '') : '';
+
+  // ── Process panel content ───────────────────────────────────────────────
+  function renderStepContent() {
+    if (!currentStepData) return null;
+    var step = currentStepData;
+    var sm = window.__DESIGN_THEME__ === 'stitch_modern';
+
+    // END node
+    if (step.type === 'end') {
+      var ok = step.endType !== 'failure';
+      return (
+        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'center' }}>
+          <div className={sm ? (ok ? 'sm-end-ok' : 'sm-end-fail') : ''} style={sm ? {} : {
+            background: ok ? '#f0fdf4' : '#fff1f2',
+            border: '2px solid ' + (ok ? '#10b981' : '#ef4444'),
+            borderRadius: '12px', padding: '20px', textAlign: 'center', width: '100%'
+          }}>
+            <div style={{ marginBottom: '8px' }}>
+              {ok ? <CheckCircleIcon size={32} style={{ color: sm ? '#6ee7b7' : '#10b981' }} /> : <AlertCircleIcon size={32} style={{ color: sm ? '#fca5a5' : '#ef4444' }} />}
+            </div>
+            <div style={{ fontWeight: '700', fontSize: '15px', lineHeight: '1.5' }}>
+              {step.text}
+            </div>
+          </div>
+          <button
+            onClick={goHome}
+            className={sm ? 'sm-btn-next' : ''}
+            style={sm ? {} : {
+              background: '#2563eb', color: '#fff', border: 'none',
+              borderRadius: '8px', padding: '9px 20px', cursor: 'pointer',
+              fontSize: '14px', fontWeight: '700'
+            }}
+          >
+            {t('backToMenu')}
+          </button>
+        </div>
+      );
+    }
+
+    // QUESTION node
+    if (step.type === 'question') {
+      return (
+        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className={sm ? 'sm-step-q' : ''} style={sm ? {} : {
+            background: '#fffbeb', border: '2px solid #f59e0b',
+            borderRadius: '10px', padding: '14px', textAlign: 'center',
+            fontSize: '14px', fontWeight: '600', color: '#78350f', lineHeight: '1.5'
+          }}>
+            {step.text}
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {step.yesTarget && (
+              <button
+                onClick={function() { goTo(step.yesTarget); }}
+                className={sm ? 'sm-btn-yes' : ''}
+                style={sm ? {} : {
+                  flex: 1, background: '#ecfdf5', color: '#065f46',
+                  border: '2px solid #10b981', borderRadius: '8px',
+                  padding: '10px 6px', cursor: 'pointer', fontWeight: '700', fontSize: '14px'
+                }}
+              >
+                {step.yesLabel || t('yes')}
+              </button>
+            )}
+            {step.noTarget && (
+              <button
+                onClick={function() { goTo(step.noTarget); }}
+                className={sm ? 'sm-btn-no' : ''}
+                style={sm ? {} : {
+                  flex: 1, background: '#fff1f2', color: '#7f1d1d',
+                  border: '2px solid #ef4444', borderRadius: '8px',
+                  padding: '10px 6px', cursor: 'pointer', fontWeight: '700', fontSize: '14px'
+                }}
+              >
+                {step.noLabel || t('no')}
+              </button>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // MENU or LANDING node (inline in process panel)
+    if (step.type === 'menu' || step.type === 'landing') {
+      var opts = step.options || [];
+      return (
+        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div className={sm ? 'sm-step-q' : ''} style={sm ? {} : {
+            background: step.type === 'landing' ? '#f3e8ff' : '#f8fafc',
+            border: '1.5px solid ' + (step.type === 'landing' ? '#8b5cf6' : '#94a3b8'),
+            borderRadius: '10px', padding: '12px', textAlign: 'center',
+            fontSize: '14px', color: '#1e293b', lineHeight: '1.5'
+          }}>
+            {step.text}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {opts.map(function(opt, i) {
+              if (!opt || !opt.targetId) return null;
+              return (
+                <button
+                  key={i}
+                  onClick={function() { goTo(opt.targetId); }}
+                  className={sm ? 'sm-btn-option' : ''}
+                  style={sm ? { textAlign: isRTL ? 'right' : 'left' } : {
+                    background: '#fff', border: '1.5px solid #e2e8f0',
+                    borderRadius: '8px', padding: '10px 14px', cursor: 'pointer',
+                    fontSize: '13px', color: '#1e293b', fontWeight: '500',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    textAlign: isRTL ? 'right' : 'left'
+                  }}
+                  onMouseEnter={sm ? null : function(e) { e.currentTarget.style.borderColor = '#93c5fd'; }}
+                  onMouseLeave={sm ? null : function(e) { e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                >
+                  <span>{opt.label}</span>
+                  {isRTL
+                    ? <ChevronLeftIcon size={13} style={{ color: sm ? '#51c4d3' : '#94a3b8', flexShrink: 0 }} />
+                    : <ChevronRightIcon size={13} style={{ color: sm ? '#51c4d3' : '#94a3b8', flexShrink: 0 }} />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    // ACTION / default node
+    return (
+      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div className={sm ? 'sm-step' : ''} style={sm ? {} : {
+          background: '#fff', border: '2px solid #3b82f6',
+          borderRadius: '10px', padding: '14px',
+          fontSize: '14px', color: '#1e293b', lineHeight: '1.6'
+        }}>
+          {step.text}
+        </div>
+
+        {/* Optional media */}
+        {step.media && step.media.type !== 'none' && step.media.url && (
+          <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid ' + (sm ? 'rgba(81,196,211,0.2)' : '#e2e8f0') }}>
+            {step.media.type === 'image' && (
+              <img src={step.media.url} alt="" style={{ width: '100%', display: 'block' }} />
+            )}
+            {step.media.type === 'video' && (
+              <video src={step.media.url} controls style={{ width: '100%', display: 'block' }} />
+            )}
+          </div>
+        )}
+
+        {/* Next button */}
+        {step.nextTarget && (
+          <button
+            onClick={function() { nodes[step.nextTarget] ? goTo(step.nextTarget) : goHome(); }}
+            className={sm ? 'sm-btn-next' : ''}
+            style={sm ? {} : {
+              background: '#2563eb', color: '#fff', border: 'none',
+              borderRadius: '8px', padding: '10px', cursor: 'pointer',
+              fontWeight: '700', fontSize: '14px'
+            }}
+          >
+            {(step.nextLabel && !SKIP[step.nextLabel]) ? step.nextLabel : t('continue')}
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  // ── Render ──────────────────────────────────────────────────────────────
+  // Lang toggle button (shared)
+  var langBtnStyle = {
+    background: 'rgba(15,23,42,0.82)', color: '#fff',
+    border: 'none', borderRadius: '8px', padding: '4px 12px',
+    fontSize: '11px', cursor: 'pointer',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
+    display: 'flex', alignItems: 'center', gap: '4px'
+  };
+
+  // LANDING PAGE or LANDING STEP
+  var isLandingStep = currentStepData && currentStepData.type === 'landing';
+  if (!currentStep || isLandingStep) {
+    // Pass full options {label, targetId} so LandingPage shows the label, not the node name
+    var procOptions = isLandingStep
+      ? (currentStepData.options || []).filter(function(o) { return o && o.targetId && nodes[o.targetId]; })
+      : null;
+    var landingIconSize = isLandingStep ? (currentStepData.iconSize || '48') : '48';
+    return (
+      <LangContext.Provider value={ctxValue}>
+        <div style={{ minHeight: '100vh', position: 'relative', display: 'flex', flexDirection: 'column', background: window.__DESIGN_THEME__ === 'stitch_modern' ? '#0b1622' : '#f1f5f9' }}>
+          {isLandingStep && (
+            <div style={{
+              background: '#1e293b', color: '#fff', padding: '9px 14px',
+              display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+            }}>
+              <button
+                onClick={goBack}
+                style={{
+                  background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px',
+                  padding: '5px 9px', cursor: 'pointer', color: '#fff',
+                  display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px'
+                }}
+              >
+                {isRTL ? <ChevronRightIcon size={13} /> : <ChevronLeftIcon size={13} />}
+                {t('back')}
+              </button>
+              <button
+                onClick={goHome}
+                title={t('home')}
+                style={{
+                  background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px',
+                  padding: '5px 8px', cursor: 'pointer', color: '#fff',
+                  display: 'flex', alignItems: 'center'
+                }}
+              >
+                <HomeIcon size={14} />
+              </button>
+              <div style={{ flex: 1, fontWeight: '700', fontSize: '14px', textAlign: 'center' }}>
+                {currentStepData.title || currentStepData.text}
+              </div>
+            </div>
+          )}
+          <div style={{ flex: 1, overflowY: 'auto' }}>
+            <LandingPage key={currentStep||'__home__'} onSelect={goTo} processOptions={procOptions} iconSize={landingIconSize} />
+          </div>
+        </div>
+      </LangContext.Provider>
+    );
+  }
+
+  // MAIN VIEW
+  var mainDir = isRTL ? 'row-reverse' : 'row';
+  var stepTitle = currentStepData ? (currentStepData.title || currentStepData.name || '') : '';
+
+  var fabSide = {};
+  if (isRTL) { fabSide.left = '18px'; } else { fabSide.right = '18px'; }
+
+  return (
+    <LangContext.Provider value={ctxValue}>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: window.__DESIGN_THEME__ === 'stitch_modern' ? '#0b1622' : '#f1f5f9' }}>
+
+        {/* Header */}
+        <div style={{
+          background: window.__DESIGN_THEME__ === 'stitch_modern' ? '#0d1f2d' : '#1e293b',
+          borderBottom: window.__DESIGN_THEME__ === 'stitch_modern' ? '1px solid rgba(81,196,211,0.15)' : 'none',
+          color: '#fff', padding: '9px 14px',
+          display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+        }}>
+          {window.__EXPORT_LOGO__ && (
+            <div style={{ background:'rgba(255,255,255,0.12)', borderRadius:'8px', padding:'3px 10px', display:'flex', alignItems:'center', flexShrink:0 }}>
+              <img src={window.__EXPORT_LOGO__} alt="logo" style={{ height:'38px', maxWidth:'130px', objectFit:'contain', display:'block' }} />
+            </div>
+          )}
+          <button
+            onClick={goHome}
+            title={t('home')}
+            style={{
+              background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px',
+              padding: '5px 8px', cursor: 'pointer', color: '#fff',
+              display: 'flex', alignItems: 'center'
+            }}
+          >
+            <HomeIcon size={14} />
+          </button>
+
+          {(history.length > 0 || (currentStepData && currentStepData.type === 'action')) && (
+            <button
+              onClick={goBack}
+              style={{
+                background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px',
+                padding: '5px 9px', cursor: 'pointer', color: '#fff',
+                display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px'
+              }}
+            >
+              {isRTL ? <ChevronRightIcon size={13} /> : <ChevronLeftIcon size={13} />}
+              {t('back')}
+            </button>
+          )}
+
+          <div style={{
+            flex: 1, fontWeight: '700', fontSize: '14px',
+            textAlign: 'center', overflow: 'hidden',
+            textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+          }}>
+            {stepTitle}
+          </div>
+
+        </div>
+
+        {/* Body: process panel + flowchart */}
+        <div className="body-flex" style={{
+          flex: 1, display: 'flex', flexDirection: mainDir,
+          overflow: 'hidden', minHeight: 0
+        }}>
+
+          {/* Process panel – resizable */}
+          <div className="process-panel" style={{
+            width: splitWidth + 'px', minWidth: '160px', maxWidth: '480px', flexShrink: 0,
+            borderLeft: isRTL ? 'none' : '1px solid #e2e8f0',
+            borderRight: isRTL ? '1px solid #e2e8f0' : 'none',
+            overflowY: 'auto', background: '#fff'
+          }}>
+            {/* Process search bar */}
+            {(function() {
+              var pq = procSearch.trim().toLowerCase();
+              var pResults = pq
+                ? Object.values(nodes).filter(function(nd) {
+                    var hay = ((nd.title || '') + ' ' + (nd.text || '') + ' ' + (nd.name || '')).toLowerCase();
+                    return hay.indexOf(pq) !== -1;
+                  }).slice(0, 8)
+                : [];
+              var searchPadSide = isRTL
+                ? { paddingRight: '30px', paddingLeft: '8px' }
+                : { paddingLeft: '30px', paddingRight: '8px' };
+              var searchIconSide = isRTL ? { right: '8px', left: 'auto' } : { left: '8px', right: 'auto' };
+              return (
+                <div style={{ padding: '8px 10px', borderBottom: '1px solid #f1f5f9', position: 'relative' }}>
+                  <div style={{ position: 'relative' }}>
+                    <div style={{
+                      position: 'absolute', top: '50%', transform: 'translateY(-50%)',
+                      color: '#94a3b8', pointerEvents: 'none',
+                      right: searchIconSide.right, left: searchIconSide.left
+                    }}>
+                      <SearchIcon size={12} />
+                    </div>
+                    <input
+                      type="text"
+                      value={procSearch}
+                      onChange={function(e) { setProcSearch(e.target.value); }}
+                      placeholder={t('search')}
+                      style={Object.assign({
+                        width: '100%', boxSizing: 'border-box',
+                        paddingTop: '6px', paddingBottom: '6px',
+                        border: '1.5px solid #e2e8f0', borderRadius: '8px',
+                        fontSize: '12px', outline: 'none', background: '#f8fafc', color: '#1e293b'
+                      }, searchPadSide)}
+                    />
+                  </div>
+                  {pResults.length > 0 && (
+                    <div style={{
+                      position: 'absolute', top: '100%', left: '10px', right: '10px', zIndex: 200,
+                      background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.12)', maxHeight: '200px', overflowY: 'auto'
+                    }}>
+                      {pResults.map(function(nd) {
+                        return (
+                          <div
+                            key={nd.id}
+                            onClick={function() { goTo(nd.id); setProcSearch(''); }}
+                            style={{ padding: '7px 11px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9' }}
+                            onMouseEnter={function(e) { e.currentTarget.style.background = '#f1f5f9'; }}
+                            onMouseLeave={function(e) { e.currentTarget.style.background = ''; }}
+                          >
+                            <div style={{ fontWeight: '600', fontSize: '12px', color: '#1e293b' }}>{nd.name || nd.id}</div>
+                            {nd.text && <div style={{ color: '#64748b', fontSize: '11px', marginTop: '1px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nd.text}</div>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
+            <div style={{
+              padding: '10px 14px 6px',
+              borderBottom: '1px solid #f1f5f9'
+            }}>
+              <div style={{
+                fontSize: '10px', color: '#94a3b8',
+                textTransform: 'uppercase', letterSpacing: '0.06em'
+              }}>
+                {t('currentStep')}
+              </div>
+              <div style={{ fontWeight: '700', fontSize: '13px', color: '#1e293b', marginTop: '2px' }}>
+                {currentStepData && (currentStepData.name || currentStepData.id)}
+              </div>
+            </div>
+            {renderStepContent()}
+          </div>
+
+          {/* Drag handle */}
+          <div
+            className="drag-handle"
+            onMouseDown={function(e) {
+              dragRef.current = true;
+              startXRef.current = e.clientX;
+              startWRef.current = splitWidth;
+              document.body.style.cursor = 'col-resize';
+              document.body.style.userSelect = 'none';
+              e.preventDefault();
+            }}
+          />
+
+          {/* Flowchart panel */}
+          {chartVisible && (
+            <div className="chart-panel" style={{
+              flex: 1, overflowY: 'auto', overflowX: 'auto',
+              background: '#f8fafc', display: 'flex', flexDirection: 'column'
+            }}>
+              <div style={{
+                fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase',
+                letterSpacing: '0.06em', padding: '5px 8px 3px', textAlign: 'center',
+                flexShrink: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px'
+              }}>
+                <span>{t('flowchart')}</span>
+                <button className="chart-collapse-btn" onClick={function(){ setChartVisible(false); }}>✕</button>
+              </div>
+              <div className="chart-inner" style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+                <ContextualFlow currentStepId={currentStep} history={history} />
+              </div>
+            </div>
+          )}
+          {!chartVisible && (
+            <button
+              className="chart-collapse-btn"
+              style={{ writingMode:'vertical-rl', padding:'12px 4px', margin:'4px 2px', borderRadius:'6px', fontSize:'11px' }}
+              onClick={function(){ setChartVisible(true); }}
+            >
+              {isRTL ? '◀' : '▶'} {t('flowchart')}
+            </button>
+          )}
+
+        </div>
+
+        {/* Chat FAB */}
+        <button
+          onClick={function() { setChatOpen(function(o) { return !o; }); }}
+          style={Object.assign({
+            position: 'fixed', bottom: '18px', zIndex: 999,
+            background: '#2563eb', color: '#fff', border: 'none',
+            borderRadius: '50%', width: '48px', height: '48px',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 16px rgba(37,99,235,0.4)'
+          }, fabSide)}
+        >
+          <MessageCircleIcon size={20} />
+        </button>
+
+        <Chatbot
+          isOpen={chatOpen}
+          onClose={function() { setChatOpen(false); }}
+          stepText={stepText}
+        />
+      </div>
+    </LangContext.Provider>
+  );
+}
+
+// ── 13. Mount: ErrorBoundary wraps App directly ───────────────────────────
+var rootEl = document.getElementById('root');
+if (rootEl) {
+  ReactDOM.createRoot(rootEl).render(
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
+  );
+} else {
+  console.error('FATAL: No element with id="root" found in the document.');
+}
+
+    </script>
+</body>
+</html>
