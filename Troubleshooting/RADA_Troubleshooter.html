@@ -130,9 +130,9 @@
     },
     "landingConfig": {
       "logoUrl": "https://tam-pro.github.io/TAM/Troubleshooting/Leonardo_DRS_logo.png",
-      "logoHeight": 80,
+      "logoHeight": 52,
       "heroImage": "https://cdn.leonardodrs.com/uploads/wp-content/uploads/sites/4/2024/08/drs-rada-logo-white.png",
-      "heroHeight": 60,
+      "heroHeight": 30,
       "imagePosition": "bottom",
       "textColor": "#4f5b69"
     }
@@ -966,6 +966,10 @@
         window.__LANDING_TITLE__ = "";
         window.__LANDING_SUBTITLE__ = "";
         window.__EXPORT_LOGO__ = "";
+        window.__HEADER_LOGO__ = "https://tam-pro.github.io/TAM/images/Icons/drs-logo-white.png";
+        window.__DISCLAIMER_TEXT__  = "© TAM PROJECTS LTD — All Rights Reserved";
+        window.__DISCLAIMER_COLOR__ = "#94a3b8";
+        window.__DISCLAIMER_SIZE__  = 10;
         window.__VISIBLE_PROCESSES__ = ["start"];
         window.__DESIGN_THEME__ = "stitch_modern";
         window.__LANDING_BG__ = "";
@@ -1516,81 +1520,224 @@ function Chatbot(props) {
   var ctx   = useContext(LangContext);
   var t     = ctx.t;
   var isRTL = ctx.isRTL;
-  var msgsState   = useState([]);
+
+  var STOP_WORDS = ['i','have','a','the','my','is','am','not','im','with','to','for','of',
+                    'an','how','why','do','does','what','where','when','can','it','in','on',
+                    'at','and','or','he','ה','ב','ל','מ','ו','ש','של','אני','איך','למה',
+                    'מה','כן','לא','זה','יש','אין','עם','על','כי'];
+
+  function tokenize(str) {
+    var words = str.toLowerCase().match(/[a-z0-9א-ת]+/g) || [];
+    return words.filter(function(w){ return w.length > 1 && STOP_WORDS.indexOf(w) === -1; });
+  }
+
+  function nlpSearch(query) {
+    var tokens = tokenize(query);
+    if (!tokens.length) return null;
+    var allN = Object.values(nodes);
+    var scored = allN.map(function(nd) {
+      var title   = (nd.title || nd.name || '').toLowerCase();
+      var content = [(nd.text||''), (nd.yesLabel||''), (nd.noLabel||''),
+                     (nd.options||[]).map(function(o){ return o.label||''; }).join(' ')
+                    ].join(' ').toLowerCase();
+      var score = tokens.reduce(function(s, tok) {
+        return s + (title.includes(tok) ? 2 : 0) + (content.includes(tok) ? 1 : 0);
+      }, 0);
+      return { nd:nd, score:score };
+    }).filter(function(x){ return x.score > 0; })
+      .sort(function(a,b){ return b.score - a.score; });
+    // deduplicate by label so identical display names never appear twice
+    var seen = {};
+    var deduped = [];
+    for (var di = 0; di < scored.length && deduped.length < 3; di++) {
+      var nd  = scored[di].nd;
+      var lbl = nd.title || nd.name || nd.id;
+      if (!seen[lbl]) {
+        seen[lbl] = true;
+        // build a short description: step type + brief text preview
+        var typeTag = nd.type === 'question' ? (isRTL?'שאלה':'Question')
+                    : nd.type === 'action'   ? (isRTL?'פעולה':'Action')
+                    : nd.type === 'end'      ? (isRTL?'סיום':'End')
+                    : nd.type === 'landing'  ? (isRTL?'דף נחיתה':'Landing')
+                    : (isRTL?'תפריט':'Menu');
+        var preview = (nd.text || '').trim();
+        if (preview.length > 60) preview = preview.substring(0, 60) + '...';
+        deduped.push({ id: nd.id, label: lbl, typeTag: typeTag, desc: preview });
+      }
+    }
+    return deduped;
+  }
+
+  var greeting = isRTL
+    ? 'שלום! תאר את הבעיה שאתה נתקל בה ואנסה להפנות אותך לשלב המתאים.'
+    : 'Hello! Describe the issue you are facing and I will try to direct you to the right step.';
+
+  var FILLERS_EN = [
+    'Let me check the manual for you...',
+    'Give me a moment to look into that...',
+    'Hmm, let me see what we can find...',
+    'One sec, searching the knowledge base...',
+    'On it — scanning through the steps...'
+  ];
+  var FILLERS_HE = [
+    'תן לי לבדוק את המדריך עבורך...',
+    'רגע, אני מחפש...',
+    'המ, בוא נראה מה אפשר למצוא...',
+    'שנייה, סורק את מאגר הידע...',
+    'בודק את השלבים הרלוונטיים...'
+  ];
+
+  var msgsState   = useState([{ sender:'bot', text: greeting }]);
   var messages    = msgsState[0];
   var setMessages = msgsState[1];
   var inputState  = useState('');
   var inputVal    = inputState[0];
   var setInputVal = inputState[1];
-  var loadState   = useState(false);
-  var loading     = loadState[0];
-  var setLoading  = loadState[1];
+  var typingState = useState(false);
+  var isTyping    = typingState[0];
+  var setIsTyping = typingState[1];
   var endRef = useRef(null);
-  useEffect(function() { if (endRef.current) endRef.current.scrollIntoView({ behavior:'smooth' }); }, [messages]);
-  if (!isOpen) return null;
 
-  function offlineSearch(query) {
-    var q = query.toLowerCase().trim();
-    if (!q) return { summary: isRTL ? 'הכנס מילת חיפוש.' : 'Please enter a search query.', results:[] };
-    var terms = q.split(/s+/).filter(function(w){ return w.length > 1; });
-    var allN = Object.values(nodes);
-    var scored = allN.map(function(nd) {
-      var content = [nd.name||'', nd.title||'', nd.text||'', nd.yesLabel||'', nd.noLabel||'', nd.nextLabel||'',
-        (nd.options||[]).map(function(o){ return o.label||''; }).join(' ')].join(' ').toLowerCase();
-      var score = terms.reduce(function(s,term){ return s+(content.split(term).length-1); }, 0);
-      return { nd:nd, score:score };
-    }).filter(function(x){ return x.score>0; }).sort(function(a,b){ return b.score-a.score; });
-    if (scored.length === 0) return { summary: isRTL ? 'לא נמצאו תוצאות עבור "'+query+'".' : 'No results found for "'+query+'".', results:[] };
-    var total = scored.length;
-    var summary = isRTL ? ('נמצאו '+total+' תוצאות:') : ('Found '+total+' result(s):');
-    var results = scored.slice(0,6).map(function(item) {
-      var nd = item.nd;
-      var title = nd.title||nd.name||nd.id||'';
-      var desc  = (nd.text||'').trim();
-      if (desc.length > 100) desc = desc.substring(0,100)+'...';
-      return { id:nd.id, title:title, desc:desc };
-    });
-    return { summary:summary, results:results };
-  }
+  useEffect(function() {
+    if (endRef.current) endRef.current.scrollIntoView({ behavior:'smooth' });
+  }, [messages, isTyping]);
+
+  if (!isOpen) return null;
 
   function sendMessage() {
     var text = inputVal.trim();
-    if (!text || loading) return;
-    var next = messages.concat([{ role:'user', content:text }]);
-    setMessages(next); setInputVal(''); setLoading(true);
+    if (!text || isTyping) return;
+    var userMsg = { sender:'user', text:text };
+    setMessages(function(prev){ return prev.concat([userMsg]); });
+    setInputVal('');
+    setIsTyping(true);
+
+    // Phase 1 — filler after 800ms
     setTimeout(function() {
-      var res = offlineSearch(text);
-      setMessages(next.concat([{ role:'assistant', content:res.summary, results:res.results }]));
-      setLoading(false);
-    }, 250);
+      var fillers = isRTL ? FILLERS_HE : FILLERS_EN;
+      var filler  = fillers[Math.floor(Math.random() * fillers.length)];
+      setMessages(function(prev){ return prev.concat([{ sender:'bot', text: filler }]); });
+
+      // Phase 2 — real results after another 1000ms
+      setTimeout(function() {
+        var tokens  = tokenize(text);
+        var results = nlpSearch(text);
+        var botMsg;
+        if (results && results.length > 0) {
+          var keyword = tokens.length > 0 ? tokens[0].toUpperCase() : '';
+          var intro = isRTL
+            ? (keyword ? 'אני רואה שאתה מתמודד עם "'+keyword+'". בוא נפתור את זה יחד. אני חושב שהשלב הזה הוא בדיוק מה שאתה צריך:' : 'מצאתי משהו שעשוי לעזור. האם זה אחד מאלה?')
+            : (keyword ? 'I see you are dealing with "'+keyword+'". Let me help you figure this out. I think this step might be exactly what you need:' : 'I found something that might help. Is it one of these?');
+          botMsg = { sender:'bot', text: intro, options: results };
+        } else if (tokens.length === 0) {
+          botMsg = {
+            sender: 'bot',
+            text: isRTL
+              ? 'לא זיהיתי מילות מפתח. נסה להקליד מונחים טכניים ספציפיים יותר.'
+              : 'No keywords detected. Try typing more specific technical terms.'
+          };
+        } else {
+          botMsg = {
+            sender: 'bot',
+            text: (isRTL ? 'חיפשתי: ' : 'I searched for: ') +
+                  '"' + tokens.join('", "') + '"' +
+                  (isRTL ? ' — אך לא מצאתי התאמה. נסה מילות מפתח אחרות.' : ' — but found no match. Try different keywords.')
+          };
+        }
+        setMessages(function(prev){ return prev.concat([botMsg]); });
+        setIsTyping(false);
+      }, 1000);
+    }, 800);
   }
 
   var chatSide = isRTL ? { left:'18px' } : { right:'18px' };
+  var sm = window.__DESIGN_THEME__ === 'stitch_modern';
+  var panelBg    = sm ? '#0d1f2d' : '#fff';
+  var headerBg   = sm ? '#0b1622' : '#1e293b';
+  var botBubble  = sm ? 'rgba(81,196,211,0.1)' : '#f1f5f9';
+  var botTxt     = sm ? '#e2e8f0' : '#1e293b';
+  var inputBg    = sm ? 'rgba(255,255,255,0.06)' : '#fff';
+  var inputClr   = sm ? '#e2e8f0' : '#1e293b';
+  var borderClr  = sm ? 'rgba(81,196,211,0.2)' : '#e2e8f0';
+
   return (
-    <div style={Object.assign({ position:'fixed', bottom:'78px', zIndex:1000, width:'310px', height:'420px', background:'#fff', borderRadius:'16px', boxShadow:'0 8px 32px rgba(0,0,0,0.18)', border:'1px solid #e2e8f0', display:'flex', flexDirection:'column' }, chatSide)}>
-      <div style={{ padding:'12px 16px', borderBottom:'1px solid #e2e8f0', background:'#1e293b', borderRadius:'16px 16px 0 0', color:'#fff', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-        <span style={{ fontWeight:'700', fontSize:'13px' }}>{t('aiAssistant')}</span>
-        <button onClick={onClose} style={{ background:'none', border:'none', cursor:'pointer', color:'#fff', padding:'2px', display:'flex', alignItems:'center' }}><XIcon size={15} /></button>
+    <div style={Object.assign({ position:'fixed', bottom:'78px', zIndex:1000, width:'320px', height:'440px', background:panelBg, borderRadius:'18px', boxShadow:'0 8px 40px rgba(0,0,0,0.22)', border:'1px solid '+borderClr, display:'flex', flexDirection:'column', overflow:'hidden' }, chatSide)}>
+      {/* Header */}
+      <div style={{ padding:'11px 16px', background:headerBg, color:'#fff', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'7px' }}>
+          <div style={{ width:'8px', height:'8px', borderRadius:'50%', background:'#4ade80', flexShrink:0 }} />
+          <span style={{ fontWeight:'700', fontSize:'13px' }}>{t('aiAssistant')}</span>
+        </div>
+        <button onClick={onClose} style={{ background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.7)', padding:'2px', display:'flex', alignItems:'center', lineHeight:1 }}>
+          <XIcon size={15} />
+        </button>
       </div>
-      <div style={{ flex:1, overflowY:'auto', padding:'12px', display:'flex', flexDirection:'column', gap:'8px' }}>
-        {messages.length === 0 && <p style={{ color:'#94a3b8', fontSize:'12px', textAlign:'center', marginTop:'16px' }}>{t('askQuestion')}</p>}
-        {messages.map(function(m,i) {
-          var isUser = m.role === 'user';
+
+      {/* Messages */}
+      <div style={{ flex:1, overflowY:'auto', padding:'12px 10px', display:'flex', flexDirection:'column', gap:'10px' }}>
+        {messages.map(function(m, i) {
+          var isUser = m.sender === 'user';
           return (
-            <div key={i} style={{ display:'flex', flexDirection:'column', alignItems:isUser?'flex-end':'flex-start' }}>
-              <div style={{ background:isUser?'#2563eb':'#f1f5f9', color:isUser?'#fff':'#1e293b', borderRadius:isUser?'12px 12px 2px 12px':'12px 12px 12px 2px', padding:'8px 12px', fontSize:'12px', maxWidth:'85%', lineHeight:'1.5' }}>{m.content}</div>
-              {m.results && m.results.length > 0 && (
-                <div style={{ display:'flex', flexDirection:'column', gap:'4px', marginTop:'6px', width:'100%' }}>
-                  {m.results.map(function(r,ri) {
+            <div key={i} style={{ display:'flex', flexDirection:'column', alignItems: isUser ? 'flex-end' : 'flex-start' }}>
+              <div style={{
+                background: isUser ? '#2563eb' : botBubble,
+                color: isUser ? '#fff' : botTxt,
+                borderRadius: isUser ? '14px 14px 3px 14px' : '14px 14px 14px 3px',
+                padding:'9px 13px', fontSize:'12.5px', maxWidth:'88%', lineHeight:'1.55',
+                boxShadow: isUser ? '0 2px 8px rgba(37,99,235,0.25)' : 'none'
+              }}>{m.text}</div>
+              {/* Step suggestion buttons */}
+              {m.options && m.options.length > 0 && (
+                <div style={{ display:'flex', flexDirection:'column', gap:'6px', marginTop:'7px', width:'100%' }}>
+                  {m.options.map(function(opt, oi) {
                     return (
-                      <div key={ri} onClick={function(){ onNavigate(r.id); onClose(); }}
-                        style={{ cursor:'pointer', padding:'7px 10px', background:'#fff', border:'1px solid #bfdbfe', borderLeft:'3px solid #2563eb', borderRadius:'6px', fontSize:'12px', lineHeight:'1.4', transition:'background 0.15s' }}
-                        onMouseEnter={function(e){ e.currentTarget.style.background='#eff6ff'; }}
-                        onMouseLeave={function(e){ e.currentTarget.style.background='#fff'; }}
+                      <button key={oi}
+                        onClick={function(){
+                          onNavigate(opt.id);
+                          var feedbackQ = isRTL
+                            ? 'ניווטתי אותך לשלב זה. האם זה פתר את הבעיה?'
+                            : 'I have opened that step for you. Did this solve your problem?';
+                          var yesLabel = isRTL ? '✓ כן, תודה!' : '✓ Yes, thanks!';
+                          var noLabel  = isRTL ? '✗ לא, צריך עזרה נוספת' : '✗ No, still broken';
+                          setMessages(function(prev){
+                            return prev.concat([{ sender:'bot', text: feedbackQ, feedbackOptions:[yesLabel, noLabel] }]);
+                          });
+                        }}
+                        style={{ background: sm?'rgba(81,196,211,0.08)':'#f8faff', border:'1.5px solid '+(sm?'rgba(81,196,211,0.35)':'#bfdbfe'), borderRadius:'10px', padding:'8px 12px', fontSize:'12px', cursor:'pointer', textAlign: isRTL?'right':'left', lineHeight:'1.4', transition:'background 0.15s', width:'100%' }}
+                        onMouseEnter={function(e){ e.currentTarget.style.background = sm?'rgba(81,196,211,0.18)':'#eff6ff'; }}
+                        onMouseLeave={function(e){ e.currentTarget.style.background = sm?'rgba(81,196,211,0.08)':'#f8faff'; }}
                       >
-                        <div style={{ fontWeight:'600', color:'#1d4ed8' }}>📌 {r.title}</div>
-                        {r.desc && <div style={{ color:'#64748b', marginTop:'2px' }}>{r.desc}</div>}
-                      </div>
+                        <div style={{ display:'flex', alignItems:'center', gap:'6px', marginBottom: opt.desc ? '3px' : '0' }}>
+                          <span style={{ fontWeight:'700', color: sm?'#e2e8f0':'#1d4ed8', fontSize:'12px' }}>↗ {opt.label}</span>
+                        </div>
+                        {opt.desc && (
+                          <div style={{ fontSize:'11px', color: sm?'#94a3b8':'#64748b', lineHeight:'1.4', paddingRight: isRTL?'0':'0', paddingLeft:'0' }}>{opt.desc}</div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              {/* Feedback buttons (Yes / No) */}
+              {m.feedbackOptions && m.feedbackOptions.length > 0 && (
+                <div style={{ display:'flex', flexDirection:'row', gap:'6px', marginTop:'7px', flexWrap:'wrap' }}>
+                  {m.feedbackOptions.map(function(label, fi) {
+                    var isYes = fi === 0;
+                    return (
+                      <button key={fi}
+                        onClick={function(){
+                          var userReply = { sender:'user', text: label };
+                          var botReply  = isYes
+                            ? { sender:'bot', text: isRTL ? 'מצוין! שמח שעזרתי. אל תהסס לשאול אם תצטרך עוד עזרה.' : 'Awesome! Glad I could help. Let me know if you need anything else.' }
+                            : { sender:'bot', text: isRTL ? 'מצטער לשמוע. נסה לתאר את הבעיה במילים אחרות או עיין בתרשים הזרימה.' : 'Sorry to hear that. Try describing the issue with different keywords or check the flowchart.' };
+                          setMessages(function(prev){ return prev.concat([userReply, botReply]); });
+                        }}
+                        style={{ background: isYes ? (sm?'rgba(16,185,129,0.15)':'#dcfce7') : (sm?'rgba(239,68,68,0.12)':'#fee2e2'), border:'1.5px solid '+(isYes?(sm?'#10b981':'#86efac'):(sm?'#ef4444':'#fca5a5')), borderRadius:'8px', padding:'5px 11px', fontSize:'11.5px', fontWeight:'700', color: isYes?(sm?'#6ee7b7':'#166534'):(sm?'#fca5a5':'#991b1b'), cursor:'pointer', transition:'opacity 0.15s' }}
+                        onMouseEnter={function(e){ e.currentTarget.style.opacity='0.75'; }}
+                        onMouseLeave={function(e){ e.currentTarget.style.opacity='1'; }}
+                      >
+                        {label}
+                      </button>
                     );
                   })}
                 </div>
@@ -1598,14 +1745,27 @@ function Chatbot(props) {
             </div>
           );
         })}
-        {loading && <div style={{ display:'flex', justifyContent:'flex-start' }}><div style={{ background:'#f1f5f9', borderRadius:'12px', padding:'8px 14px', fontSize:'13px', color:'#94a3b8' }}>...</div></div>}
+        {isTyping && (
+          <div style={{ display:'flex', alignItems:'flex-start', gap:'4px' }}>
+            <div style={{ background:botBubble, borderRadius:'14px', padding:'9px 14px', fontSize:'14px', color:'#94a3b8', letterSpacing:'3px' }}>•••</div>
+          </div>
+        )}
         <div ref={endRef} />
       </div>
-      <div style={{ padding:'8px 10px', borderTop:'1px solid #e2e8f0', display:'flex', gap:'6px' }}>
-        <input type="text" value={inputVal} onChange={function(e){ setInputVal(e.target.value); }} onKeyDown={function(e){ if(e.key==='Enter') sendMessage(); }} placeholder={t('typeMessage')}
-          style={{ flex:1, padding:'7px 10px', border:'1.5px solid #e2e8f0', borderRadius:'8px', fontSize:'12px', outline:'none', minWidth:0, color:'#1e293b', background:'#fff' }}
+
+      {/* Input */}
+      <div style={{ padding:'8px 10px', borderTop:'1px solid '+borderClr, display:'flex', gap:'6px', flexShrink:0, background: sm?'rgba(255,255,255,0.03)':panelBg }}>
+        <input
+          type="text"
+          value={inputVal}
+          onChange={function(e){ setInputVal(e.target.value); }}
+          onKeyDown={function(e){ if(e.key==='Enter') sendMessage(); }}
+          placeholder={t('typeMessage')}
+          dir={isRTL?'rtl':'ltr'}
+          style={{ flex:1, padding:'8px 11px', border:'1.5px solid '+borderClr, borderRadius:'10px', fontSize:'12.5px', outline:'none', minWidth:0, color:inputClr, background:inputBg }}
         />
-        <button onClick={sendMessage} disabled={loading} style={{ background:'#2563eb', color:'#fff', border:'none', borderRadius:'8px', padding:'7px 11px', cursor:'pointer', opacity:loading?0.6:1, flexShrink:0, display:'flex', alignItems:'center' }}>
+        <button onClick={sendMessage} disabled={isTyping}
+          style={{ background:'#2563eb', color:'#fff', border:'none', borderRadius:'10px', padding:'8px 12px', cursor:'pointer', opacity:isTyping?0.5:1, flexShrink:0, display:'flex', alignItems:'center', transition:'opacity 0.15s' }}>
           <SendIcon size={13} />
         </button>
       </div>
@@ -1797,16 +1957,24 @@ function App() {
               </button>
               <button onClick={goHome} title={t('home')} style={{ background:'rgba(255,255,255,0.1)', border:'none', borderRadius:'6px', padding:'5px 8px', cursor:'pointer', color:'#fff', display:'flex', alignItems:'center' }}><HomeIcon size={14}/></button>
               <div style={{ flex:1, fontWeight:'700', fontSize:'14px', textAlign:'center' }}>{currentStepData.title||currentStepData.text}</div>
+              {window.__HEADER_LOGO__ && (
+                <img src={window.__HEADER_LOGO__} alt="logo" style={{ height:'34px', maxWidth:'120px', objectFit:'contain', flexShrink:0, display:'block' }} />
+              )}
             </div>
           )}
           <div style={{ flex:1, overflowY:'auto' }}>
             <LandingPage key={currentStep||'__home__'} onSelect={goTo} processOptions={procOptions} mainTitle={landingMainTitle} subtitle={landingSubtitle} heroImage={landingHeroImage} logoUrl={landingLogoUrl} imagePosition={landingImgPos} titleColor={landingTitleClr} textColor={landingTextClr} logoHeight={landingLogoH} heroHeight={landingHeroH} iconSize={landingIconSz} ctaText={landingCtaText} ctaTarget={landingCtaTarget} stepText={landingStepText} history={history} onGoTo={goTo} />
           </div>
           <button onClick={function(){ setChatOpen(function(o){ return !o; }); }}
-            style={Object.assign({ position:'fixed', bottom:'18px', zIndex:999, background:'#2563eb', color:'#fff', border:'none', borderRadius:'50%', width:'48px', height:'48px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 16px rgba(37,99,235,0.4)' }, isRTL?{left:'18px'}:{right:'18px'})}>
+            style={Object.assign({ position:'fixed', bottom:'30px', zIndex:999, background:'#2563eb', color:'#fff', border:'none', borderRadius:'50%', width:'48px', height:'48px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 16px rgba(37,99,235,0.4)' }, isRTL?{left:'18px'}:{right:'18px'})}>
             <MessageCircleIcon size={20}/>
           </button>
-          <Chatbot isOpen={chatOpen} onClose={function(){ setChatOpen(false); }} onNavigate={function(id){ goTo(id); setChatOpen(false); }}/>
+          <Chatbot isOpen={chatOpen} onClose={function(){ setChatOpen(false); }} onNavigate={function(id){ goTo(id); }}/>
+          {window.__DISCLAIMER_TEXT__ && (
+            <div style={{ position:'fixed', bottom:0, left:0, right:0, zIndex:998, textAlign:'center', padding:'3px 12px', fontSize:(window.__DISCLAIMER_SIZE__||10)+'px', color: window.__DISCLAIMER_COLOR__ || 'rgba(100,116,139,0.6)', background: window.__DESIGN_THEME__==='stitch_modern' ? 'rgba(11,22,34,0.85)' : 'rgba(248,250,252,0.9)', backdropFilter:'blur(4px)', letterSpacing:'0.04em', pointerEvents:'none', userSelect:'none' }}>
+              {window.__DISCLAIMER_TEXT__}
+            </div>
+          )}
         </div>
       </LangContext.Provider>
     );
@@ -1820,11 +1988,6 @@ function App() {
     <LangContext.Provider value={ctxValue}>
       <div style={{ minHeight:'100vh', display:'flex', flexDirection:'column', background:window.__DESIGN_THEME__==='stitch_modern'?'#0b1622':'#f1f5f9' }}>
         <div style={{ background:window.__DESIGN_THEME__==='stitch_modern'?'#0d1f2d':'#1e293b', borderBottom:window.__DESIGN_THEME__==='stitch_modern'?'1px solid rgba(81,196,211,0.15)':'none', color:'#fff', padding:'9px 14px', display:'flex', alignItems:'center', gap:'8px', flexShrink:0, boxShadow:'0 2px 8px rgba(0,0,0,0.15)' }}>
-          {window.__EXPORT_LOGO__ && (
-            <div style={{ background:'rgba(255,255,255,0.12)', borderRadius:'8px', padding:'3px 10px', display:'flex', alignItems:'center', flexShrink:0 }}>
-              <img src={window.__EXPORT_LOGO__} alt="logo" style={{ height:'38px', maxWidth:'130px', objectFit:'contain', display:'block' }}/>
-            </div>
-          )}
           <button onClick={goHome} title={t('home')} style={{ background:'rgba(255,255,255,0.1)', border:'none', borderRadius:'6px', padding:'5px 8px', cursor:'pointer', color:'#fff', display:'flex', alignItems:'center' }}><HomeIcon size={14}/></button>
           {history.length > 0 && (
             <button onClick={goBack} style={{ background:'rgba(255,255,255,0.1)', border:'none', borderRadius:'6px', padding:'5px 9px', cursor:'pointer', color:'#fff', display:'flex', alignItems:'center', gap:'4px', fontSize:'12px' }}>
@@ -1832,6 +1995,9 @@ function App() {
             </button>
           )}
           <div style={{ flex:1, fontWeight:'700', fontSize:'14px', textAlign:'center', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{stepTitle}</div>
+          {window.__HEADER_LOGO__ && (
+            <img src={window.__HEADER_LOGO__} alt="logo" style={{ height:'34px', maxWidth:'120px', objectFit:'contain', flexShrink:0, display:'block' }} />
+          )}
         </div>
 
         <div className="body-flex" style={{ flex:1, display:'flex', flexDirection:mainDir, overflow:'hidden', minHeight:0 }}>
@@ -1894,10 +2060,15 @@ function App() {
         </div>
 
         <button onClick={function(){ setChatOpen(function(o){ return !o; }); }}
-          style={Object.assign({ position:'fixed', bottom:'18px', zIndex:999, background:'#2563eb', color:'#fff', border:'none', borderRadius:'50%', width:'48px', height:'48px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 16px rgba(37,99,235,0.4)' }, fabSide)}>
+          style={Object.assign({ position:'fixed', bottom:'30px', zIndex:999, background:'#2563eb', color:'#fff', border:'none', borderRadius:'50%', width:'48px', height:'48px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 16px rgba(37,99,235,0.4)' }, fabSide)}>
           <MessageCircleIcon size={20}/>
         </button>
-        <Chatbot isOpen={chatOpen} onClose={function(){ setChatOpen(false); }} stepText={stepText} onNavigate={function(id){ goTo(id); setChatOpen(false); }}/>
+        <Chatbot isOpen={chatOpen} onClose={function(){ setChatOpen(false); }} stepText={stepText} onNavigate={function(id){ goTo(id); }}/>
+        {window.__DISCLAIMER_TEXT__ && (
+          <div style={{ position:'fixed', bottom:0, left:0, right:0, zIndex:998, textAlign:'center', padding:'3px 12px', fontSize:(window.__DISCLAIMER_SIZE__||10)+'px', color: window.__DISCLAIMER_COLOR__ || 'rgba(100,116,139,0.6)', background: window.__DESIGN_THEME__==='stitch_modern' ? 'rgba(11,22,34,0.85)' : 'rgba(248,250,252,0.9)', backdropFilter:'blur(4px)', letterSpacing:'0.04em', pointerEvents:'none', userSelect:'none' }}>
+            {window.__DISCLAIMER_TEXT__}
+          </div>
+        )}
       </div>
     </LangContext.Provider>
   );
