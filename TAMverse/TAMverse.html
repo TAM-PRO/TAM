@@ -2,16 +2,17 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TAM PROJECTS - Learning Metaverse</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f4f8; /* רקע בהיר */
+            background-color: #f0f4f8;
             color: #333;
             user-select: none;
+            -webkit-touch-callout: none;
         }
 
         /* Branding Overlay */
@@ -38,7 +39,7 @@
         .brand-sub {
             font-size: 18px;
             font-weight: 800;
-            color: #222; /* שחור בולט בגלל הרקע הבהיר */
+            color: #222;
             letter-spacing: 6px;
             margin-top: 5px;
             padding-right: 5px;
@@ -49,7 +50,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            background-color: rgba(240, 244, 248, 0.85); /* רקע בהיר חצי שקוף */
+            background-color: rgba(240, 244, 248, 0.85);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -68,6 +69,7 @@
             box-shadow: 0 10px 40px rgba(44, 117, 255, 0.15);
             transition: transform 0.2s, box-shadow 0.2s;
             color: #333;
+            max-width: 90%;
         }
 
         #instructions:hover {
@@ -79,6 +81,12 @@
         .desc { font-size: 18px; line-height: 1.6; color: #555; margin-bottom: 30px; }
         .controls-hint { font-size: 16px; color: #666; display: flex; gap: 20px; justify-content: center; }
         .key { background: #eee; padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; color: #333; font-family: monospace; font-weight: bold;}
+
+        /* Mobile specific displays */
+        .mobile-only { display: none !important; }
+        .is-mobile .desktop-only { display: none !important; }
+        .is-mobile .mobile-only { display: flex !important; }
+        .is-mobile #crosshair { display: none !important; }
 
         /* Crosshair */
         #crosshair {
@@ -93,21 +101,33 @@
             opacity: 0.6;
             transition: opacity 0.2s, transform 0.2s;
         }
-        #crosshair::before, #crosshair::after {
-            content: '';
-            position: absolute;
-            background: #222; /* צלב מטרה כהה בגלל הרקע הבהיר */
-        }
+        #crosshair::before, #crosshair::after { content: ''; position: absolute; background: #222; }
         #crosshair::before { top: 9px; left: 0; width: 20px; height: 2px; }
         #crosshair::after { top: 0; left: 9px; width: 2px; height: 20px; }
-        
-        #crosshair.active {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1.5);
-            background-color: transparent;
+        #crosshair.active { opacity: 1; transform: translate(-50%, -50%) scale(1.5); background-color: transparent; }
+        #crosshair.active::before, #crosshair.active::after { background: #2c75ff; }
+
+        /* Mobile Joystick */
+        #mobile-joystick-zone {
+            display: none;
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: rgba(44, 117, 255, 0.15);
+            border: 2px solid rgba(44, 117, 255, 0.4);
+            border-radius: 50%;
+            z-index: 15;
+            pointer-events: none; /* Let document handle touch */
         }
-        #crosshair.active::before, #crosshair.active::after {
-            background: #2c75ff;
+        #mobile-joystick-knob {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            width: 50px;
+            height: 50px;
+            background: rgba(44, 117, 255, 0.8);
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
         /* 3D Object Labels */
@@ -144,14 +164,14 @@
             text-align: center;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             width: 450px;
-            max-width: 90%;
+            max-width: 85%;
             color: #333;
         }
         
         #info-modal h2 { margin-top: 0; color: #2c75ff; font-size: 32px; margin-bottom: 15px; }
         #info-modal p { color: #555; font-size: 18px; line-height: 1.6; margin-bottom: 30px; }
         
-        .btn-container { display: flex; gap: 15px; justify-content: center; }
+        .btn-container { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
         .btn {
             background: #2c75ff;
             color: white;
@@ -162,6 +182,8 @@
             font-weight: bold;
             cursor: pointer;
             transition: background 0.2s;
+            flex: 1;
+            min-width: 140px;
         }
         .btn:hover { background: #1a5bde; }
         .btn-outline {
@@ -170,6 +192,19 @@
             color: #2c75ff;
         }
         .btn-outline:hover { background: rgba(44, 117, 255, 0.1); }
+
+        /* Mobile Media Queries */
+        @media (max-width: 768px) {
+            #brand-container { top: 15px; right: 15px; }
+            .brand-name { font-size: 32px; }
+            .brand-sub { font-size: 12px; letter-spacing: 4px; }
+            #instructions { padding: 30px 20px; }
+            .title { font-size: 26px; }
+            .desc { font-size: 16px; margin-bottom: 20px; }
+            #info-modal { padding: 25px; }
+            #info-modal h2 { font-size: 26px; }
+            #info-modal p { font-size: 16px; }
+        }
     </style>
 
     <script type="importmap">
@@ -195,12 +230,19 @@
             <div class="title">ברוכים הבאים לכנס המטאוורס</div>
             <div class="desc">
                 היכנסו לאולם הכנסים הווירטואלי של TAM PROJECTS.<br>
-                גשו לעמדות התצוגה (Kiosks) כדי להיכנס להדרכות השונות.
+                גשו לעמדות התצוגה (Kiosks) כדי להיכנס להדרכות.
             </div>
-            <div class="controls-hint">
+            <!-- Desktop Instructions -->
+            <div class="controls-hint desktop-only">
                 <span><span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span> לתנועה</span>
                 <span><span class="key">עכבר</span> למבט מסביב</span>
                 <span><span class="key">לחיצה</span> לבחירה</span>
+            </div>
+            <!-- Mobile Instructions -->
+            <div class="controls-hint mobile-only" style="flex-direction: column; gap: 12px; text-align: right; margin: 0 auto; display: inline-flex;">
+                <span>👆 <strong>צד שמאל:</strong> ג'ויסטיק וירטואלי לתנועה</span>
+                <span>👆 <strong>צד ימין:</strong> החלקה למבט מסביב</span>
+                <span>🎯 <strong>לחיצה:</strong> בחירת עמדת הדרכה</span>
             </div>
             <p style="margin-top:30px; color:#2c75ff; font-weight:bold; font-size: 20px;">לחצו כאן לכניסה לאולם</p>
         </div>
@@ -227,17 +269,19 @@
         let raycaster;
         let INTERSECTED = null;
         let isModalOpen = false;
+        let isTouchDevice = false;
 
-        // Movement
-        let moveForward = false;
-        let moveBackward = false;
-        let moveLeft = false;
-        let moveRight = false;
+        // Desktop Movement
+        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
         const velocity = new THREE.Vector3();
         const direction = new THREE.Vector3();
+        
+        // Mobile Movement
+        let mobileMoveX = 0, mobileMoveZ = 0;
+        
         let prevTime = performance.now();
 
-        // Portal Data - עמדות התצוגה באולם
+        // Portal Data
         const portalData = [
             { id: 'tech', title: 'טכנולוגיה וחדשנות', desc: 'הדרכות מתקדמות בנושאי פיתוח, ענן, ובינה מלאכותית.', color: 0x2c75ff, position: [-25, 0, -15] },
             { id: 'pm', title: 'ניהול פרויקטים', desc: 'קורסים מקיפים מתודולוגיות אג\'ייל, סקראם וניהול צוותים.', color: 0x00aaff, position: [25, 0, -15] },
@@ -245,45 +289,35 @@
             { id: 'onboarding', title: 'קליטת עובדים', desc: 'עולם ההיכרות לעובדים חדשים - נהלים, תרבות ארגונית ומבואות.', color: 0x00cc66, position: [25, 0, 25] }
         ];
 
+        // --- Scene Creation ---
         function createBrightHall() {
-            // רצפת פרקט מוארת (עץ בהיר)
             const floorGeo = new THREE.PlaneGeometry(120, 160);
-            const floorMat = new THREE.MeshStandardMaterial({ 
-                color: 0xdbbca0, // צבע עץ חם ובהיר
-                roughness: 0.3, 
-                metalness: 0.1 
-            });
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0xdbbca0, roughness: 0.3, metalness: 0.1 });
             const floor = new THREE.Mesh(floorGeo, floorMat);
             floor.rotation.x = -Math.PI / 2;
             scene.add(floor);
 
-            // קירות האולם - צבע שמנת/בז' בהיר
             const wallMat = new THREE.MeshStandardMaterial({ color: 0xf5f2eb, roughness: 0.9 });
-            
-            // קיר אחורי (מאחורי הבמה)
             const backWallGeo = new THREE.BoxGeometry(120, 30, 2);
+            
             const backWall = new THREE.Mesh(backWallGeo, wallMat);
             backWall.position.set(0, 15, -80);
             scene.add(backWall);
 
-            // קיר קדמי
             const frontWall = new THREE.Mesh(backWallGeo, wallMat);
             frontWall.position.set(0, 15, 80);
             scene.add(frontWall);
 
-            // קיר ימני (אטום)
             const sideWallGeo = new THREE.BoxGeometry(2, 30, 160);
             const rightWall = new THREE.Mesh(sideWallGeo, wallMat);
             rightWall.position.set(60, 15, 0);
             scene.add(rightWall);
 
-            // קיר שמאלי - קיר חלונות שקוף למחצה שמכניס "אור יום"
             const windowWallMat = new THREE.MeshBasicMaterial({ color: 0xeef7ff, transparent: true, opacity: 0.7 });
             const leftWall = new THREE.Mesh(sideWallGeo, windowWallMat);
             leftWall.position.set(-60, 15, 0);
             scene.add(leftWall);
 
-            // מסגרות לחלונות ליצירת תחושת זכוכית (Mullions)
             const mullionGeo = new THREE.BoxGeometry(3, 30, 2);
             const mullionMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
             for(let i = -70; i <= 70; i+= 20) {
@@ -292,14 +326,12 @@
                 scene.add(mullion);
             }
 
-            // תקרה בהירה ואקוסטית
             const ceilingMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1.0 });
             const ceiling = new THREE.Mesh(floorGeo, ceilingMat);
             ceiling.rotation.x = Math.PI / 2;
             ceiling.position.y = 30;
             scene.add(ceiling);
 
-            // פסי תאורה כהים בתקרה (כמו בתמונות הרפרנס)
             const trackGeo = new THREE.BoxGeometry(120, 0.5, 2);
             const trackMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
             for(let i = -60; i <= 60; i+= 30) {
@@ -308,21 +340,18 @@
                 scene.add(track);
             }
 
-            // --- בניית במה מרכזית ---
             const stageGeo = new THREE.BoxGeometry(60, 2, 20);
             const stageMat = new THREE.MeshStandardMaterial({ color: 0xdddddd, roughness: 0.5 });
             const stage = new THREE.Mesh(stageGeo, stageMat);
             stage.position.set(0, 1, -70);
             scene.add(stage);
 
-            // מסך ענק על הבמה
             const mainScreenGeo = new THREE.PlaneGeometry(40, 15);
-            const mainScreenMat = new THREE.MeshBasicMaterial({ color: 0x051024 }); // רקע כחול כהה למסך
+            const mainScreenMat = new THREE.MeshBasicMaterial({ color: 0x051024 });
             const mainScreen = new THREE.Mesh(mainScreenGeo, mainScreenMat);
             mainScreen.position.set(0, 12, -78.9);
             scene.add(mainScreen);
 
-            // מסגרת למסך
             const screenFrameGeo = new THREE.BoxGeometry(42, 17, 1);
             const screenFrameMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
             const screenFrame = new THREE.Mesh(screenFrameGeo, screenFrameMat);
@@ -330,42 +359,103 @@
             scene.add(screenFrame);
         }
 
+        function createKiosks() {
+            const labelsContainer = document.getElementById('labels-container');
+            
+            portalData.forEach(data => {
+                const kioskGroup = new THREE.Group();
+                kioskGroup.position.set(data.position[0], data.position[1], data.position[2]);
+
+                const baseGeo = new THREE.BoxGeometry(6, 4, 3);
+                const baseMat = new THREE.MeshStandardMaterial({ color: 0xe0e0e0, roughness: 0.5 });
+                const base = new THREE.Mesh(baseGeo, baseMat);
+                base.position.y = 2;
+                kioskGroup.add(base);
+
+                const ledGeo = new THREE.BoxGeometry(6.2, 0.2, 3.2);
+                const ledMat = new THREE.MeshBasicMaterial({ color: data.color });
+                const led = new THREE.Mesh(ledGeo, ledMat);
+                led.position.y = 3.5;
+                kioskGroup.add(led);
+
+                const screenGeo = new THREE.PlaneGeometry(5, 7);
+                const screenMat = new THREE.MeshStandardMaterial({ 
+                    color: data.color, emissive: data.color, emissiveIntensity: 0.6,
+                    transparent: true, opacity: 0.8, side: THREE.DoubleSide
+                });
+                const screen = new THREE.Mesh(screenGeo, screenMat);
+                screen.position.y = 7.5;
+                screen.userData = data; 
+                kioskGroup.add(screen);
+
+                const pointLight = new THREE.PointLight(data.color, 2, 20);
+                pointLight.position.set(0, 8, 2);
+                kioskGroup.add(pointLight);
+
+                scene.add(kioskGroup);
+
+                const label = document.createElement('div');
+                label.className = 'portal-label';
+                label.innerText = data.title;
+                label.style.borderColor = '#' + data.color.toString(16).padStart(6, '0');
+                labelsContainer.appendChild(label);
+
+                portals.push({
+                    mesh: screen,
+                    labelElement: label,
+                    baseY: 7.5,
+                    data: data
+                });
+            });
+        }
+
         // --- Initialization ---
         function init() {
+            // Detect Mobile/Touch
+            isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            if (isTouchDevice) {
+                document.body.classList.add('is-mobile');
+                setupMobileControls();
+            }
+
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xdceaf5); // צבע שמיים מחוץ לחלון
+            scene.background = new THREE.Color(0xdceaf5);
             scene.fog = new THREE.Fog(0xdceaf5, 40, 200);
 
             camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 7, 60); // נקודת התחלה: כניסה לאולם מבחוץ פנימה
+            camera.position.set(0, 7, 60);
 
-            // תאורת אולם בהירה וחזקה
-            const ambientLight = new THREE.HemisphereLight(0xffffff, 0xcfb28e, 0.8); // אור מהתקרה והחזר מהרצפה
+            const ambientLight = new THREE.HemisphereLight(0xffffff, 0xcfb28e, 0.8);
             scene.add(ambientLight);
 
-            // "אור שמש" שמגיע מקיר החלונות
             const dirLight = new THREE.DirectionalLight(0xfff5e6, 0.8);
             dirLight.position.set(-80, 40, 20);
             scene.add(dirLight);
 
-            // יצירת האולם ועמדות התצוגה
             createBrightHall();
             createKiosks();
 
-            // Setup Renderer
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setPixelRatio(window.devicePixelRatio);
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            // Setup Controls
+            // Setup Desktop Controls
             controls = new PointerLockControls(camera, document.body);
+            scene.add(controls.getObject());
 
             const blocker = document.getElementById('blocker');
             const instructions = document.getElementById('instructions');
 
             instructions.addEventListener('click', function () {
-                if (!isModalOpen) controls.lock();
+                if (!isModalOpen) {
+                    if (isTouchDevice) {
+                        instructions.style.display = 'none';
+                        blocker.style.display = 'none';
+                    } else {
+                        controls.lock();
+                    }
+                }
             });
 
             controls.addEventListener('lock', function () {
@@ -380,113 +470,158 @@
                     instructions.style.display = 'block';
                 }
             });
-            
-            scene.add(controls.getObject());
 
             // Events
-            document.addEventListener('keydown', onKeyDown);
-            document.addEventListener('keyup', onKeyUp);
-            document.addEventListener('mousedown', onDocumentMouseDown);
+            if (!isTouchDevice) {
+                document.addEventListener('keydown', onKeyDown);
+                document.addEventListener('keyup', onKeyUp);
+            }
+            
+            // Unified Click / Tap to interact
+            renderer.domElement.addEventListener('click', onDocumentClick);
 
             raycaster = new THREE.Raycaster();
             window.addEventListener('resize', onWindowResize);
         }
 
-        function createKiosks() {
-            const labelsContainer = document.getElementById('labels-container');
-            
-            portalData.forEach(data => {
-                const kioskGroup = new THREE.Group();
-                kioskGroup.position.set(data.position[0], data.position[1], data.position[2]);
+        // --- Mobile Specific Controls Setup ---
+        function setupMobileControls() {
+            const joystickZone = document.createElement('div');
+            joystickZone.id = 'mobile-joystick-zone';
+            const joystickKnob = document.createElement('div');
+            joystickKnob.id = 'mobile-joystick-knob';
+            joystickZone.appendChild(joystickKnob);
+            document.body.appendChild(joystickZone);
 
-                // בסיס העמדה (Pedestal) - אפור מודרני
-                const baseGeo = new THREE.BoxGeometry(6, 4, 3);
-                const baseMat = new THREE.MeshStandardMaterial({ color: 0xe0e0e0, roughness: 0.5 });
-                const base = new THREE.Mesh(baseGeo, baseMat);
-                base.position.y = 2; // חצי גובה מ-4
-                kioskGroup.add(base);
+            let moveTouchId = null;
+            let lookTouchId = null;
+            let prevTouchX = 0;
+            let prevTouchY = 0;
+            let joyCenter = {x:0, y:0};
+            const maxRadius = 35; // Maximum joystick stretch
 
-                // קו תאורה דקורטיבי סביב הבסיס
-                const ledGeo = new THREE.BoxGeometry(6.2, 0.2, 3.2);
-                const ledMat = new THREE.MeshBasicMaterial({ color: data.color });
-                const led = new THREE.Mesh(ledGeo, ledMat);
-                led.position.y = 3.5;
-                kioskGroup.add(led);
+            document.addEventListener('touchstart', (e) => {
+                if (isModalOpen || document.getElementById('blocker').style.display !== 'none') return;
+                
+                for (let i = 0; i < e.changedTouches.length; i++) {
+                    const touch = e.changedTouches[i];
+                    if (touch.clientX < window.innerWidth / 2) {
+                        // Left Side - Joystick
+                        if (moveTouchId === null) {
+                            moveTouchId = touch.identifier;
+                            joyCenter = { x: touch.clientX, y: touch.clientY };
+                            joystickZone.style.left = (touch.clientX - 50) + 'px';
+                            joystickZone.style.top = (touch.clientY - 50) + 'px';
+                            joystickZone.style.display = 'block';
+                            joystickKnob.style.transform = `translate(0px, 0px)`;
+                        }
+                    } else {
+                        // Right Side - Look
+                        if (lookTouchId === null) {
+                            lookTouchId = touch.identifier;
+                            prevTouchX = touch.clientX;
+                            prevTouchY = touch.clientY;
+                        }
+                    }
+                }
+            }, { passive: false });
 
-                // מסך זכוכית עליון מרחף
-                const screenGeo = new THREE.PlaneGeometry(5, 7);
-                // מסך זוהר שקוף למחצה
-                const screenMat = new THREE.MeshStandardMaterial({ 
-                    color: data.color, 
-                    emissive: data.color,
-                    emissiveIntensity: 0.6,
-                    transparent: true,
-                    opacity: 0.8,
-                    side: THREE.DoubleSide
-                });
-                const screen = new THREE.Mesh(screenGeo, screenMat);
-                screen.position.y = 7.5; // יושב מעל הבסיס
-                screen.userData = data; // מחברים את הנתונים למסך כדי שיהיה לחיץ!
-                kioskGroup.add(screen);
+            document.addEventListener('touchmove', (e) => {
+                if (isModalOpen || document.getElementById('blocker').style.display !== 'none') return;
+                e.preventDefault(); // Prevent page scrolling
+                
+                for (let i = 0; i < e.changedTouches.length; i++) {
+                    const touch = e.changedTouches[i];
+                    
+                    if (touch.identifier === lookTouchId) {
+                        // Handle Camera Rotation
+                        const deltaX = touch.clientX - prevTouchX;
+                        const deltaY = touch.clientY - prevTouchY;
+                        
+                        const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+                        euler.setFromQuaternion(camera.quaternion);
+                        euler.y -= deltaX * 0.005;
+                        euler.x -= deltaY * 0.005;
+                        // Clamp vertical look
+                        euler.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, euler.x));
+                        camera.quaternion.setFromEuler(euler);
 
-                // תאורה מקומית לעמדה
-                const pointLight = new THREE.PointLight(data.color, 2, 20);
-                pointLight.position.set(0, 8, 2);
-                kioskGroup.add(pointLight);
+                        prevTouchX = touch.clientX;
+                        prevTouchY = touch.clientY;
+                    } else if (touch.identifier === moveTouchId) {
+                        // Handle Joystick Movement
+                        let dx = touch.clientX - joyCenter.x;
+                        let dy = touch.clientY - joyCenter.y;
+                        const distance = Math.sqrt(dx*dx + dy*dy);
+                        
+                        if (distance > maxRadius) {
+                            dx = (dx / distance) * maxRadius;
+                            dy = (dy / distance) * maxRadius;
+                        }
+                        
+                        joystickKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+                        mobileMoveX = dx / maxRadius;
+                        mobileMoveZ = dy / maxRadius;
+                    }
+                }
+            }, { passive: false });
 
-                scene.add(kioskGroup);
-
-                // יצירת הכותרת הצפה ב-HTML
-                const label = document.createElement('div');
-                label.className = 'portal-label';
-                label.innerText = data.title;
-                label.style.borderColor = '#' + data.color.toString(16).padStart(6, '0');
-                labelsContainer.appendChild(label);
-
-                portals.push({
-                    mesh: screen, // אנחנו עוקבים אחרי המסך
-                    labelElement: label,
-                    baseY: 7.5,
-                    data: data
-                });
+            document.addEventListener('touchend', (e) => {
+                for (let i = 0; i < e.changedTouches.length; i++) {
+                    const touch = e.changedTouches[i];
+                    if (touch.identifier === lookTouchId) {
+                        lookTouchId = null;
+                    } else if (touch.identifier === moveTouchId) {
+                        moveTouchId = null;
+                        joystickZone.style.display = 'none';
+                        mobileMoveX = 0;
+                        mobileMoveZ = 0;
+                    }
+                }
             });
         }
 
         // --- Controls & Input ---
         function onKeyDown(event) {
             switch (event.code) {
-                case 'ArrowUp':
-                case 'KeyW': moveForward = true; break;
-                case 'ArrowLeft':
-                case 'KeyA': moveLeft = true; break;
-                case 'ArrowDown':
-                case 'KeyS': moveBackward = true; break;
-                case 'ArrowRight':
-                case 'KeyD': moveRight = true; break;
+                case 'ArrowUp': case 'KeyW': moveForward = true; break;
+                case 'ArrowLeft': case 'KeyA': moveLeft = true; break;
+                case 'ArrowDown': case 'KeyS': moveBackward = true; break;
+                case 'ArrowRight': case 'KeyD': moveRight = true; break;
             }
         }
 
         function onKeyUp(event) {
             switch (event.code) {
-                case 'ArrowUp':
-                case 'KeyW': moveForward = false; break;
-                case 'ArrowLeft':
-                case 'KeyA': moveLeft = false; break;
-                case 'ArrowDown':
-                case 'KeyS': moveBackward = false; break;
-                case 'ArrowRight':
-                case 'KeyD': moveRight = false; break;
+                case 'ArrowUp': case 'KeyW': moveForward = false; break;
+                case 'ArrowLeft': case 'KeyA': moveLeft = false; break;
+                case 'ArrowDown': case 'KeyS': moveBackward = false; break;
+                case 'ArrowRight': case 'KeyD': moveRight = false; break;
             }
         }
 
-        function onDocumentMouseDown(event) {
-            if (!controls.isLocked || isModalOpen) return;
+        function onDocumentClick(event) {
+            if (isModalOpen || document.getElementById('blocker').style.display !== 'none') return;
 
-            raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+            const mouse = new THREE.Vector2();
+            
+            if (isTouchDevice) {
+                // On mobile, tap coordinates relative to screen
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 - 1; 
+                // Adjusted for tap accuracy
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1; 
+                raycaster.setFromCamera(mouse, camera);
+            } else {
+                // On desktop, crosshair is in the center
+                if (!controls.isLocked) return;
+                raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+            }
+
             const intersects = raycaster.intersectObjects(scene.children, true);
 
             if (intersects.length > 0) {
-                const object = intersects[0].object;
+                let object = intersects[0].object;
                 if (object.userData && object.userData.title) {
                     openModal(object.userData);
                 }
@@ -496,7 +631,7 @@
         // --- UI Interactions ---
         function openModal(data) {
             isModalOpen = true;
-            controls.unlock();
+            if (!isTouchDevice) controls.unlock();
             
             document.getElementById('modal-title').innerText = data.title;
             document.getElementById('modal-desc').innerText = data.desc;
@@ -506,7 +641,7 @@
             
             modal.style.display = 'block';
             blocker.style.display = 'flex';
-            blocker.style.backgroundColor = 'rgba(0, 0, 0, 0.6)'; // מחשיך את הרקע כשהמודאל פתוח
+            blocker.style.backgroundColor = 'rgba(0, 0, 0, 0.6)';
             document.getElementById('instructions').style.display = 'none';
             
             document.getElementById('modal-title').style.color = '#' + data.color.toString(16).padStart(6, '0');
@@ -518,9 +653,12 @@
             
             const blocker = document.getElementById('blocker');
             blocker.style.backgroundColor = 'rgba(240, 244, 248, 0.85)';
-            document.getElementById('instructions').style.display = 'block';
+            // Note: Don't show instructions again to stay in immersive mode, just hide blocker
+            blocker.style.display = 'none';
             
-            controls.lock();
+            if (!isTouchDevice) {
+                controls.lock();
+            }
         };
 
         window.enterCourse = function() {
@@ -549,7 +687,10 @@
             const time = performance.now();
             const delta = (time - prevTime) / 1000;
 
-            if (controls.isLocked && !isModalOpen) {
+            const speed = 150.0; 
+
+            // Desktop Movement
+            if (!isTouchDevice && controls.isLocked && !isModalOpen) {
                 velocity.x -= velocity.x * 10.0 * delta;
                 velocity.z -= velocity.z * 10.0 * delta;
 
@@ -557,26 +698,36 @@
                 direction.x = Number(moveRight) - Number(moveLeft);
                 direction.normalize();
 
-                const speed = 150.0; // מהירות הליכה
                 if (moveForward || moveBackward) velocity.z -= direction.z * speed * delta;
                 if (moveLeft || moveRight) velocity.x -= direction.x * speed * delta;
 
                 controls.moveRight(-velocity.x * delta);
                 controls.moveForward(-velocity.z * delta);
+            } 
+            // Mobile Movement
+            else if (isTouchDevice && !isModalOpen && document.getElementById('blocker').style.display === 'none') {
+                if (mobileMoveX !== 0 || mobileMoveZ !== 0) {
+                    const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
+                    const forward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0,1,0), euler.y);
+                    const right = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0,1,0), euler.y);
 
-                // גבולות האולם
-                const pos = controls.getObject().position;
-                if (pos.x < -55) pos.x = -55;
-                if (pos.x > 55) pos.x = 55;
-                if (pos.z < -75) pos.z = -75;
-                if (pos.z > 75) pos.z = 75;
+                    const moveSpeed = speed * delta * 0.4; // Mobile speed adjustment
+                    camera.position.addScaledVector(right, mobileMoveX * moveSpeed);
+                    camera.position.addScaledVector(forward, -mobileMoveZ * moveSpeed);
+                }
             }
+
+            // Hall Boundaries Constraint (Applies to both)
+            const pos = camera.position;
+            if (pos.x < -55) pos.x = -55;
+            if (pos.x > 55) pos.x = 55;
+            if (pos.z < -75) pos.z = -75;
+            if (pos.z > 75) pos.z = 75;
 
             const timeSeconds = time * 0.001;
             
-            // אנימציית מסכים וטקסט צף
+            // Portals Animation and Labels
             portals.forEach(portal => {
-                // תנועת ריחוף עדינה למסכי הזכוכית
                 portal.mesh.position.y = portal.baseY + Math.sin(timeSeconds * 2 + portal.mesh.position.x) * 0.2;
 
                 const tempV = new THREE.Vector3();
@@ -600,8 +751,8 @@
                 }
             });
 
-            // מערכת סימון מטרה (Raycaster)
-            if (controls.isLocked && !isModalOpen) {
+            // Desktop Raycaster Highlight
+            if (!isTouchDevice && controls.isLocked && !isModalOpen) {
                 raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
                 const intersects = raycaster.intersectObjects(scene.children, true);
                 
@@ -615,7 +766,7 @@
                         if (INTERSECTED != object) {
                             if (INTERSECTED) INTERSECTED.material.emissiveIntensity = 0.6;
                             INTERSECTED = object;
-                            INTERSECTED.material.emissiveIntensity = 1.0; // מסך נדלק חזק כשמסתכלים עליו
+                            INTERSECTED.material.emissiveIntensity = 1.0;
                             crosshair.classList.add('active');
                         }
                     }
