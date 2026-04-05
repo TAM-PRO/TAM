@@ -291,12 +291,14 @@
 
         // --- Scene Creation ---
         function createBrightHall() {
+            // רצפת פרקט
             const floorGeo = new THREE.PlaneGeometry(120, 160);
             const floorMat = new THREE.MeshStandardMaterial({ color: 0xdbbca0, roughness: 0.3, metalness: 0.1 });
             const floor = new THREE.Mesh(floorGeo, floorMat);
             floor.rotation.x = -Math.PI / 2;
             scene.add(floor);
 
+            // קירות
             const wallMat = new THREE.MeshStandardMaterial({ color: 0xf5f2eb, roughness: 0.9 });
             const backWallGeo = new THREE.BoxGeometry(120, 30, 2);
             
@@ -313,6 +315,7 @@
             rightWall.position.set(60, 15, 0);
             scene.add(rightWall);
 
+            // קיר חלונות
             const windowWallMat = new THREE.MeshBasicMaterial({ color: 0xeef7ff, transparent: true, opacity: 0.7 });
             const leftWall = new THREE.Mesh(sideWallGeo, windowWallMat);
             leftWall.position.set(-60, 15, 0);
@@ -326,6 +329,7 @@
                 scene.add(mullion);
             }
 
+            // תקרה
             const ceilingMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1.0 });
             const ceiling = new THREE.Mesh(floorGeo, ceilingMat);
             ceiling.rotation.x = Math.PI / 2;
@@ -340,14 +344,23 @@
                 scene.add(track);
             }
 
+            // במה מרכזית
             const stageGeo = new THREE.BoxGeometry(60, 2, 20);
             const stageMat = new THREE.MeshStandardMaterial({ color: 0xdddddd, roughness: 0.5 });
             const stage = new THREE.Mesh(stageGeo, stageMat);
             stage.position.set(0, 1, -70);
             scene.add(stage);
 
+            // --- מנגנון טעינת תמונות (TextureLoader) ---
+            // כאן תוכל להחליף בעתיד את הלינקים לתמונות אמיתיות שיושבות בשרת שלך
+            const textureLoader = new THREE.TextureLoader();
+            textureLoader.setCrossOrigin('anonymous'); // מאפשר למשוך תמונות משרתים חיצונים
+
+            // 1. תמונה למסך הראשי בבמה (Main Stage Screen)
             const mainScreenGeo = new THREE.PlaneGeometry(40, 15);
-            const mainScreenMat = new THREE.MeshBasicMaterial({ color: 0x051024 });
+            // טעינת תמונה שמדמה רקע כנס טכנולוגי (החלף לינק זה בעתיד)
+            const mainScreenTex = textureLoader.load('https://tam-pro.github.io/TAM/TAMverse/1.png');
+            const mainScreenMat = new THREE.MeshBasicMaterial({ map: mainScreenTex, color: 0xffffff });
             const mainScreen = new THREE.Mesh(mainScreenGeo, mainScreenMat);
             mainScreen.position.set(0, 12, -78.9);
             scene.add(mainScreen);
@@ -357,6 +370,36 @@
             const screenFrame = new THREE.Mesh(screenFrameGeo, screenFrameMat);
             screenFrame.position.set(0, 12, -79.5);
             scene.add(screenFrame);
+
+            // 2. פוסטרים ותמונות כנסים על הקיר הימני (Gallery Posters)
+            const posterGeo = new THREE.PlaneGeometry(22, 12); // מידות הפוסטר
+            const frameGeo = new THREE.BoxGeometry(23, 13, 0.5); // מסגרת הפוסטר
+            
+            // פוסטר ראשון
+            const posterTex1 = textureLoader.load('https://tam-pro.github.io/TAM/TAMverse/2.png'); // תמונת קהל בכנס
+            const posterMat1 = new THREE.MeshBasicMaterial({ map: posterTex1 });
+            const poster1 = new THREE.Mesh(posterGeo, posterMat1);
+            poster1.position.set(58.9, 14, -30);
+            poster1.rotation.y = -Math.PI / 2; // מסובב כדי להקביל לקיר הימני
+            scene.add(poster1);
+
+            const posterFrame1 = new THREE.Mesh(frameGeo, screenFrameMat);
+            posterFrame1.position.set(59.2, 14, -30);
+            posterFrame1.rotation.y = -Math.PI / 2;
+            scene.add(posterFrame1);
+
+            // פוסטר שני
+            const posterTex2 = textureLoader.load('https://tam-pro.github.io/TAM/TAMverse/3.png'); // תמונת אולם ומרצים
+            const posterMat2 = new THREE.MeshBasicMaterial({ map: posterTex2 });
+            const poster2 = new THREE.Mesh(posterGeo, posterMat2);
+            poster2.position.set(58.9, 14, 20);
+            poster2.rotation.y = -Math.PI / 2;
+            scene.add(poster2);
+
+            const posterFrame2 = new THREE.Mesh(frameGeo, screenFrameMat);
+            posterFrame2.position.set(59.2, 14, 20);
+            posterFrame2.rotation.y = -Math.PI / 2;
+            scene.add(posterFrame2);
         }
 
         function createKiosks() {
