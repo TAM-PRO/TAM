@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" id="html-root">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIOP - לומדה אינטראקטיבית</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // CDN loader with fallback chain. Tries unpkg → jsdelivr → cdnjs.
+    function loadScript(urls, name, cb) {
+      var i = 0;
+      function tryNext() {
+        if (i >= urls.length) { cb(new Error(name + ' failed all CDNs: ' + urls.join(', '))); return; }
+        var s = document.createElement('script');
+        s.src = urls[i++];
+        s.crossOrigin = 'anonymous';
+        s.onload = function(){ cb(null); };
+        s.onerror = function(){ tryNext(); };
+        document.head.appendChild(s);
+      }
+      tryNext();
+    }
+    function showError(msg) {
+      var el = document.getElementById('root') || document.body;
+      var box = document.createElement('div');
+      box.style.cssText = 'background:#111;color:#fca5a5;padding:20px;margin:20px;border:1px solid #ef4444;border-radius:8px;font-family:monospace;font-size:13px;white-space:pre-wrap;direction:ltr;text-align:left;';
+      box.textContent = msg;
+      el.parentNode.insertBefore(box, el);
+    }
+    window.addEventListener('error', function(e) {
+      var msg = (e.error && e.error.stack) ? e.error.stack : (e.message + ' at ' + (e.filename||'') + ':' + (e.lineno||''));
+      showError('JS ERROR:\n' + msg);
+    });
+    // Load React, then ReactDOM, then Babel — each with fallbacks.
+    loadScript([
+      'https://unpkg.com/react@18/umd/react.production.min.js',
+      'https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js'
+    ], 'React', function(err){
+      if (err) { showError(err.message); return; }
+      loadScript([
+        'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',
+        'https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js'
+      ], 'ReactDOM', function(err){
+        if (err) { showError(err.message); return; }
+        loadScript([
+          'https://unpkg.com/@babel/standalone/babel.min.js',
+          'https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js',
+          'https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js'
+        ], 'Babel', function(err){
+          if (err) { showError(err.message); return; }
+          // All libs loaded — now compile and run the JSX bundle.
+          var src = document.getElementById('app-source').textContent;
+          try {
+            var out = Babel.transform(src, { presets: [['react', { runtime: 'classic' }]] }).code;
+            (0, eval)(out);
+          } catch (e) {
+            showError('Babel/eval error:\n' + (e.stack || e.message));
+          }
+        });
+      });
+    });
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b1622;
+      --bg-2: #112c3b;
+      --surface: rgba(255,255,255,0.04);
+      --surface-2: rgba(255,255,255,0.07);
+      --border: rgba(81,196,211,0.2);
+      --border-strong: rgba(81,196,211,0.5);
+      --accent: #51c4d3;
+      --accent-2: #2563eb;
+      --text: #e2e8f0;
+      --text-dim: #8a9cae;
+      --success: #10b981;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body {
+      background: var(--bg);
+      background-image: radial-gradient(circle at 50% 0%, var(--bg-2) 0%, var(--bg) 70%);
+      color: var(--text);
+      font-family: 'Heebo', 'Inter', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    html[dir="ltr"] body { font-family: 'Inter', 'Heebo', system-ui, sans-serif; }
+
+    /* Animations */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(81,196,211,0.7); } 50% { box-shadow: 0 0 0 12px rgba(81,196,211,0); } }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    .fade-in { animation: fadeIn 0.4s ease-out; }
+    .slide-up { animation: slideUp 0.5s ease-out; }
+    .zoom-in { animation: zoomIn 0.35s ease-out; }
+
+    /* Components */
+    .glass {
+      background: var(--surface);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+    }
+    .glow-border { box-shadow: 0 0 24px rgba(81,196,211,0.15); border: 1px solid var(--border-strong); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px; justify-content: center;
+      padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 0.95rem;
+      cursor: pointer; transition: all 0.2s; border: none; user-select: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff; box-shadow: 0 4px 20px rgba(81,196,211,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(81,196,211,0.45); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-ghost {
+      background: rgba(255,255,255,0.05); color: var(--text);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.1); }
+
+    .channel-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 28px 20px; cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: center;
+    }
+    .channel-card:hover {
+      background: rgba(30,41,59,0.6);
+      border-color: var(--border-strong);
+      box-shadow: 0 0 20px rgba(81,196,211,0.2);
+      transform: translateY(-4px);
+    }
+    .channel-card.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 24px rgba(81,196,211,0.4);
+    }
+
+    .hotspot {
+      position: absolute; width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--accent); color: #0b1622;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 14px;
+      cursor: pointer;
+      animation: pulse 2s infinite;
+      border: 2px solid #fff;
+      z-index: 5;
+    }
+    .hotspot.done { background: var(--success); color: #fff; animation: none; }
+
+    .progress-bar {
+      height: 4px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width 0.4s ease;
+    }
+
+    .chapter-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: rgba(255,255,255,0.15); transition: all 0.2s;
+      cursor: pointer;
+    }
+    .chapter-dot.active { background: var(--accent); transform: scale(1.4); }
+    .chapter-dot.done { background: var(--success); }
+
+    /* Mock AIOP screen */
+    .mock-screen {
+      background: #0d1f2d; border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden; position: relative;
+    }
+    .mock-header {
+      background: rgba(255,255,255,0.04); padding: 12px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .mock-search {
+      background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+      border-radius: 999px; padding: 8px 16px; color: var(--text-dim);
+      font-size: 13px; flex: 1; max-width: 400px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .quiz-option {
+      background: rgba(255,255,255,0.04); border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 14px 18px; cursor: pointer;
+      transition: all 0.2s; text-align: start;
+      color: var(--text); font-weight: 500;
+    }
+    .quiz-option:hover { border-color: var(--border-strong); background: rgba(81,196,211,0.08); }
+    .quiz-option.correct { border-color: var(--success); background: rgba(16,185,129,0.15); color: #6ee7b7; }
+    .quiz-option.wrong { border-color: var(--danger); background: rgba(239,68,68,0.12); color: #fca5a5; }
+    .quiz-option:disabled { cursor: default; }
+
+    .tooltip {
+      position: absolute; background: #0d1f2d; color: var(--text);
+      border: 1px solid var(--border-strong); border-radius: 10px;
+      padding: 10px 14px; font-size: 13px; max-width: 240px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 10;
+      pointer-events: none;
+    }
+
+    .checklist-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; color: var(--text);
+    }
+    .check-icon {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(16,185,129,0.15); border: 2px solid var(--success);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--success); flex-shrink: 0; font-weight: 800;
+    }
+
+    /* Logo */
+    .aiop-logo {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-weight: 800; font-size: 1.4rem; color: #fff;
+      letter-spacing: 0.5px;
+    }
+    .aiop-logo-mark {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-radius: 10px;
+      display: inline-flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(81,196,211,0.4);
+      position: relative;
+    }
+    .aiop-logo-mark::before {
+      content: ''; position: absolute; inset: 4px;
+      border: 2px solid rgba(255,255,255,0.85); border-radius: 6px;
+    }
+    .aiop-logo-mark::after {
+      content: ''; position: absolute; width: 8px; height: 8px;
+      background: #fff; border-radius: 50%;
+    }
+
+    @media (max-width: 768px) {
+      .channel-card { padding: 20px 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/plain" id="app-source">
+    const { useState, useEffect, useMemo, useRef } = React;
+
+    /* ============================ I18N ============================ */
+    const I18N = {
+      he: {
+        appName: "AIOP",
+        appTagline: "All In One Place",
+        lomdaTitle: "לומדה אינטראקטיבית — היכרות עם AIOP",
+        next: "המשך",
+        back: "חזור",
+        start: "התחל",
+        finish: "סיים",
+        restart: "התחל מחדש",
+        continue: "המשך לפרק הבא",
+        progress: "התקדמות",
+        slideOf: (a,b) => `שקף ${a} מתוך ${b}`,
+        languageToggle: "EN",
+
+        // Slide 1
+        s1_welcome: "ברוכים הבאים ל-",
+        s1_subtitle: "פלטפורמת ניהול הידע שמרכזת את כל מה שצוות התפעול שלכם צריך — במקום אחד.",
+        s1_cta: "בואו נתחיל",
+        s1_meta: "פרק 1 · 7 שקפים · ≈ 5 דקות",
+
+        // Slide 2
+        s2_title: "מה זה AIOP?",
+        s2_lead: "פלטפורמת ניהול ידע מודולרית עם הרחבת Troubleshooting אינטראקטיבית.",
+        s2_feature1_title: "ניהול ידע מרכזי",
+        s2_feature1_desc: "ספרות טכנית, הדרכות, FAQs וכלי עזר — הכל בממשק אחד נוח לחיפוש.",
+        s2_feature2_title: "Troubleshooting אינטראקטיבי",
+        s2_feature2_desc: "עץ החלטה שמדריך את הטכנאי שלב-אחר-שלב לפתרון תקלה — בלי לנחש.",
+        s2_feature3_title: "מותאם לכל ארגון",
+        s2_feature3_desc: "תוכן, מיתוג, שפה וזרימות — מותאמים אישית לכל לקוח (RADA, ועוד).",
+        s2_feature4_title: "עובד אופליין",
+        s2_feature4_desc: "קובץ HTML יחיד — נטען פעם אחת ועובד גם בלי חיבור לרשת.",
+
+        // Slide 3
+        s3_title: "5 הערוצים של AIOP",
+        s3_lead: "כל ערוץ פותר צורך תפעולי שונה. בחרו כרטיס כדי לקרוא עליו.",
+        s3_ch1: "Troubleshooting",
+        s3_ch1_desc: "עץ אבחון שמוביל את המשתמש לפתרון תקלה ספציפית.",
+        s3_ch2: "Technical Manuals",
+        s3_ch2_desc: "ספרות טכנית מלאה — שרטוטים, מפרטים, מדריכי תחזוקה.",
+        s3_ch3: "Training",
+        s3_ch3_desc: "לומדות, סרטונים ותרגולים להכשרת אנשי תפעול חדשים.",
+        s3_ch4: "Utilities",
+        s3_ch4_desc: "כלי עזר חישוביים, מחשבונים והמרות יחידות.",
+        s3_ch5: "FAQs",
+        s3_ch5_desc: "תשובות מהירות לשאלות נפוצות — בלי לפתוח את כל המדריך.",
+
+        // Slide 4
+        s4_title: "סיור במסך הראשי",
+        s4_lead: "לחצו על כל נקודה כדי ללמוד מה היא עושה. כשתסיימו את כולן — תוכלו להמשיך.",
+        s4_hs1_title: "לוגו AIOP",
+        s4_hs1_desc: "לחיצה על הלוגו תמיד מחזירה למסך הבית.",
+        s4_hs2_title: "סרגל חיפוש",
+        s4_hs2_desc: "חיפוש חופשי בכל הערוצים בו-זמנית — תקלות, מסמכים, FAQs.",
+        s4_hs3_title: "כפתורי ערוצים",
+        s4_hs3_desc: "כניסה מהירה לכל אחד מ-5 הערוצים. ניתן להתאים אותם ללקוח.",
+        s4_hs4_title: "מיתוג לקוח",
+        s4_hs4_desc: "לוגו הלקוח (כאן: RADA) מוצג למעלה. ניתן להחליף ערכת צבעים שלמה.",
+        s4_done_msg: "מצוין! ראיתם את כל החלקים. עכשיו ננסה לנווט בעצמכם.",
+
+        // Slide 5
+        s5_title: "נסו בעצמכם — איתור תקלת AGC",
+        s5_lead: "טכנאי דיווח על תקלת AGC במכ\"ם MHR בתחנת ATP Calibration. עקבו אחרי המסלול.",
+        s5_step_hint: (n) => `שלב ${n}: לחצו על ההמשך המודגש`,
+        s5_complete: "מצוין! איתרתם את התקלה תוך 4 לחיצות.",
+        s5_complete_desc: "זה בדיוק היעד של AIOP — לקצר את זמן האבחון מדקות לשניות.",
+
+        // Slide 6
+        s6_title: "בוחן קצר",
+        s6_lead: "4 שאלות לסיכום. רוצים לבדוק שהבנתם?",
+        s6_q1: "כמה ערוצים יש ב-AIOP?",
+        s6_q1_opts: ["3", "4", "5", "6"],
+        s6_q1_correct: 2,
+        s6_q2: "באיזה ערוץ תמצאו עץ אבחון אינטראקטיבי?",
+        s6_q2_opts: ["Technical Manuals", "Troubleshooting", "Utilities", "FAQs"],
+        s6_q2_correct: 1,
+        s6_q3: "מה ההבדל המרכזי בין Troubleshooting ל-FAQs?",
+        s6_q3_opts: [
+          "אין הבדל",
+          "Troubleshooting הוא תהליך אבחון, FAQs הוא תשובות מהירות",
+          "FAQs מיועד לאדמינים בלבד",
+          "Troubleshooting נגיש רק במובייל"
+        ],
+        s6_q3_correct: 1,
+        s6_q4: "האם AIOP יכול לעבוד אופליין?",
+        s6_q4_opts: ["לא, דורש חיבור קבוע", "כן — קובץ HTML יחיד", "רק במובייל", "רק אחרי תשלום"],
+        s6_q4_correct: 1,
+        s6_score: (a,b) => `ציון: ${a} מתוך ${b}`,
+        s6_perfect: "מושלם! עברתם בהצלחה.",
+        s6_good: "כל הכבוד — אפשר להמשיך.",
+        s6_retry: "נסו שוב",
+        s6_next: "המשך לסיכום",
+        s6_correct_label: "תשובה נכונה",
+        s6_wrong_label: "תשובה שגויה — הנכונה מסומנת",
+
+        // Slide 7
+        s7_title: "סיימתם את הפרק!",
+        s7_lead: "סיכום של מה שלמדתם:",
+        s7_l1: "מה זה AIOP ועל איזה צורך עונה",
+        s7_l2: "5 הערוצים: Troubleshooting, Manuals, Training, Utilities, FAQs",
+        s7_l3: "ניווט במסך הבית של AIOP",
+        s7_l4: "ביצוע איתור תקלה ראשון",
+        s7_next_chapter: "הפרק הבא: פתרון תקלה מקצה-לקצה",
+        s7_next_desc: "נצא למסע מלא — מקבלת התקלה ועד הדוח הסופי — דרך כלי ה-Troubleshooting של AIOP.",
+        s7_thanks: "תודה שהשתתפתם!",
+      },
+      en: {
+        appName: "AIOP",
+        appTagline: "All In One Place",
+        lomdaTitle: "Interactive Course — Getting Started with AIOP",
+        next: "Next",
+        back: "Back",
+        start: "Start",
+        finish: "Finish",
+        restart: "Restart",
+        continue: "Continue to Next Chapter",
+        progress: "Progress",
+        slideOf: (a,b) => `Slide ${a} of ${b}`,
+        languageToggle: "עב",
+
+        s1_welcome: "Welcome to ",
+        s1_subtitle: "The knowledge management platform that puts everything your operations team needs — in one place.",
+        s1_cta: "Let's begin",
+        s1_meta: "Chapter 1 · 7 slides · ≈ 5 minutes",
+
+        s2_title: "What is AIOP?",
+        s2_lead: "A modular knowledge management platform with an interactive Troubleshooting extension.",
+        s2_feature1_title: "Central Knowledge Hub",
+        s2_feature1_desc: "Technical manuals, training, FAQs and utilities — all in one searchable interface.",
+        s2_feature2_title: "Interactive Troubleshooting",
+        s2_feature2_desc: "A decision tree that guides the technician step-by-step to resolve a failure — no guessing.",
+        s2_feature3_title: "Tailored Per Organization",
+        s2_feature3_desc: "Content, branding, language and flows — customized per customer (RADA, and more).",
+        s2_feature4_title: "Works Offline",
+        s2_feature4_desc: "A single HTML file — loads once and runs even without an internet connection.",
+
+        s3_title: "The 5 Channels of AIOP",
+        s3_lead: "Each channel solves a different operational need. Click a card to learn more.",
+        s3_ch1: "Troubleshooting",
+        s3_ch1_desc: "A diagnostic tree that leads the user to resolve a specific failure.",
+        s3_ch2: "Technical Manuals",
+        s3_ch2_desc: "Full technical literature — drawings, specs, maintenance guides.",
+        s3_ch3: "Training",
+        s3_ch3_desc: "Courses, videos and exercises for onboarding new operations staff.",
+        s3_ch4: "Utilities",
+        s3_ch4_desc: "Calculation utilities, calculators and unit conversions.",
+        s3_ch5: "FAQs",
+        s3_ch5_desc: "Quick answers to common questions — without opening a manual.",
+
+        s4_title: "Home Screen Tour",
+        s4_lead: "Click each hotspot to learn what it does. When you've explored all of them, you can continue.",
+        s4_hs1_title: "AIOP Logo",
+        s4_hs1_desc: "Clicking the logo always returns you to the home screen.",
+        s4_hs2_title: "Search Bar",
+        s4_hs2_desc: "Free-text search across all channels at once — failures, documents, FAQs.",
+        s4_hs3_title: "Channel Buttons",
+        s4_hs3_desc: "Quick entry to each of the 5 channels. Customizable per customer.",
+        s4_hs4_title: "Customer Branding",
+        s4_hs4_desc: "Customer logo (here: RADA) shown at top. Full theme swap is supported.",
+        s4_done_msg: "Excellent! You've explored all the parts. Now let's try navigating yourself.",
+
+        s5_title: "Try It — AGC Failure Diagnosis",
+        s5_lead: "A technician reported an AGC failure on an MHR radar's ATP Calibration station. Follow the path.",
+        s5_step_hint: (n) => `Step ${n}: click the highlighted next item`,
+        s5_complete: "Excellent! You found the failure in 4 clicks.",
+        s5_complete_desc: "This is exactly what AIOP is for — cutting diagnosis time from minutes to seconds.",
+
+        s6_title: "Quick Quiz",
+        s6_lead: "4 questions to wrap up. Want to check your understanding?",
+        s6_q1: "How many channels are there in AIOP?",
+        s6_q1_opts: ["3", "4", "5", "6"],
+        s6_q1_correct: 2,
+        s6_q2: "Which channel contains an interactive diagnostic tree?",
+        s6_q2_opts: ["Technical Manuals", "Troubleshooting", "Utilities", "FAQs"],
+        s6_q2_correct: 1,
+        s6_q3: "What's the main difference between Troubleshooting and FAQs?",
+        s6_q3_opts: [
+          "There is no difference",
+          "Troubleshooting is a diagnostic process, FAQs are quick answers",
+          "FAQs is for admins only",
+          "Troubleshooting only works on mobile"
+        ],
+        s6_q3_correct: 1,
+        s6_q4: "Can AIOP work offline?",
+        s6_q4_opts: ["No, requires a constant connection", "Yes — a single HTML file", "Only on mobile", "Only after payment"],
+        s6_q4_correct: 1,
+        s6_score: (a,b) => `Score: ${a} out of ${b}`,
+        s6_perfect: "Perfect! You passed.",
+        s6_good: "Well done — you can continue.",
+        s6_retry: "Try again",
+        s6_next: "Continue to summary",
+        s6_correct_label: "Correct answer",
+        s6_wrong_label: "Wrong answer — correct one highlighted",
+
+        s7_title: "Chapter Complete!",
+        s7_lead: "Summary of what you learned:",
+        s7_l1: "What AIOP is and what need it solves",
+        s7_l2: "The 5 channels: Troubleshooting, Manuals, Training, Utilities, FAQs",
+        s7_l3: "Navigating the AIOP home screen",
+        s7_l4: "Performing a first failure diagnosis",
+        s7_next_chapter: "Next chapter: End-to-end failure resolution",
+        s7_next_desc: "A full journey — from receiving the failure to the final report — through AIOP's Troubleshooting tool.",
+        s7_thanks: "Thanks for participating!",
+      }
+    };
+
+    /* ============================ ICONS ============================ */
+    const Icon = ({ name, size = 24, className = "" }) => {
+      const paths = {
+        search: <><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></>,
+        bug: <><path d="M8 2h8M12 2v4M9 6h6a3 3 0 0 1 3 3v8a6 6 0 0 1-12 0V9a3 3 0 0 1 3-3zM3 13h3M18 13h3M3 9h3M18 9h3M3 17h3M18 17h3"/></>,
+        book: <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></>,
+        graduation: <><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.7 3.6 3 6 3s6-1.3 6-3v-5"/></>,
+        tools: <><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></>,
+        help: <><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></>,
+        check: <path d="M20 6 9 17l-5-5"/>,
+        x: <><path d="M18 6 6 18M6 6l12 12"/></>,
+        arrowRight: <><path d="M5 12h14M12 5l7 7-7 7"/></>,
+        arrowLeft: <><path d="M19 12H5M12 19l-7-7 7-7"/></>,
+        sparkles: <><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></>,
+        play: <path d="M6 3v18l15-9z"/>,
+        globe: <><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></>,
+        target: <><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></>,
+        layers: <><path d="m12 2 9 5-9 5-9-5z"/><path d="m3 12 9 5 9-5M3 17l9 5 9-5"/></>,
+        wifi_off: <><path d="M2 8.5C5 6 8.4 4.8 12 4.8s7 1.2 10 3.7M5 12.5c2-1.7 4.4-2.7 7-2.7s5 1 7 2.7M8.5 16c1-.7 2.3-1.1 3.5-1.1s2.5.4 3.5 1.1M12 20h.01M2 2l20 20"/></>
+      };
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+          {paths[name]}
+        </svg>
+      );
+    };
+
+    /* ============================ LOGO ============================ */
+    const Logo = ({ size = "md" }) => {
+      const sizes = { sm: { mark: 28, font: '1rem' }, md: { mark: 38, font: '1.4rem' }, lg: { mark: 64, font: '2.4rem' } };
+      const s = sizes[size];
+      return (
+        <div className="aiop-logo" style={{ fontSize: s.font }}>
+          <span className="aiop-logo-mark" style={{ width: s.mark, height: s.mark }}></span>
+          <span>AIOP</span>
+        </div>
+      );
+    };
+
+    /* ============================ SHELL ============================ */
+    const TOTAL_SLIDES = 7;
+
+    const Shell = ({ current, total, lang, setLang, onJump, children }) => {
+      const t = I18N[lang];
+      const pct = Math.round(((current + 1) / total) * 100);
+      return (
+        <div className="min-h-screen flex flex-col">
+          <header className="px-6 py-4 flex items-center justify-between border-b" style={{borderColor:'rgba(255,255,255,0.05)'}}>
+            <Logo size="sm" />
+            <div className="hidden md:block text-sm" style={{color:'var(--text-dim)'}}>{t.lomdaTitle}</div>
+            <button className="btn btn-ghost" style={{padding:'8px 14px', fontSize:'0.85rem'}} onClick={()=>setLang(lang==='he'?'en':'he')}>
+              <Icon name="globe" size={16}/>
+              <span>{t.languageToggle}</span>
+            </button>
+          </header>
+
+          <div className="px-6 py-3 flex items-center gap-4 border-b" style={{borderColor:'rgba(255,255,255,0.05)'}}>
+            <div className="flex items-center gap-2">
+              {Array.from({length: total}).map((_, i) => (
+                <span key={i}
+                  className={`chapter-dot ${i===current ? 'active' : (i<current?'done':'')}`}
+                  onClick={()=>onJump(i)}
+                  title={t.slideOf(i+1, total)}>
+                </span>
+              ))}
+            </div>
+            <div className="flex-1 progress-bar">
+              <div className="progress-bar-fill" style={{width: `${pct}%`}}></div>
+            </div>
+            <div className="text-xs whitespace-nowrap" style={{color:'var(--text-dim)'}}>{t.slideOf(current+1, total)}</div>
+          </div>
+
+          <main className="flex-1 px-6 py-8 max-w-6xl mx-auto w-full">
+            {children}
+          </main>
+        </div>
+      );
+    };
+
+    /* ============================ SLIDE 1: HERO ============================ */
+    const Slide1 = ({ lang, onNext }) => {
+      const t = I18N[lang];
+      return (
+        <div className="slide-up flex flex-col items-center justify-center text-center py-12">
+          <div className="mb-8 zoom-in">
+            <Logo size="lg" />
+          </div>
+          <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight" style={{color:'#fff'}}>
+            {t.s1_welcome}<span style={{background:'linear-gradient(135deg, var(--accent), var(--accent-2))', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent'}}>AIOP</span>
+          </h1>
+          <p className="text-lg md:text-xl max-w-2xl mb-2" style={{color:'var(--text-dim)'}}>{t.appTagline}</p>
+          <p className="text-base md:text-lg max-w-2xl mb-10" style={{color:'var(--text-dim)'}}>{t.s1_subtitle}</p>
+          <button className="btn btn-primary text-lg" style={{padding:'14px 32px'}} onClick={onNext}>
+            <Icon name="play" size={18}/>
+            <span>{t.s1_cta}</span>
+          </button>
+          <p className="mt-8 text-sm" style={{color:'var(--text-dim)'}}>{t.s1_meta}</p>
+        </div>
+      );
+    };
+
+    /* ============================ SLIDE 2: WHAT IS AIOP ============================ */
+    const Slide2 = ({ lang, onNext, onBack }) => {
+      const t = I18N[lang];
+      const features = [
+        { icon: 'layers', title: t.s2_feature1_title, desc: t.s2_feature1_desc },
+        { icon: 'target', title: t.s2_feature2_title, desc: t.s2_feature2_desc },
+        { icon: 'sparkles', title: t.s2_feature3_title, desc: t.s2_feature3_desc },
+        { icon: 'wifi_off', title: t.s2_feature4_title, desc: t.s2_feature4_desc },
+      ];
+      return (
+        <div className="slide-up">
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-3" style={{color:'#fff'}}>{t.s2_title}</h2>
+          <p className="text-lg mb-10" style={{color:'var(--text-dim)'}}>{t.s2_lead}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+            {features.map((f, i) => (
+              <div key={i} className="glass p-6 zoom-in" style={{animationDelay:`${i*0.08}s`}}>
+                <div className="flex items-start gap-4">
+                  <div style={{color:'var(--accent)'}}><Icon name={f.icon} size={32}/></div>
+                  <div>
+                    <h3 className="font-bold text-lg mb-2" style={{color:'#fff'}}>{f.title}</h3>
+                    <p style={{color:'var(--text-dim)'}}>{f.desc}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <NavButtons lang={lang} onBack={onBack} onNext={onNext}/>
+        </div>
+      );
+    };
+
+    /* ============================ SLIDE 3: 5 CHANNELS ============================ */
+    const Slide3 = ({ lang, onNext, onBack }) => {
+      const t = I18N[lang];
+      const [active, setActive] = useState(null);
+      const channels = [
+        { icon: 'bug',        name: t.s3_ch1, desc: t.s3_ch1_desc },
+        { icon: 'book',       name: t.s3_ch2, desc: t.s3_ch2_desc },
+        { icon: 'graduation', name: t.s3_ch3, desc: t.s3_ch3_desc },
+        { icon: 'tools',      name: t.s3_ch4, desc: t.s3_ch4_desc },
+        { icon: 'help',       name: t.s3_ch5, desc: t.s3_ch5_desc },
+      ];
+      return (
+        <div className="slide-up">
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-3" style={{color:'#fff'}}>{t.s3_title}</h2>
+          <p className="text-lg mb-8" style={{color:'var(--text-dim)'}}>{t.s3_lead}</p>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+            {channels.map((c, i) => (
+              <div key={i}
+                className={`channel-card ${active===i?'active':''}`}
+                onClick={()=>setActive(i)}
+                style={{animationDelay:`${i*0.06}s`}}>
+                <div className="mb-3 flex justify-center" style={{color: active===i?'var(--accent)':'#fff'}}>
+                  <Icon name={c.icon} size={40}/>
+                </div>
+                <h3 className="font-bold mb-1" style={{color:'#fff'}}>{c.name}</h3>
+              </div>
+            ))}
+          </div>
+          <div className="glass p-6 min-h-[100px] flex items-center fade-in" key={active}>
+            {active === null ? (
+              <p style={{color:'var(--text-dim)'}} className="italic">{lang==='he'?'בחרו כרטיס למעלה...':'Pick a card above…'}</p>
+            ) : (
+              <div>
+                <div className="font-bold text-lg mb-1" style={{color:'var(--accent)'}}>{channels[active].name}</div>
+                <p style={{color:'var(--text)'}}>{channels[active].desc}</p>
+              </div>
+            )}
+          </div>
+          <div className="mt-8"><NavButtons lang={lang} onBack={onBack} onNext={onNext}/></div>
+        </div>
+      );
+    };
+
+    /* ============================ SLIDE 4: HOTSPOT TOUR ============================ */
+    const Slide4 = ({ lang, onNext, onBack }) => {
+      const t = I18N[lang];
+      const hotspots = [
+        { id:1, x:'8%',  y:'12%', title:t.s4_hs1_title, desc:t.s4_hs1_desc, tx:'40%',  ty:'40%' },
+        { id:2, x:'50%', y:'12%', title:t.s4_hs2_title, desc:t.s4_hs2_desc, tx:'-50%', ty:'40%' },
+        { id:3, x:'50%', y:'58%', title:t.s4_hs3_title, desc:t.s4_hs3_desc, tx:'-50%', ty:'40%' },
+        { id:4, x:'88%', y:'8%',  title:t.s4_hs4_title, desc:t.s4_hs4_desc, tx:'-110%', ty:'40%' },
+      ];
+      const [done, setDone] = useState([]);
+      const [active, setActive] = useState(null);
+      const allDone = done.length === hotspots.length;
+
+      const click = (id) => {
+        if (!done.includes(id)) setDone([...done, id]);
+        setActive(id);
+      };
+
+      return (
+        <div className="slide-up">
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-3" style={{color:'#fff'}}>{t.s4_title}</h2>
+          <p className="text-lg mb-6" style={{color:'var(--text-dim)'}}>{t.s4_lead}</p>
+
+          <div className="mock-screen mb-6" style={{minHeight:'420px', position:'relative'}}>
+            {/* Mock AIOP screen */}
+            <div className="mock-header">
+              <div className="flex items-center gap-3"><Logo size="sm"/></div>
+              <div className="mock-search hidden md:flex"><Icon name="search" size={16}/><span>{lang==='he'?'חפש בכל הערוצים...':'Search across all channels…'}</span></div>
+              <div className="text-xs px-3 py-1 rounded-md" style={{background:'rgba(255,255,255,0.06)', color:'var(--text-dim)'}}>RADA</div>
+            </div>
+            <div className="p-8">
+              <div className="text-center mb-6">
+                <h4 className="text-xl font-bold" style={{color:'#fff'}}>RADA AIOP</h4>
+                <p className="text-sm" style={{color:'var(--text-dim)'}}>All In One Place</p>
+              </div>
+              <div className="grid grid-cols-5 gap-3">
+                {['Troubleshooting','Manuals','Training','Utilities','FAQs'].map((n,i)=>(
+                  <div key={i} className="text-center p-3 rounded-lg" style={{background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.06)'}}>
+                    <div className="flex justify-center mb-2" style={{color:'var(--accent)'}}>
+                      <Icon name={['bug','book','graduation','tools','help'][i]} size={24}/>
+                    </div>
+                    <div className="text-xs" style={{color:'var(--text)'}}>{n}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Hotspots */}
+            {hotspots.map(h=>(
+              <button key={h.id}
+                className={`hotspot ${done.includes(h.id)?'done':''}`}
+                style={{left:h.x, top:h.y}}
+                onClick={()=>click(h.id)}>
+                {done.includes(h.id) ? <Icon name="check" size={14}/> : h.id}
+              </button>
+            ))}
+
+            {/* Active tooltip */}
+            {active !== null && hotspots.find(h=>h.id===active) && (
+              <div className="tooltip fade-in" style={{
+                left: hotspots.find(h=>h.id===active).x,
+                top: hotspots.find(h=>h.id===active).y,
+                transform:`translate(${hotspots.find(h=>h.id===active).tx}, ${hotspots.find(h=>h.id===active).ty})`
+              }}>
+                <div className="font-bold mb-1" style={{color:'var(--accent)'}}>{hotspots.find(h=>h.id===active).title}</div>
+                <div>{hotspots.find(h=>h.id===active).desc}</div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-3 mb-4 text-sm" style={{color:'var(--text-dim)'}}>
+            <span>{done.length} / {hotspots.length}</span>
+            <div className="flex-1 progress-bar"><div className="progress-bar-fill" style={{width:`${(done.length/hotspots.length)*100}%`}}></div></div>
+          </div>
+
+          {allDone && (
+            <div className="glass p-4 mb-4 zoom-in" style={{borderColor:'var(--success)', background:'rgba(16,185,129,0.08)'}}>
+              <div className="flex items-center gap-3" style={{color:'#6ee7b7'}}>
+                <Icon name="check" size={20}/><span>{t.s4_done_msg}</span>
+              </div>
+            </div>
+          )}
+
+          <NavButtons lang={lang} onBack={onBack} onNext={onNext} disableNext={!allDone}/>
+        </div>
+      );
+    };
+
+    /* ============================ SLIDE 5: UI SIMULATION ============================ */
+    const Slide5 = ({ lang, onNext, onBack }) => {
+      const t = I18N[lang];
+      const steps = [
+        { screen:'home',       target:'Troubleshooting', label:lang==='he'?'בחר Troubleshooting':'Pick Troubleshooting' },
+        { screen:'radar',      target:'MHR',             label:lang==='he'?'בחר MHR':'Pick MHR' },
+        { screen:'station',    target:'ATP Calibration', label:lang==='he'?'בחר ATP Calibration':'Pick ATP Calibration' },
+        { screen:'failure',    target:'AGC Failure',     label:lang==='he'?'בחר AGC Failure':'Pick AGC Failure' },
+      ];
+      const screens = {
+        home:     { title: 'RADA AIOP', items: ['Troubleshooting','Manuals','Training','Utilities','FAQs'] },
+        radar:    { title: lang==='he'?'בחר מכ"ם':'Choose Radar', items: ['MHR','ieMHR','aCHR','exMHR','nMHR'] },
+        station:  { title: lang==='he'?'בחר תחנה':'Choose MHR Station', items: ['Inclinometer','OCXO','ESS','ATP Calibration','Bonding','Leakage'] },
+        failure:  { title: lang==='he'?'בחר תקלה':'Choose Failure', items: ['AGC Failure','Velocity Measurement Failure','ALC Failure','Offset Failure','Tx Element Failure'] },
+      };
+      const [step, setStep] = useState(0);
+      const done = step >= steps.length;
+      const cur = done ? steps[steps.length-1] : steps[step];
+      const screen = screens[cur.screen];
+
+      const handleClick = (item) => {
+        if (item === cur.target) setStep(step+1);
+      };
+
+      return (
+        <div className="slide-up">
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-3" style={{color:'#fff'}}>{t.s5_title}</h2>
+          <p className="text-lg mb-6" style={{color:'var(--text-dim)'}}>{t.s5_lead}</p>
+
+          {/* Breadcrumb */}
+          <div className="flex flex-wrap items-center gap-2 mb-4 text-sm">
+            {steps.slice(0, step).map((s,i)=>(
+              <React.Fragment key={i}>
+                <span className="px-2 py-1 rounded" style={{background:'rgba(16,185,129,0.15)', color:'#6ee7b7'}}>{s.target}</span>
+                <span style={{color:'var(--text-dim)'}}>›</span>
+              </React.Fragment>
+            ))}
+            {!done && <span style={{color:'var(--text-dim)'}}>{t.s5_step_hint(step+1)}</span>}
+          </div>
+
+          {/* Mock screen */}
+          {!done ? (
+            <div className="mock-screen mb-6 fade-in" key={step}>
+              <div className="mock-header">
+                <Logo size="sm"/>
+                <div className="mock-search hidden md:flex"><Icon name="search" size={16}/><span>{lang==='he'?'חיפוש...':'Search…'}</span></div>
+                <div className="text-xs px-3 py-1 rounded-md" style={{background:'rgba(255,255,255,0.06)', color:'var(--text-dim)'}}>RADA</div>
+              </div>
+              <div className="p-8">
+                <h4 className="text-xl font-bold text-center mb-6" style={{color:'#fff'}}>{screen.title}</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {screen.items.map((item,i)=>{
+                    const isTarget = item === cur.target;
+                    return (
+                      <button key={i}
+                        onClick={()=>handleClick(item)}
+                        className="p-4 rounded-lg text-center transition-all"
+                        style={{
+                          background: isTarget ? 'rgba(81,196,211,0.18)' : 'rgba(255,255,255,0.04)',
+                          border: isTarget ? '2px solid var(--accent)' : '1px solid rgba(255,255,255,0.08)',
+                          color: 'var(--text)',
+                          cursor:'pointer',
+                          fontWeight: 600,
+                          animation: isTarget ? 'pulse 2s infinite' : 'none'
+                        }}>
+                        {item}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="glass p-8 mb-6 text-center zoom-in" style={{borderColor:'var(--success)', background:'rgba(16,185,129,0.08)'}}>
+              <div className="flex justify-center mb-4" style={{color:'var(--success)'}}><Icon name="check" size={48}/></div>
+              <h3 className="text-2xl font-bold mb-2" style={{color:'#6ee7b7'}}>{t.s5_complete}</h3>
+              <p style={{color:'var(--text-dim)'}}>{t.s5_complete_desc}</p>
+              <div className="flex flex-wrap justify-center gap-2 mt-5 text-sm">
+                {steps.map((s,i)=>(
+                  <React.Fragment key={i}>
+                    {i>0 && <span style={{color:'var(--text-dim)'}}>›</span>}
+                    <span className="px-2 py-1 rounded" style={{background:'rgba(16,185,129,0.15)', color:'#6ee7b7'}}>{s.target}</span>
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <NavButtons lang={lang} onBack={onBack} onNext={onNext} disableNext={!done}/>
+        </div>
+      );
+    };
+
+    /* ============================ SLIDE 6: QUIZ ============================ */
+    const Slide6 = ({ lang, onNext, onBack }) => {
+      const t = I18N[lang];
+      const questions = [
+        { q: t.s6_q1, opts: t.s6_q1_opts, correct: t.s6_q1_correct },
+        { q: t.s6_q2, opts: t.s6_q2_opts, correct: t.s6_q2_correct },
+        { q: t.s6_q3, opts: t.s6_q3_opts, correct: t.s6_q3_correct },
+        { q: t.s6_q4, opts: t.s6_q4_opts, correct: t.s6_q4_correct },
+      ];
+      const [current, setCurrent] = useState(0);
+      const [answers, setAnswers] = useState({});
+      const [showResults, setShowResults] = useState(false);
+
+      const score = Object.entries(answers).filter(([qi,ai])=>questions[qi].correct===ai).length;
+      const passed = score >= questions.length - 1;
+
+      const answer = (ai) => {
+        if (answers[current] !== undefined) return;
+        setAnswers({...answers, [current]: ai});
+      };
+      const nextQ = () => {
+        if (current < questions.length - 1) setCurrent(current+1);
+        else setShowResults(true);
+      };
+      const reset = () => { setCurrent(0); setAnswers({}); setShowResults(false); };
+
+      if (showResults) {
+        return (
+          <div className="slide-up">
+            <h2 className="text-3xl md:text-4xl font-extrabold mb-3" style={{color:'#fff'}}>{t.s6_title}</h2>
+            <div className="glass p-8 text-center zoom-in">
+              <div className="flex justify-center mb-4" style={{color: passed?'var(--success)':'var(--danger)'}}>
+                <Icon name={passed?'check':'x'} size={64}/>
+              </div>
+              <div className="text-4xl font-extrabold mb-2" style={{color:'#fff'}}>{t.s6_score(score, questions.length)}</div>
+              <p className="text-lg mb-6" style={{color: passed?'#6ee7b7':'#fca5a5'}}>
+                {score === questions.length ? t.s6_perfect : (passed ? t.s6_good : t.s6_retry)}
+              </p>
+              <div className="flex gap-3 justify-center flex-wrap">
+                <button className="btn btn-ghost" onClick={reset}>{t.s6_retry}</button>
+                {passed && <button className="btn btn-primary" onClick={onNext}>{t.s6_next}</button>}
+              </div>
+            </div>
+            {!passed && <div className="mt-6"><NavButtons lang={lang} onBack={onBack} onNext={onNext} disableNext={true}/></div>}
+          </div>
+        );
+      }
+
+      const q = questions[current];
+      const userAns = answers[current];
+      const answered = userAns !== undefined;
+
+      return (
+        <div className="slide-up">
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-3" style={{color:'#fff'}}>{t.s6_title}</h2>
+          <p className="text-lg mb-6" style={{color:'var(--text-dim)'}}>{t.s6_lead}</p>
+
+          <div className="flex gap-2 mb-6">
+            {questions.map((_,i)=>(
+              <div key={i} className="flex-1 progress-bar" style={{height:'6px'}}>
+                <div className="progress-bar-fill" style={{width: i<current?'100%':(i===current?'50%':'0%')}}></div>
+              </div>
+            ))}
+          </div>
+
+          <div className="glass p-8 fade-in" key={current}>
+            <div className="text-sm mb-3" style={{color:'var(--text-dim)'}}>{lang==='he'?'שאלה':'Question'} {current+1} / {questions.length}</div>
+            <h3 className="text-xl md:text-2xl font-bold mb-6" style={{color:'#fff'}}>{q.q}</h3>
+            <div className="space-y-3">
+              {q.opts.map((opt, i) => {
+                let cls = 'quiz-option';
+                if (answered) {
+                  if (i === q.correct) cls += ' correct';
+                  else if (i === userAns) cls += ' wrong';
+                }
+                return (
+                  <button key={i} className={cls} onClick={()=>answer(i)} disabled={answered} style={{width:'100%'}}>
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+            {answered && (
+              <div className="mt-5 flex items-center justify-between fade-in">
+                <span style={{color: userAns===q.correct?'#6ee7b7':'#fca5a5'}} className="font-bold">
+                  {userAns===q.correct ? t.s6_correct_label : t.s6_wrong_label}
+                </span>
+                <button className="btn btn-primary" onClick={nextQ}>
+                  <span>{current < questions.length-1 ? t.next : t.finish}</span>
+                  <Icon name="arrowRight" size={16} className={lang==='he'?'rotate-180':''}/>
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-6"><NavButtons lang={lang} onBack={onBack} onNext={onNext} disableNext={true}/></div>
+        </div>
+      );
+    };
+
+    /* ============================ SLIDE 7: SUMMARY ============================ */
+    const Slide7 = ({ lang, onBack, onRestart }) => {
+      const t = I18N[lang];
+      const items = [t.s7_l1, t.s7_l2, t.s7_l3, t.s7_l4];
+      return (
+        <div className="slide-up">
+          <div className="text-center mb-8 zoom-in">
+            <div className="inline-block mb-4" style={{color:'var(--accent)'}}><Icon name="sparkles" size={64}/></div>
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-3" style={{color:'#fff'}}>{t.s7_title}</h2>
+            <p className="text-lg" style={{color:'var(--text-dim)'}}>{t.s7_lead}</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="glass p-6">
+              <h3 className="font-bold text-lg mb-4" style={{color:'#fff'}}>{lang==='he'?'מה למדת':'What you learned'}</h3>
+              {items.map((item,i)=>(
+                <div key={i} className="checklist-item">
+                  <div className="check-icon"><Icon name="check" size={14}/></div>
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="glass p-6 glow-border">
+              <div className="text-sm font-bold mb-2" style={{color:'var(--accent)'}}>{lang==='he'?'הבא בתור':'Up Next'}</div>
+              <h3 className="font-bold text-lg mb-3" style={{color:'#fff'}}>{t.s7_next_chapter}</h3>
+              <p style={{color:'var(--text-dim)'}}>{t.s7_next_desc}</p>
+              <button className="btn btn-primary mt-5" disabled style={{opacity:0.5}}>
+                <span>{lang==='he'?'בקרוב':'Coming soon'}</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="text-center mt-10">
+            <p className="text-lg mb-4" style={{color:'#fff'}}>{t.s7_thanks}</p>
+            <div className="flex gap-3 justify-center flex-wrap">
+              <button className="btn btn-ghost" onClick={onBack}>
+                <Icon name="arrowRight" size={16} className={lang==='he'?'':'rotate-180'}/>
+                <span>{t.back}</span>
+              </button>
+              <button className="btn btn-primary" onClick={onRestart}>
+                <Icon name="play" size={16}/>
+                <span>{t.restart}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    /* ============================ NAV BUTTONS ============================ */
+    const NavButtons = ({ lang, onBack, onNext, disableNext = false }) => {
+      const t = I18N[lang];
+      return (
+        <div className="flex justify-between items-center pt-4 border-t" style={{borderColor:'rgba(255,255,255,0.05)'}}>
+          <button className="btn btn-ghost" onClick={onBack}>
+            <Icon name="arrowRight" size={16} className={lang==='he'?'':'rotate-180'}/>
+            <span>{t.back}</span>
+          </button>
+          <button className="btn btn-primary" onClick={onNext} disabled={disableNext}>
+            <span>{t.next}</span>
+            <Icon name="arrowLeft" size={16} className={lang==='he'?'':'rotate-180'}/>
+          </button>
+        </div>
+      );
+    };
+
+    /* ============================ APP ============================ */
+    const STORAGE_KEY = 'aiop_lomda_progress_v1';
+
+    const App = () => {
+      const [lang, setLang] = useState(() => localStorage.getItem(STORAGE_KEY+'_lang') || 'he');
+      const [current, setCurrent] = useState(() => {
+        const saved = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
+        return isNaN(saved) ? 0 : Math.min(saved, TOTAL_SLIDES-1);
+      });
+
+      useEffect(()=>{
+        document.documentElement.dir = lang==='he' ? 'rtl' : 'ltr';
+        document.documentElement.lang = lang;
+        localStorage.setItem(STORAGE_KEY+'_lang', lang);
+      }, [lang]);
+
+      useEffect(()=>{
+        localStorage.setItem(STORAGE_KEY, String(current));
+      }, [current]);
+
+      const next = () => setCurrent(c => Math.min(c+1, TOTAL_SLIDES-1));
+      const back = () => setCurrent(c => Math.max(c-1, 0));
+      const restart = () => setCurrent(0);
+      const jump = (i) => setCurrent(i);
+
+      const slides = [
+        <Slide1 lang={lang} onNext={next}/>,
+        <Slide2 lang={lang} onNext={next} onBack={back}/>,
+        <Slide3 lang={lang} onNext={next} onBack={back}/>,
+        <Slide4 lang={lang} onNext={next} onBack={back}/>,
+        <Slide5 lang={lang} onNext={next} onBack={back}/>,
+        <Slide6 lang={lang} onNext={next} onBack={back}/>,
+        <Slide7 lang={lang} onBack={back} onRestart={restart}/>,
+      ];
+
+      return (
+        <Shell current={current} total={TOTAL_SLIDES} lang={lang} setLang={setLang} onJump={jump}>
+          {slides[current]}
+        </Shell>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  </script>
+</body>
+</html>
