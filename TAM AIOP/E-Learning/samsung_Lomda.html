@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="he" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Samsung S24</title>
+<style>
+:root { --accent:#51c4d3; --accent2:#2563eb; --bg:#0b1622; --bg2:#112c3b; --text:#e2e8f0; --dim:#8a9cae; --ok:#10b981; --err:#ef4444; }
+
+* { box-sizing:border-box; margin:0; }
+body { background:var(--bg); background-image:radial-gradient(circle at 50% 0%,var(--bg2) 0%,var(--bg) 70%); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; }
+.wrap { max-width:1100px; margin:0 auto; padding:0 22px; }
+header.topbar { position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between; padding:14px 22px; border-bottom:1px solid rgba(255,255,255,.06); background:rgba(0,0,0,.25); backdrop-filter:blur(8px); }
+.logo { display:inline-flex; align-items:center; gap:9px; font-weight:800; font-size:1.15rem; color:#fff; }
+.logo-mark { position:relative; width:30px; height:30px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,.4); }
+.logo-mark:before { content:''; position:absolute; inset:4px; border:2px solid rgba(255,255,255,.85); border-radius:5px; }
+.btn { display:inline-flex; align-items:center; gap:7px; justify-content:center; padding:11px 22px; border-radius:11px; font-weight:700; font-size:.92rem; cursor:pointer; border:none; transition:all .2s; font-family:inherit; }
+.btn-p { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; box-shadow:0 4px 18px rgba(0,0,0,.35); }
+.btn-p:hover { transform:translateY(-2px); }
+.btn-p:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+.btn-g { background:rgba(255,255,255,.06); color:var(--text); border:1px solid rgba(255,255,255,.12); }
+.btn-g:hover { background:rgba(255,255,255,.12); }
+.glass { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:15px; }
+.portal-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px; margin-top:36px; }
+.pcard { background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.09); border-radius:18px; padding:36px 22px; text-align:center; cursor:pointer; transition:all .25s; }
+.pcard:hover { transform:translateY(-5px); border-color:var(--accent); box-shadow:0 12px 36px rgba(0,0,0,.4); }
+.picon { width:62px; height:62px; margin:0 auto 16px; border-radius:15px; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; color:#fff; }
+h1.big { font-size:clamp(2rem,5vw,3.4rem); font-weight:800; color:#fff; line-height:1.12; }
+.grad { background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.dim { color:var(--dim); }
+.sect { padding:64px 0; }
+.sect-alt { background:rgba(255,255,255,.02); border-top:1px solid rgba(255,255,255,.05); border-bottom:1px solid rgba(255,255,255,.05); }
+.stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:18px; margin-top:44px; }
+.statn { font-size:2.3rem; font-weight:800; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.pains { max-width:640px; margin:26px auto 0; text-align:right; }
+.pain { display:flex; gap:12px; align-items:flex-start; padding:13px 0; border-bottom:1px solid rgba(255,255,255,.06); }
+.pain:last-child { border-bottom:none; }
+.painx { width:28px; height:28px; flex-shrink:0; border-radius:8px; background:rgba(239,68,68,.13); color:#fca5a5; display:flex; align-items:center; justify-content:center; }
+.feats { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; margin-top:36px; }
+.feat { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:14px; padding:22px; transition:all .2s; }
+.feat:hover { border-color:var(--accent); }
+.ficon { width:42px; height:42px; border-radius:11px; background:rgba(255,255,255,.08); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:13px; }
+.hows { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:22px; margin-top:44px; }
+.how { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:15px; padding:28px 20px; position:relative; }
+.hownum { position:absolute; top:-17px; inset-inline-start:20px; width:38px; height:38px; border-radius:10px; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; }
+.case { border:1px solid var(--accent); border-radius:18px; padding:34px; background:rgba(255,255,255,.03); }
+.casestats { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:22px; padding-top:22px; border-top:1px solid rgba(255,255,255,.08); text-align:center; }
+footer.ftr { text-align:center; padding:28px; color:var(--dim); font-size:.85rem; border-top:1px solid rgba(255,255,255,.05); }
+.prog { height:4px; background:rgba(255,255,255,.08); border-radius:99px; overflow:hidden; flex:1; }
+.progf { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width .35s; }
+.dots { display:flex; gap:7px; align-items:center; }
+.dot { width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.15); cursor:pointer; transition:all .2s; }
+.dot.on { background:var(--accent); transform:scale(1.4); }
+.dot.done { background:var(--ok); }
+.lomda-nav { display:flex; justify-content:space-between; padding-top:18px; border-top:1px solid rgba(255,255,255,.06); margin-top:26px; gap:10px; flex-wrap:wrap; }
+.chaplist { display:flex; flex-direction:column; gap:11px; }
+.chaprow { display:flex; align-items:center; gap:15px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:17px 19px; cursor:pointer; transition:all .2s; }
+.chaprow:hover { border-color:var(--accent); background:rgba(255,255,255,.07); transform:translateX(calc(-4px * var(--dirmul, 1))); }
+.chaprow.done { border-color:rgba(16,185,129,.4); }
+.chapnum { width:40px; height:40px; flex-shrink:0; border-radius:11px; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; font-weight:800; font-size:1.05rem; display:flex; align-items:center; justify-content:center; }
+.chapnum.done { background:var(--ok); }
+.chaparrow { flex-shrink:0; opacity:.5; }
+.chaprow:hover .chaparrow { opacity:1; color:var(--accent); }
+.chapbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding-bottom:13px; border-bottom:1px solid rgba(255,255,255,.06); }
+.chgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:13px; margin:22px 0; }
+.chcard { background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.09); border-radius:13px; padding:20px 13px; text-align:center; cursor:pointer; transition:all .2s; color:#fff; font-weight:700; }
+.chcard:hover { border-color:var(--accent); transform:translateY(-3px); }
+.chcard.on { border-color:var(--accent); box-shadow:0 0 18px rgba(0,0,0,.35); }
+.hswrap { position:relative; border:1px solid rgba(255,255,255,.12); border-radius:13px; min-height:340px; background:#0d1f2d; overflow:hidden; background-size:cover; background-position:center; }
+.hspot { position:absolute; width:30px; height:30px; border-radius:50%; background:var(--accent); color:#04141c; font-weight:800; border:2px solid #fff; cursor:pointer; display:flex; align-items:center; justify-content:center; animation:hpulse 2s infinite; z-index:4; }
+.hspot.done { background:var(--ok); color:#fff; animation:none; }
+@keyframes hpulse { 0%,100%{ box-shadow:0 0 0 0 rgba(255,255,255,.5);} 50%{ box-shadow:0 0 0 10px rgba(255,255,255,0);} }
+.htip { position:absolute; background:#0d1f2d; border:1px solid var(--accent); border-radius:10px; padding:10px 13px; font-size:.83rem; max-width:230px; z-index:6; box-shadow:0 8px 22px rgba(0,0,0,.45); }
+.simgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:11px; }
+.simbtn { padding:15px 10px; border-radius:11px; text-align:center; font-weight:600; color:var(--text); background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09); cursor:pointer; font-family:inherit; font-size:.9rem; }
+.simbtn.target { border:2px solid var(--accent); background:rgba(255,255,255,.09); animation:hpulse 2s infinite; }
+.crumb { display:inline-block; padding:3px 9px; border-radius:7px; background:rgba(16,185,129,.14); color:#6ee7b7; font-size:.8rem; margin-inline-end:5px; }
+.qopt { display:block; width:100%; text-align:start; background:rgba(255,255,255,.04); border:1.5px solid rgba(255,255,255,.12); border-radius:11px; padding:13px 16px; color:var(--text); font-weight:500; cursor:pointer; margin-bottom:9px; font-family:inherit; font-size:.92rem; }
+.qopt:hover { border-color:var(--accent); }
+.qopt.ok { border-color:var(--ok); background:rgba(16,185,129,.14); color:#6ee7b7; }
+.qopt.bad { border-color:var(--err); background:rgba(239,68,68,.12); color:#fca5a5; }
+.chk { display:flex; gap:11px; align-items:center; padding:9px 0; }
+.chki { width:26px; height:26px; flex-shrink:0; border-radius:50%; border:2px solid var(--ok); color:var(--ok); display:flex; align-items:center; justify-content:center; background:rgba(16,185,129,.12); }
+.dsearch { position:relative; margin:24px 0; }
+.dsearch input { width:100%; background:rgba(255,255,255,.05); border:1.5px solid rgba(255,255,255,.12); border-radius:13px; padding:14px 46px 14px 18px; color:#fff; font-size:.95rem; outline:none; font-family:inherit; }
+.dsearch input:focus { border-color:var(--accent); }
+.dsearch svg { position:absolute; top:50%; transform:translateY(-50%); inset-inline-end:15px; color:var(--dim); pointer-events:none; }
+.dlayout { display:grid; grid-template-columns:210px 1fr; gap:20px; align-items:start; }
+@media (max-width:760px){ .dlayout { grid-template-columns:1fr; } }
+.dside { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:13px; padding:13px; }
+.dcat { display:flex; justify-content:space-between; padding:8px 11px; border-radius:8px; cursor:pointer; font-size:.87rem; color:var(--text); }
+.dcat:hover { background:rgba(255,255,255,.07); }
+.dcat.on { background:rgba(255,255,255,.1); color:var(--accent); font-weight:700; }
+.dcards { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:13px; }
+.dcard { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:12px; padding:17px; cursor:pointer; transition:all .2s; }
+.dcard:hover { border-color:var(--accent); transform:translateY(-2px); }
+.dtag { display:inline-block; font-size:.68rem; font-weight:700; color:var(--accent); background:rgba(255,255,255,.07); padding:3px 8px; border-radius:6px; margin-bottom:9px; }
+.dart { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:15px; padding:30px; }
+.dart h1 { color:#fff; font-size:1.7rem; margin-bottom:6px; }
+.dart h2 { color:#fff; font-size:1.15rem; margin:22px 0 9px; }
+.dart p { line-height:1.7; margin-bottom:12px; }
+.dart ul { line-height:1.7; margin:0 0 12px; padding-inline-start:20px; }
+.dart pre { background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.06); border-radius:9px; padding:13px; overflow:auto; font-size:.82rem; direction:ltr; text-align:left; margin-bottom:12px; }
+.fadeIn { animation:fi .35s ease-out; }
+@keyframes fi { from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;} }
+.txtimg { max-width:100%; border-radius:12px; border:1px solid rgba(255,255,255,.1); margin-top:16px; }
+  
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+window.__PACK__ = {"meta":{"slug":"samsung-s24","version":1},"branding":{"productName":"Samsung S24","customerName":"","tagline":"","dir":"ltr","lang":"he","colors":{"accent":"#51c4d3","accent2":"#2563eb","bg":"#0b1622","bg2":"#112c3b","text":"#e2e8f0","dim":"#8a9cae"}},"ui":{"portalWelcome":"ברוכים הבאים ל-","portalSubtitle":"בחרו את המסלול שלכם","portalMarketingT":"שיווק","portalMarketingD":"למה Samsung S24, ולמי","portalLomdaT":"לומדה אינטראקטיבית","portalLomdaD":"כיצד להשתמש במערכת","portalDocsT":"ספרות תפעול","portalDocsD":"התקנה, התאמה וניהול","backToPortal":"פורטל","back":"חזור","next":"המשך","finish":"סיים","restart":"התחל מחדש","retry":"נסו שוב","backToList":"חזרה לרשימה","related":"מאמרים קשורים","categories":"קטגוריות","allArticles":"כל המאמרים","noResults":"לא נמצאו תוצאות."},"marketing":{"hero":{"enabled":true,"eyebrow":"הכירו את Samsung S24","titleA":"כל הידע על Samsung S24 —","titleB":"במקום אחד","sub":"an upgraded battery optimized to last longer* and work smarter with the apps you love.","ctaPrimary":"צפו בלומדה","ctaSecondary":"עיינו בספרות"},"stats":[{"n":"1","l":"קבצי מקור"},{"n":"6","l":"פרקי תוכן"},{"n":"6","l":"מאמרים"},{"n":"100%","l":"אופליין"}],"problem":{"enabled":true,"title":"המידע על Samsung S24 מפוזר?","sub":"הבעיות שכל ארגון מכיר:","pains":["המידע על Samsung S24 מפוזר בין קבצים, תיקיות ומיילים","עובדים חדשים מתקשים למצוא את מה שהם צריכים","ידע קריטי יושב בראש של אנשים בודדים","אין מקור אמת אחד ומעודכן"]},"features":{"enabled":true,"title":"מה בפנים","items":[{"icon":"layers","t":"Say hello to   Advanced Intelligence ,   w","d":"Say hello to   Advanced Intelligence ,   which makes your everyday"},{"icon":"target","t":"Galaxy S24 provides a comprehensive on-dev","d":"Galaxy S24 provides a comprehensive on-device and cloud-based mobile"},{"icon":"sparkles","t":"Search and get organized effortlessly and ","d":"Search and get organized effortlessly and communicate without barriers."},{"icon":"shield","t":"Say hello to   Advanced Intelligence ,   w","d":"Say hello to   Advanced Intelligence ,   which makes your everyday"},{"icon":"globe","t":"Galaxy S24+ provides a comprehensive on-de","d":"Galaxy S24+ provides a comprehensive on-device and cloud-based"},{"icon":"tools","t":"Say hello to   Advanced Intelligence ,   w","d":"Say hello to   Advanced Intelligence ,   which makes your everyday"}]},"how":{"enabled":true,"title":"איך זה עובד","steps":[{"t":"נכנסים","d":"קובץ אחד שנפתח בכל דפדפן — בלי התקנה ובלי הרשאות."},{"t":"לומדים","d":"לומדה אינטראקטיבית שמכניסה אתכם ל-Samsung S24 צעד-צעד."},{"t":"עובדים","d":"הספרות המלאה זמינה תמיד — עם חיפוש רוחבי מהיר."}]},"caseStudy":{"enabled":false,"eyebrow":"מקרה לקוח","title":"RADA Technologies","desc":"Leonardo DRS RADA, יצרנית מכ\"מי AESA טקטיים. AIOP מאחדת את ידע הטיפול ב-5 דגמי מכ\"ם עם עץ Troubleshooting לטכנאי השדה.","stats":[{"n":"5","l":"דגמי מכ\"ם"},{"n":"30+","l":"תרחישי תקלה"},{"n":"100%","l":"אופליין בשטח"}]},"finalCta":{"enabled":true,"title":"רוצים לראות את זה אצלכם?","sub":"התוכן, המיתוג והמבנה מותאמים בדיוק לצרכים שלכם.","button":"צרו קשר","link":""},"footer":"© 2026 Samsung S24"},"lomda":{"title":"לומדה — Samsung S24","chapters":[{"title":"מבוא","desc":"היכרות ראשונית עם Samsung S24","icon":"sparkles","slides":[{"type":"hero","title":"ברוכים הבאים ל-Samsung S24","subtitle":"an upgraded battery optimized to last longer* and work smarter with the apps you love.","buttonLabel":"בואו נתחיל","meta":"לומדה · 4 פרקים"},{"type":"features","title":"מה זה Samsung S24?","lead":"an upgraded battery optimized to last longer* and work smarter with the apps you love.","items":[{"icon":"layers","t":"Say hello to   Advanced Intelligence ,   w","d":"Say hello to   Advanced Intelligence ,   which makes your everyday"},{"icon":"target","t":"Galaxy S24 provides a comprehensive on-dev","d":"Galaxy S24 provides a comprehensive on-device and cloud-based mobile"},{"icon":"sparkles","t":"Search and get organized effortlessly and ","d":"Search and get organized effortlessly and communicate without barriers."},{"icon":"shield","t":"Say hello to   Advanced Intelligence ,   w","d":"Say hello to   Advanced Intelligence ,   which makes your everyday"},{"icon":"globe","t":"Galaxy S24+ provides a comprehensive on-de","d":"Galaxy S24+ provides a comprehensive on-device and cloud-based"},{"icon":"tools","t":"Say hello to   Advanced Intelligence ,   w","d":"Say hello to   Advanced Intelligence ,   which makes your everyday"}]},{"type":"cards","title":"מה נלמד בלומדה","lead":"סקירת הפרקים שלפניכם. לחצו כדי לראות פירוט.","pickHint":"בחרו פרק למעלה...","items":[{"t":"Display","d":"6.2” FHD+ Flat Screen, Dynamic AMOLED 2x Connectivity Wi-Fi 6E Operating system Android 14 Processor Snapdragon® 8 Gen 3 for Galaxy Memory a"},{"t":"Battery","d":"an upgraded battery optimized to last longer* and work smarter with the apps you love."}]}]},{"title":"Display","desc":"6.2” FHD+ Flat Screen, Dynamic AMOLED 2x Connectivity Wi-Fi 6E Operating system Android 14","icon":"book","slides":[{"type":"text","title":"Display","lead":"","paragraphs":["6.2” FHD+ Flat Screen, Dynamic AMOLED 2x Connectivity Wi-Fi 6E Operating system Android 14 Processor Snapdragon® 8 Gen 3 for Galaxy Memory and storage 8GB RAM / 128GB | 256GB Portion of storage occupied by existing content. Camera Wide: 50MP Ultra Wide: 12MP Tele: 10MP Front: 12MP Battery 4000mAh Super Fast Charging 25W wired Durability Armor Aluminum Gorilla Glass Victus 2 IP68* Dust and Water Resistant Dimensions 2.77” x 5.78” x .29” Charging port Type USB-C Galaxy S24 5G","• Say hello to   Advanced Intelligence ,   which makes your everyday","• Galaxy S24 provides a comprehensive on-device and cloud-based mobile","advanced intelligence experience enabled by our open collaborations with like-minded industry partners.","• Search and get organized effortlessly and communicate without barriers.","6.7” QHD+ Flat Screen, Dynamic AMOLED 2x Connectivity Wi-Fi 6E Operating system Android 14 Processor Snapdragon® 8 Gen 3 for Galaxy Memory and storage 12GB RAM / 256GB | 512GB Portion of storage occupied by existing content. Camera Wide: 50MP Ultra Wide: 12MP Tele: 10MP Front: 12MP Battery 4900mAh Super Fast Charging 45W wired Durability Armor Aluminum Gorilla Glass Victus 2 IP68 Dust and Water Resistant Dimensions 2.98” x 6.25” x .30” Charging port Type USB-C Galaxy S24+ 5G","• Say hello to   Advanced Intelligence ,   which makes your everyday","• Galaxy S24+ provides a comprehensive on-device and cloud-based"],"mediaUrl":""},{"type":"text","title":"Three main ways to use   Galaxy   S","lead":"","paragraphs":["• Circle   to   Search with Google","Search for your favorite content by just choosing the item or circling the desired area. o Example 1: You see a celebrity carrying a purse or item. o Example 2: You’re out hiking and would like to know the type of tree or plant around you. o Example 3: You see a location or landmark while surfing the web and want to know where it is.","• Nightography   Zoom with Generative editing","o Generative edits include resizing, removing, or repositioning objects and straightening images. o Sharper, brighter, smoother zoom quality even in the dark.","• Live Translate for calls and texts"],"mediaUrl":""},{"type":"text","title":"Camera","lead":"","paragraphs":["• Turn every photo into a post-worthy masterpiece. Snap a pic and get","suggestions for editing it from great to jaw-dropping.","• Bring your night into the light with incredible low-light shots","• Go bigger on a brighter screen.","• See what you love in a new light.","• All your ideas just got brighter.","• Turn every photo into a post-worthy masterpiece. Snap a pic and","get suggestions for taking it from great to jaw-dropping."],"mediaUrl":""},{"type":"quiz","title":"בדיקת הבנה","lead":"3 שאלות על Display.","passText":"יפה! אפשר להמשיך.","retryText":"כמעט — נסו שוב.","retryBtn":"נסו שוב","questions":[{"q":"מה נכון לגבי \"Display\"?","opts":["6.2” FHD+ Flat Screen, Dynamic AMOLED 2x Connectivity Wi-Fi 6E Operating system Android 14 Processor Snapdragon® 8 Gen 3 for Galaxy Memory a","Search for your favorite content by just choosing the item or circling the desired area.","suggestions for editing it from great to jaw-dropping."],"correct":0},{"q":"מה נכון לגבי \"Three main ways to use   Galaxy   S\"?","opts":["6.2” FHD+ Flat Screen, Dynamic AMOLED 2x Connectivity Wi-Fi 6E Operating system Android 14 Processor Snapdragon® 8 Gen 3 for Galaxy Memory a","Search for your favorite content by just choosing the item or circling the desired area.","suggestions for editing it from great to jaw-dropping."],"correct":1},{"q":"מה נכון לגבי \"Camera\"?","opts":["6.2” FHD+ Flat Screen, Dynamic AMOLED 2x Connectivity Wi-Fi 6E Operating system Android 14 Processor Snapdragon® 8 Gen 3 for Galaxy Memory a","Search for your favorite content by just choosing the item or circling the desired area.","suggestions for editing it from great to jaw-dropping."],"correct":2}]}]},{"title":"Battery","desc":"an upgraded battery optimized to last longer* and work smarter with the apps you love.","icon":"book","slides":[{"type":"text","title":"Battery","lead":"","paragraphs":["• Stay charged and in charge when you level up to Galaxy S24. Experience","an upgraded battery optimized to last longer* and work smarter with the apps you love. Design","• Galaxy S24 has a strong Gorilla® Glass 5 screen with a sleek glass back","and water and dust-resistant* aluminum frame. Processor","• Smoothly switch between apps and games with little to no lag and edit","and multitask with our fastest processor yet. Device highlights New era of Smartphone Samsung proprietary and confidential. Internal use only. Notfor display.Notfor distribution. © 2024 Samsung Electronics America, Inc. Samsung and Samsung Galaxy are trademarks of Samsung Electronics Co., Ltd. Other company names and marks are property of their respective owners. Screen images simulated. Appearance of the devices may vary. Portion of storage occupied by existing content. Storage card sold separately. Battery life results may vary based on usage environment. IP68 Rated: Tested for submersion in up to 5 ft. of fresh water for up to 30 mins. Feature comparisons to prior Samsung models. More information at www.samsung.com . Best 5G performance requires optimal network connection; check with your carrier for 5G availability, coverage and details. Snapdragon is a trademark or registered trademark of Qualcomm Incorporated. Qualcomm and Snapdragon branded products are products of Qualcomm Technologies, Inc. and/or its subsidiaries. Circle to Search with Google requires internet connection; results may vary by uniqueness, clarity and framing of circled image and related factors. Live Translate requires Samsung account log-in; calls must be made using the native Samsung dialer. Note Assist is for text in Samsung Notes only (200-4,000 characters). Note Assist, Chat Assist and Generative Edit require a Samsung Account login and internet connection.","• Stay charged and in charge when you level up to Galaxy S24+.","Experience an upgraded battery optimized to last longer* and work smarter with the apps you love. Design"],"mediaUrl":""},{"type":"text","title":"mobile advanced intelligence experience enabled by our open","lead":"","paragraphs":["collaborations with like-minded industry partners.","• Search and get organized effortlessly and communicate without","barriers. Three main ways to use Galaxy S24+","• Circle to Search with Google","Search for your favorite content by just choosing the item or circling the desired area. o Example 1: You see a celebrity carrying a purse or item. o Example 2: You’re out hiking and would like to know the type of tree or plant around you. o Example 3: You see a location or landmark while surfing the web and want to know where it is.","• Nightography   Zoom with Generative editing","o Generative edits include resizing, removing, or repositioning objects and straightening images. o Sharper, brighter, smoother zoom quality even in the dark.","• Live Translate for calls and texts"],"mediaUrl":""},{"type":"text","title":"cloud-based mobile advanced intelligence experience enabled","lead":"","paragraphs":["by our open collaborations with like-minded industry partners.","• Search and get organized effortlessly and communicate without","barriers. Three main ways to use Galaxy S24 Ultra","• Circle to Search with Google","Search for your favorite content by just choosing the item or circling the desired area. o Example 1: You see a celebrity carrying a purse or item. o Example 2: You’re out hiking and would like to know the type of tree or plant around you. o Example 3: You see a location or landmark while surfing the web and want to know where it is.","• Nightography   Zoom with Generative editing","o Generative edits include resizing, removing, or repositioning objects and straightening images. o Sharper, brighter, smoother zoom quality even in the dark.","• Live Translate for calls and texts"],"mediaUrl":""},{"type":"quiz","title":"בדיקת הבנה","lead":"2 שאלות על Battery.","passText":"יפה! אפשר להמשיך.","retryText":"כמעט — נסו שוב.","retryBtn":"נסו שוב","questions":[{"q":"מה נכון לגבי \"Battery\"?","opts":["an upgraded battery optimized to last longer* and work smarter with the apps you love.","by our open collaborations with like-minded industry partners."],"correct":0},{"q":"מה נכון לגבי \"cloud-based mobile advanced intelligence experience enabled\"?","opts":["an upgraded battery optimized to last longer* and work smarter with the apps you love.","by our open collaborations with like-minded industry partners."],"correct":1}]}]},{"title":"סיכום ובוחן","desc":"בדיקת ידע על כל החומר","icon":"target","slides":[{"type":"quiz","title":"בוחן מסכם","lead":"4 שאלות על כל החומר.","passText":"כל הכבוד — סיימתם את הלומדה!","retryText":"כמעט — כדאי לחזור על החומר.","retryBtn":"נסו שוב","questions":[{"q":"מה נכון לגבי \"Display\"?","opts":["6.2” FHD+ Flat Screen, Dynamic AMOLED 2x Connectivity Wi-Fi 6E Operating system Android 14 Processor Snapdragon® 8 Gen 3 for Galaxy Memory a","Search for your favorite content by just choosing the item or circling the desired area.","suggestions for editing it from great to jaw-dropping.","an upgraded battery optimized to last longer* and work smarter with the apps you love."],"correct":0},{"q":"מה נכון לגבי \"Three main ways to use   Galaxy   S\"?","opts":["6.2” FHD+ Flat Screen, Dynamic AMOLED 2x Connectivity Wi-Fi 6E Operating system Android 14 Processor Snapdragon® 8 Gen 3 for Galaxy Memory a","Search for your favorite content by just choosing the item or circling the desired area.","suggestions for editing it from great to jaw-dropping.","an upgraded battery optimized to last longer* and work smarter with the apps you love."],"correct":1},{"q":"מה נכון לגבי \"Camera\"?","opts":["6.2” FHD+ Flat Screen, Dynamic AMOLED 2x Connectivity Wi-Fi 6E Operating system Android 14 Processor Snapdragon® 8 Gen 3 for Galaxy Memory a","Search for your favorite content by just choosing the item or circling the desired area.","suggestions for editing it from great to jaw-dropping.","an upgraded battery optimized to last longer* and work smarter with the apps you love."],"correct":2},{"q":"מה נכון לגבי \"Battery\"?","opts":["6.2” FHD+ Flat Screen, Dynamic AMOLED 2x Connectivity Wi-Fi 6E Operating system Android 14 Processor Snapdragon® 8 Gen 3 for Galaxy Memory a","Search for your favorite content by just choosing the item or circling the desired area.","suggestions for editing it from great to jaw-dropping.","an upgraded battery optimized to last longer* and work smarter with the apps you love."],"correct":3}]},{"type":"summary","title":"סיימתם את הלומדה!","lead":"סיכום של מה שלמדתם:","learnedTitle":"מה למדת","learned":["Display","Battery"],"nextEyebrow":"","nextTitle":"","nextDesc":"","thanks":"תודה שהשתתפתם!"}]}]},"docs":{"title":"ספרות — Samsung S24","searchPlaceholder":"חיפוש בספרות...","categories":[{"key":"src0","label":"samsungS24datasheet"}],"articles":[{"slug":"display-msw4modh-0","cat":"src0","title":"Display","summary":"6.2” FHD+ Flat Screen, Dynamic AMOLED 2x Connectivity Wi-Fi 6E Operating system Android 14 Processor Snapdragon® 8 Gen 3 for Galax","body":[["p","6.2” FHD+ Flat Screen, Dynamic AMOLED 2x Connectivity Wi-Fi 6E Operating system Android 14 Processor Snapdragon® 8 Gen 3 for Galaxy Memory and storage 8GB RAM / 128GB | 256GB Portion of storage occupied by existing content. Camera Wide: 50MP Ultra Wide: 12MP Tele: 10MP Front: 12MP Battery 4000mAh Super Fast Charging 25W wired Durability Armor Aluminum Gorilla Glass Victus 2 IP68* Dust and Water Resistant Dimensions 2.77” x 5.78” x .29” Charging port Type USB-C Galaxy S24 5G"],["ul",["Say hello to   Advanced Intelligence ,   which makes your everyday"]],["ul",["Galaxy S24 provides a comprehensive on-device and cloud-based mobile"]],["p","advanced intelligence experience enabled by our open collaborations with like-minded industry partners."],["ul",["Search and get organized effortlessly and communicate without barriers."]],["p","6.7” QHD+ Flat Screen, Dynamic AMOLED 2x Connectivity Wi-Fi 6E Operating system Android 14 Processor Snapdragon® 8 Gen 3 for Galaxy Memory and storage 12GB RAM / 256GB | 512GB Portion of storage occupied by existing content. Camera Wide: 50MP Ultra Wide: 12MP Tele: 10MP Front: 12MP Battery 4900mAh Super Fast Charging 45W wired Durability Armor Aluminum Gorilla Glass Victus 2 IP68 Dust and Water Resistant Dimensions 2.98” x 6.25” x .30” Charging port Type USB-C Galaxy S24+ 5G"],["ul",["Say hello to   Advanced Intelligence ,   which makes your everyday"]],["ul",["Galaxy S24+ provides a comprehensive on-device and cloud-based"]],["p","6.8” QHD+ Flat Screen, Dynamic AMOLED 2x, Connectivity Wi-Fi 7 Operating system Android 14 Processor Snapdragon 8 Gen 3 for Galaxy Memory and storage 12GB RAM | 256GB/512GB Portion of storage occupied by existing content. Camera Wide: 200MP/50MP Ultra Wide: 12MP Dual Tele: 10/50MP Front: 12MP Battery 5000mAh Super Fast Charging 45W wired Durability Corning® Gorilla® Armor Titanium IP68 Dust and Water Resistant Dimensions 3.11” x 6.4” x .33” Charging port Type USB-C Galaxy S24 Ultra 5G"],["ul",["Say hello to   Advanced Intelligence ,   which makes your everyday"]],["ul",["Galaxy S24 Ultra provides a comprehensive on-device and"]]]},{"slug":"three-main-ways-to-use-galaxy-s-msw4modh-1","cat":"src0","title":"Three main ways to use   Galaxy   S","summary":"Search for your favorite content by just choosing the item or circling the desired area. o Example 1: You see a celebrity carrying","body":[["ul",["Circle   to   Search with Google"]],["p","Search for your favorite content by just choosing the item or circling the desired area. o Example 1: You see a celebrity carrying a purse or item. o Example 2: You’re out hiking and would like to know the type of tree or plant around you. o Example 3: You see a location or landmark while surfing the web and want to know where it is."],["ul",["Nightography   Zoom with Generative editing"]],["p","o Generative edits include resizing, removing, or repositioning objects and straightening images. o Sharper, brighter, smoother zoom quality even in the dark."],["ul",["Live Translate for calls and texts"]]]},{"slug":"camera-msw4modh-2","cat":"src0","title":"Camera","summary":"suggestions for editing it from great to jaw-dropping.","body":[["ul",["Turn every photo into a post-worthy masterpiece. Snap a pic and get"]],["p","suggestions for editing it from great to jaw-dropping."],["ul",["Bring your night into the light with incredible low-light shots"]],["ul",["Go bigger on a brighter screen.","See what you love in a new light.","All your ideas just got brighter."]],["ul",["Turn every photo into a post-worthy masterpiece. Snap a pic and"]],["p","get suggestions for taking it from great to jaw-dropping."],["ul",["Bring your night into the light with incredible low-light shots made"]],["ul",["Go bigger on a brighter screen.","See what you love in a new light.","All your ideas just got brighter."]],["ul",["Turn every photo into a post-worthy masterpiece. Snap a pic and"]],["p","get suggestions for taking it from great to jaw-dropping."],["ul",["Regardless of darkness or distance, capture clear content with"]],["p","Nightography and high-resolution zoom on Galaxy S24 Ultra . Display"],["ul",["A flat screen for a fuller experience with edge to edge display,"]],["p","brighter than ever. No matter where you are, see what you love clearly. Battery"],["ul",["Stay plugged into the moment, not the wall. Keep gaming with a"]],["p","long-lasting battery on a phone that keeps up so you can do more of what you love. Design - S Pen - Processor"],["ul",["Galaxy S24 Ultra has a strong Corning® Gorilla® Armor with a"]],["p","sleek glass back and water and dust-resistant Titanium frame."],["ul",["Easily sign docs, scribble notes or capture thoughts with ease,"]],["ul",["Smoothly switch between apps and games with little to no lag"]],["p","and edit and multitask with our fastest processor yet. Device highlights New era of Smartphone Samsung proprietary and confidential. Internal use only. Notfor display.Notfor distribution. © 2024 Samsung Electronics America, Inc. Samsung and Samsung Galaxy are trademarks of Samsung Electronics Co., Ltd. Other company names and marks are property of their respective owners. Screen images simulated. Appearance of the devices may vary. Portion of storage occupied by existing content. Storage card sold separately. Battery life results may vary based on usage environment. IP68 Rated: Tested for submersion in up to 5 ft. of fresh water for up to 30 mins. Feature comparisons to prior Samsung models. More information at www.samsung.com . Best 5G performance requires optimal network connection; check with your carrier for 5G availability, coverage and details. Snapdragon is a trademark or registered trademark of Qualcomm Incorporated. Qualcomm and Snapdragon branded products are products of Qualcomm Technologies, Inc. and/or its subsidiaries. Circle to Search with Google requires internet connection; results may vary by uniqueness, clarity and framing of circled image and related factors. Live Translate requires Samsung account log-in; calls must be made using the native Samsung dialer. Note Assist is for text in Samsung Notes only (200-4,000 characters). Note Assist, Chat Assist and Generative Edit require a Samsung Account login and internet connection."]]},{"slug":"battery-msw4modh-3","cat":"src0","title":"Battery","summary":"an upgraded battery optimized to last longer* and work smarter with the apps you love. Design","body":[["ul",["Stay charged and in charge when you level up to Galaxy S24. Experience"]],["p","an upgraded battery optimized to last longer* and work smarter with the apps you love. Design"],["ul",["Galaxy S24 has a strong Gorilla® Glass 5 screen with a sleek glass back"]],["p","and water and dust-resistant* aluminum frame. Processor"],["ul",["Smoothly switch between apps and games with little to no lag and edit"]],["p","and multitask with our fastest processor yet. Device highlights New era of Smartphone Samsung proprietary and confidential. Internal use only. Notfor display.Notfor distribution. © 2024 Samsung Electronics America, Inc. Samsung and Samsung Galaxy are trademarks of Samsung Electronics Co., Ltd. Other company names and marks are property of their respective owners. Screen images simulated. Appearance of the devices may vary. Portion of storage occupied by existing content. Storage card sold separately. Battery life results may vary based on usage environment. IP68 Rated: Tested for submersion in up to 5 ft. of fresh water for up to 30 mins. Feature comparisons to prior Samsung models. More information at www.samsung.com . Best 5G performance requires optimal network connection; check with your carrier for 5G availability, coverage and details. Snapdragon is a trademark or registered trademark of Qualcomm Incorporated. Qualcomm and Snapdragon branded products are products of Qualcomm Technologies, Inc. and/or its subsidiaries. Circle to Search with Google requires internet connection; results may vary by uniqueness, clarity and framing of circled image and related factors. Live Translate requires Samsung account log-in; calls must be made using the native Samsung dialer. Note Assist is for text in Samsung Notes only (200-4,000 characters). Note Assist, Chat Assist and Generative Edit require a Samsung Account login and internet connection."],["ul",["Stay charged and in charge when you level up to Galaxy S24+."]],["p","Experience an upgraded battery optimized to last longer* and work smarter with the apps you love. Design"],["ul",["Galaxy S24+ has a strong Gorilla® Glass 5 screen with a sleek"]],["p","glass back and water and dust-resistant aluminum frame. Processor"],["ul",["Smoothly switch between apps and games with little to no lag and"]],["p","edit and multitask with our fastest processor yet. Device highlights New era of Smartphone Samsung proprietary and confidential. Internal use only. Notfor display.Notfor distribution. © 2024 Samsung Electronics America, Inc. Samsung and Samsung Galaxy are trademarks of Samsung Electronics Co., Ltd. Other company names and marks are property of their respective owners. Screen images simulated. Appearance of the devices may vary. Portion of storage occupied by existing content. Storage card sold separately. Battery life results may vary based on usage environment. IP68 Rated: Tested for submersion in up to 5 ft. of fresh water for up to 30 mins. Feature comparisons to prior Samsung models. More information at www.samsung.com . Best 5G performance requires optimal network connection; check with your carrier for 5G availability, coverage and details. Snapdragon is a trademark or registered trademark of Qualcomm Incorporated. Qualcomm and Snapdragon branded products are products of Qualcomm Technologies, Inc. and/or its subsidiaries. Circle to Search with Google requires internet connection; results may vary by uniqueness, clarity and framing of circled image and related factors. Live Translate requires Samsung account log-in; calls must be made using the native Samsung dialer. Note Assist is for text in Samsung Notes only (200-4,000 characters). Note Assist, Chat Assist and Generative Edit require a Samsung Account login and internet connection."]]},{"slug":"mobile-advanced-intelligence-experience--msw4modh-4","cat":"src0","title":"mobile advanced intelligence experience enabled by our open","summary":"collaborations with like-minded industry partners.","body":[["p","collaborations with like-minded industry partners."],["ul",["Search and get organized effortlessly and communicate without"]],["p","barriers. Three main ways to use Galaxy S24+"],["ul",["Circle to Search with Google"]],["p","Search for your favorite content by just choosing the item or circling the desired area. o Example 1: You see a celebrity carrying a purse or item. o Example 2: You’re out hiking and would like to know the type of tree or plant around you. o Example 3: You see a location or landmark while surfing the web and want to know where it is."],["ul",["Nightography   Zoom with Generative editing"]],["p","o Generative edits include resizing, removing, or repositioning objects and straightening images. o Sharper, brighter, smoother zoom quality even in the dark."],["ul",["Live Translate for calls and texts"]]]},{"slug":"cloud-based-mobile-advanced-intelligence-msw4modh-5","cat":"src0","title":"cloud-based mobile advanced intelligence experience enabled","summary":"by our open collaborations with like-minded industry partners.","body":[["p","by our open collaborations with like-minded industry partners."],["ul",["Search and get organized effortlessly and communicate without"]],["p","barriers. Three main ways to use Galaxy S24 Ultra"],["ul",["Circle to Search with Google"]],["p","Search for your favorite content by just choosing the item or circling the desired area. o Example 1: You see a celebrity carrying a purse or item. o Example 2: You’re out hiking and would like to know the type of tree or plant around you. o Example 3: You see a location or landmark while surfing the web and want to know where it is."],["ul",["Nightography   Zoom with Generative editing"]],["p","o Generative edits include resizing, removing, or repositioning objects and straightening images. o Sharper, brighter, smoother zoom quality even in the dark."],["ul",["Live Translate for calls and texts"]]]}]},"sections":{"marketing":false,"lomda":true,"docs":false},"bilingual":true,"tr":{"en":{"הכירו את Samsung S24":"Meet the Samsung S24","כל הידע על Samsung S24 —":"All knowledge about Samsung S24-","במקום אחד":"In one place","צפו בלומדה":"View Learner","עיינו בספרות":"Browse literature","קבצי מקור":"Source Files","פרקי תוכן":"Content Chapters","מאמרים":"Articles","אופליין":"OFFLINE","המידע על Samsung S24 מפוזר?":"Is Samsung S24 dispersed?","הבעיות שכל ארגון מכיר:":"Issues that every organization is familiar with:","המידע על Samsung S24 מפוזר בין קבצים, תיקיות ומיילים":"Samsung S24 information is spread between files, folders, and emails","עובדים חדשים מתקשים למצוא את מה שהם צריכים":"New employees struggle to find what they need","ידע קריטי יושב בראש של אנשים בודדים":"Critical knowledge is at the head of individuals","אין מקור אמת אחד ומעודכן":"There is no one true and up-to-date source","מה בפנים":"What's inside","איך זה עובד":"How it works","נכנסים":"Inbound","קובץ אחד שנפתח בכל דפדפן — בלי התקנה ובלי הרשאות.":"One file opened in each browser — no installation and no permissions.","לומדים":"Learn","לומדה אינטראקטיבית שמכניסה אתכם ל-Samsung S24 צעד-צעד.":"A step-by-step interactive learning that gets you into the Samsung S24.","עובדים":"Employees","הספרות המלאה זמינה תמיד — עם חיפוש רוחבי מהיר.":"Full digits are always available-with a quick transverse search.","מקרה לקוח":"Customer Case","Leonardo DRS RADA, יצרנית מכ\"מי AESA טקטיים. AIOP מאחדת את ידע הטיפול ב-5 דגמי מכ\"ם עם עץ Troubleshooting לטכנאי השדה.":"Leonardo DRS Rada, manufacturer of tactical AESA radars. AIOP unifies the handling knowledge of 5 radar models with Troubleshooting wood for the field technician.","דגמי מכ\"ם":"Radar Models","תרחישי תקלה":"Fault scenarios","אופליין בשטח":"Offline in the field","רוצים לראות את זה אצלכם?":"Want to see it at your place?","התוכן, המיתוג והמבנה מותאמים בדיוק לצרכים שלכם.":"Your content, branding, and structure are tailored to your needs.","צרו קשר":"Contact us","לומדה — Samsung S24":"Lumda — Samsung S24","מבוא":"The Introduction","היכרות ראשונית עם Samsung S24":"Getting to know Samsung S24","ברוכים הבאים ל-Samsung S24":"Welcome totheSamsung S24","בואו נתחיל":"Let’s get started. ","לומדה · 4 פרקים":"Learner · 4 episodes","מה זה Samsung S24?":"What is Samsung S24?","מה נלמד בלומדה":"What's Learned in a Learner","סקירת הפרקים שלפניכם. לחצו כדי לראות פירוט.":"Review the chapters below. Click to see a breakdown.","בחרו פרק למעלה...":"Choose a chapter above...","בדיקת הבנה":"Understanding test","3 שאלות על Display.":"3 Display questions.","מה נכון לגבי \"Display\"?":"What is true about “Display”?","מה נכון לגבי \"Three main ways to use   Galaxy   S\"?":"What is true about “Three main ways to use   Galaxy   S”?","מה נכון לגבי \"Camera\"?":"What is true about \"Camera\"?","2 שאלות על Battery.":"2 questions about Battery.","מה נכון לגבי \"Battery\"?":"What is true about “Battery”?","מה נכון לגבי \"cloud-based mobile advanced intelligence experience enabled\"?":"What is true about “cloud-based mobile advanced intelligence experience enabled”?","סיכום ובוחן":"Summary and Examiner","בדיקת ידע על כל החומר":"Knowledge check on all material","בוחן מסכם":"Summary examiner","4 שאלות על כל החומר.":"4 questions about the whole material.","סיימתם את הלומדה!":"You've completed the tutorial!","סיכום של מה שלמדתם:":"Summary of what you learned:","מה למדת":"What did you learn?","תודה שהשתתפתם!":"Thanks for participating!","ספרות — Samsung S24":"Literature — Samsung S24","חיפוש בספרות...":"Search digits...","ברוכים הבאים ל-":"Welcome to the ","בחרו את המסלול שלכם":"Choose your route","שיווק":"Marketing","למה Samsung S24, ולמי":"Why Samsung S24, and to whom","לומדה אינטראקטיבית":"Interactive Learning","כיצד להשתמש במערכת":"How to use the system","ספרות תפעול":"Operating Literature","התקנה, התאמה וניהול":"Installation, adjustment and management","פורטל":"Web portal","חזור":"RETURN","המשך":"Continue","סיים":"Completed","התחל מחדש":"Start Regenerate","נסו שוב":"Try again","חזרה לרשימה":"Return to list","מאמרים קשורים":"Related Posts","קטגוריות":"Data Categories","כל המאמרים":"All articles ","לא נמצאו תוצאות.":"No results were found."}}};
+
+var P = window.__PACK__;
+var LSK = 'aiop_view_' + (P.meta && P.meta.slug || 'default');
+var SRCLANG = (P.branding && P.branding.lang) || 'he';
+var S = { route: null, lang: SRCLANG, chapter: null, slide: 0, done: {}, hsDone: [], hsActive: null, simStep: 0, qIdx: 0, qAns: {}, qShow: false, dSearch:'', dCat:'all', dArt:null };
+function secOn(k){ return !P.sections || P.sections[k] !== false; }
+try {
+  var saved = JSON.parse(localStorage.getItem(LSK) || '{}');
+  if (saved.route) S.route = saved.route;
+  if (saved.done) S.done = saved.done;
+  if (saved.lang) S.lang = saved.lang;
+} catch(e){}
+if (!S.route || (S.route !== 'portal' && !secOn(S.route))) S.route = 'portal';
+
+/* ---- bilingual: offline chrome dictionary + content translation memory ---- */
+var VT = {
+  "ברוכים הבאים ל-":"Welcome to ","בחרו את המסלול שלכם":"Choose your path",
+  "שיווק":"Marketing","לומדה אינטראקטיבית":"Interactive Course","כיצד להשתמש במערכת":"How to use the system",
+  "ספרות תפעול":"Documentation","התקנה, התאמה וניהול":"Install, customize, manage",
+  "פורטל":"Portal","חזור":"Back","המשך":"Next","סיים":"Finish","התחל מחדש":"Restart","נסו שוב":"Try again",
+  "חזרה לרשימה":"Back to list","מאמרים קשורים":"Related articles","קטגוריות":"Categories",
+  "כל המאמרים":"All articles","לא נמצאו תוצאות.":"No results found.",
+  "כל הפרקים":"All chapters","סיים והמשך לפרק הבא":"Finish & continue","סיים פרק":"Finish chapter",
+  "לפרק הבא":"Next chapter","הושלם":"completed","בואו נתחיל":"Let's begin"
+};
+var VTP = [
+  [/^פרק (\d+)\/(\d+)$/, "Chapter $1/$2"],
+  [/^(\d+) פרקים · (\d+) הושלמו$/, "$1 chapters · $2 completed"],
+  [/^(\d+) פרקים$/, "$1 chapters"],
+  [/^(\d+) שקפים · הושלם$/, "$1 slides · completed"],
+  [/^(\d+) שקפים$/, "$1 slides"],
+  [/^(\d+) הושלמו$/, "$1 completed"],
+  [/^למה (.+?),? ולמי$/, "Why $1"]
+];
+function trStr(s){
+  if (S.lang === SRCLANG) return s;
+  var t = String(s);
+  var mem = (P.tr && P.tr[S.lang]) || {};
+  if (mem[t] != null) return mem[t];
+  if (VT[t] != null) return VT[t];
+  for (var i=0;i<VTP.length;i++){ if (VTP[i][0].test(t.trim())) return t.trim().replace(VTP[i][0], VTP[i][1]); }
+  return s;
+}
+function localizeDom(root){
+  if (S.lang === SRCLANG) return;
+  var walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+  var nodes = [], n;
+  while ((n = walk.nextNode())) nodes.push(n);
+  nodes.forEach(function(node){
+    var raw = node.nodeValue; if (!raw) return;
+    var trimmed = raw.trim(); if (!trimmed) return;
+    var out = trStr(trimmed);
+    if (out !== trimmed) node.nodeValue = raw.replace(trimmed, out);
+  });
+  Array.prototype.forEach.call(root.querySelectorAll('input[placeholder]'), function(inp){
+    var out = trStr(inp.getAttribute('placeholder'));
+    if (out) inp.setAttribute('placeholder', out);
+  });
+}
+function toggleLang(){
+  S.lang = (S.lang === SRCLANG) ? (SRCLANG === 'he' ? 'en' : 'he') : SRCLANG;
+  document.documentElement.dir = (S.lang === 'he') ? 'rtl' : 'ltr';
+  document.documentElement.lang = S.lang;
+  save(); render();
+}
+
+/* chapters with backward-compat for flat-slides packs */
+function CH(){
+  var L = P.lomda || {};
+  if (L.chapters && L.chapters.length) return L.chapters;
+  if (L.slides && L.slides.length) return [{ title: L.title || 'פרק 1', desc:'', icon:'book', slides: L.slides }];
+  return [];
+}
+function curSlides(){ var c = CH()[S.chapter]; return (c && c.slides) || []; }
+
+function save(){ try { localStorage.setItem(LSK, JSON.stringify({route:S.route, done:S.done, lang:S.lang})); } catch(e){} }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+var IC = {
+  check:'<svg width="__S__" height="__S__" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  x:'<svg width="__S__" height="__S__" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  play:'<svg width="__S__" height="__S__" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3v18l15-9z"/></svg>',
+  search:'<svg width="__S__" height="__S__" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>',
+  rocket:'<svg width="__S__" height="__S__" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg>',
+  grad:'<svg width="__S__" height="__S__" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.7 3.6 3 6 3s6-1.3 6-3v-5"/></svg>',
+  book:'<svg width="__S__" height="__S__" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+  sparkles:'<svg width="__S__" height="__S__" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>',
+  layers:'<svg width="__S__" height="__S__" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5z"/><path d="m3 12 9 5 9-5M3 17l9 5 9-5"/></svg>',
+  target:'<svg width="__S__" height="__S__" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+  shield:'<svg width="__S__" height="__S__" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+  globe:'<svg width="__S__" height="__S__" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></svg>',
+  wifi:'<svg width="__S__" height="__S__" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8.5C5 6 8.4 4.8 12 4.8s7 1.2 10 3.7M5 12.5c2-1.7 4.4-2.7 7-2.7s5 1 7 2.7M8.5 16c1-.7 2.3-1.1 3.5-1.1s2.5.4 3.5 1.1M12 20h.01M2 2l20 20"/></svg>',
+  tools:'<svg width="__S__" height="__S__" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></svg>',
+  help:'<svg width="__S__" height="__S__" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>',
+  bug:'<svg width="__S__" height="__S__" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 2h8M12 2v4M9 6h6a3 3 0 0 1 3 3v8a6 6 0 0 1-12 0V9a3 3 0 0 1 3-3zM3 13h3M18 13h3"/></svg>',
+  msg:'<svg width="__S__" height="__S__" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>'
+};
+function icon(n, s){ return (IC[n]||IC.sparkles).split('__S__').join(String(s||22)); }
+
+function resetSlideState(){ S.hsDone=[]; S.hsActive=null; S.simStep=0; S.qIdx=0; S.qAns={}; S.qShow=false; }
+function nav(r){ if (r!=='portal' && !secOn(r)) r='portal'; S.route = r; if (r==='lomda') S.chapter = null; S.dArt = null; save(); render(); }
+function goSlide(i){ S.slide = i; resetSlideState(); render(); }
+function openChapter(i){ S.chapter = i; S.slide = 0; resetSlideState(); render(); }
+function backToChapters(){ S.chapter = null; render(); }
+function finishChapter(){
+  S.done[String(S.chapter)] = true; save();
+  var next = S.chapter + 1;
+  if (next < CH().length) openChapter(next); else backToChapters();
+}
+
+function topbar(){
+  var h = '<header class="topbar"><div style="display:flex;align-items:center;gap:14px">';
+  if (S.route !== 'portal' && enabledSections().length > 1) h += '<button class="btn btn-g" style="padding:8px 13px;font-size:.83rem" onclick="nav(\'portal\')">' + icon('sparkles',15) + ' ' + esc(P.ui.backToPortal) + '</button>';
+  h += '<span class="logo"><span class="logo-mark"></span>' + esc(P.branding.productName) + '</span></div>';
+  h += '<div style="display:flex;align-items:center;gap:12px">';
+  if (P.bilingual) {
+    var other = (S.lang === 'he') ? 'EN' : 'עב';
+    h += '<button class="btn btn-g" style="padding:7px 13px;font-size:.82rem" onclick="toggleLang()">' + icon('globe',15) + ' ' + other + '</button>';
+  }
+  h += '<span class="dim" style="font-size:.85rem">' + esc(P.branding.customerName) + '</span></div></header>';
+  return h;
+}
+
+function rPortal(){
+  var cards = [
+    { r:'marketing', ic:'rocket', t:P.ui.portalMarketingT, d:P.ui.portalMarketingD },
+    { r:'lomda', ic:'grad', t:P.ui.portalLomdaT, d:P.ui.portalLomdaD },
+    { r:'docs', ic:'book', t:P.ui.portalDocsT, d:P.ui.portalDocsD }
+  ].filter(function(c){ return secOn(c.r); });
+  var h = '<div class="wrap fadeIn" style="padding-top:60px;padding-bottom:60px;text-align:center">';
+  h += '<div style="display:flex;justify-content:center;margin-bottom:22px"><span class="logo" style="font-size:2rem"><span class="logo-mark" style="width:52px;height:52px"></span>' + esc(P.branding.productName) + '</span></div>';
+  h += '<h1 class="big">' + esc(P.ui.portalWelcome) + ' <span class="grad">' + esc(P.branding.productName) + '</span></h1>';
+  h += '<p class="dim" style="font-size:1.1rem;margin-top:10px">' + esc(P.ui.portalSubtitle) + '</p>';
+  h += '<div class="portal-grid">';
+  cards.forEach(function(c){
+    h += '<div class="pcard" onclick="nav(\'' + c.r + '\')"><div class="picon">' + icon(c.ic,30) + '</div><h3 style="color:#fff;font-size:1.15rem;margin-bottom:7px">' + esc(c.t) + '</h3><p class="dim" style="font-size:.9rem">' + esc(c.d) + '</p></div>';
+  });
+  h += '</div></div>';
+  return h;
+}
+
+function rMarketing(){
+  var M = P.marketing, h = '<div class="fadeIn">';
+  if (M.hero && M.hero.enabled !== false) {
+    h += '<section class="sect" style="text-align:center;background:radial-gradient(ellipse 70% 55% at 50% 0%,rgba(255,255,255,.05),transparent)"><div class="wrap">';
+    if (M.hero.eyebrow) h += '<div style="color:var(--accent);font-weight:700;letter-spacing:1.4px;text-transform:uppercase;font-size:.8rem;margin-bottom:11px">' + esc(M.hero.eyebrow) + '</div>';
+    h += '<h1 class="big">' + esc(M.hero.titleA) + ' <span class="grad">' + esc(M.hero.titleB) + '</span></h1>';
+    h += '<p class="dim" style="font-size:1.1rem;max-width:640px;margin:18px auto 30px;line-height:1.6">' + esc(M.hero.sub) + '</p>';
+    h += '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">';
+    h += '<button class="btn btn-p" onclick="nav(\'lomda\')">' + icon('play',15) + ' ' + esc(M.hero.ctaPrimary) + '</button>';
+    h += '<button class="btn btn-g" onclick="nav(\'docs\')">' + icon('book',15) + ' ' + esc(M.hero.ctaSecondary) + '</button></div>';
+    if (M.stats && M.stats.length) {
+      h += '<div class="stats">';
+      M.stats.forEach(function(s){ h += '<div><div class="statn">' + esc(s.n) + '</div><div class="dim" style="font-size:.85rem;margin-top:3px">' + esc(s.l) + '</div></div>'; });
+      h += '</div>';
+    }
+    h += '</div></section>';
+  }
+  if (M.problem && M.problem.enabled !== false) {
+    h += '<section class="sect sect-alt"><div class="wrap" style="text-align:center"><h2 style="color:#fff;font-size:2rem">' + esc(M.problem.title) + '</h2><p class="dim" style="margin-top:8px">' + esc(M.problem.sub) + '</p><div class="pains">';
+    (M.problem.pains||[]).forEach(function(p){ h += '<div class="pain"><span class="painx">' + icon('x',15) + '</span><span>' + esc(p) + '</span></div>'; });
+    h += '</div></div></section>';
+  }
+  if (M.features && M.features.enabled !== false) {
+    h += '<section class="sect"><div class="wrap"><h2 style="color:#fff;font-size:2rem;text-align:center">' + esc(M.features.title) + '</h2><div class="feats">';
+    (M.features.items||[]).forEach(function(f){
+      h += '<div class="feat"><div class="ficon">' + icon(f.icon||'sparkles',21) + '</div><h3 style="color:#fff;font-size:1.02rem;margin-bottom:7px">' + esc(f.t) + '</h3><p class="dim" style="font-size:.9rem;line-height:1.55">' + esc(f.d) + '</p></div>';
+    });
+    h += '</div></div></section>';
+  }
+  if (M.how && M.how.enabled !== false) {
+    h += '<section class="sect sect-alt"><div class="wrap"><h2 style="color:#fff;font-size:2rem;text-align:center">' + esc(M.how.title) + '</h2><div class="hows">';
+    (M.how.steps||[]).forEach(function(s,i){
+      h += '<div class="how"><div class="hownum">' + (i+1) + '</div><h3 style="color:#fff;margin:13px 0 8px;font-size:1.02rem">' + esc(s.t) + '</h3><p class="dim" style="font-size:.9rem;line-height:1.55">' + esc(s.d) + '</p></div>';
+    });
+    h += '</div></div></section>';
+  }
+  if (M.caseStudy && M.caseStudy.enabled !== false) {
+    h += '<section class="sect"><div class="wrap"><div class="case">';
+    if (M.caseStudy.eyebrow) h += '<div style="color:var(--accent);font-weight:700;letter-spacing:1.2px;text-transform:uppercase;font-size:.78rem;margin-bottom:9px">' + esc(M.caseStudy.eyebrow) + '</div>';
+    h += '<h2 style="color:#fff;font-size:1.7rem;margin-bottom:11px">' + esc(M.caseStudy.title) + '</h2><p class="dim" style="line-height:1.65">' + esc(M.caseStudy.desc) + '</p>';
+    if (M.caseStudy.stats && M.caseStudy.stats.length) {
+      h += '<div class="casestats">';
+      M.caseStudy.stats.forEach(function(s){ h += '<div><div class="statn" style="font-size:1.9rem">' + esc(s.n) + '</div><div class="dim" style="font-size:.83rem;margin-top:4px">' + esc(s.l) + '</div></div>'; });
+      h += '</div>';
+    }
+    h += '</div></div></section>';
+  }
+  if (M.finalCta && M.finalCta.enabled !== false) {
+    h += '<section class="sect" style="text-align:center"><div class="wrap"><h2 style="color:#fff;font-size:2.2rem">' + esc(M.finalCta.title) + '</h2><p class="dim" style="margin:12px auto 26px;max-width:560px">' + esc(M.finalCta.sub) + '</p>';
+    var act = M.finalCta.link ? 'window.open(' + JSON.stringify(M.finalCta.link) + ',\'_blank\')' : '';
+    h += '<button class="btn btn-p" style="font-size:1.05rem;padding:14px 32px" onclick="' + act + '">' + icon('msg',17) + ' ' + esc(M.finalCta.button) + '</button></div></section>';
+  }
+  h += '<footer class="ftr">' + esc(M.footer||'') + '</footer></div>';
+  return h;
+}
+
+function rChapterList(){
+  var chs = CH();
+  var total = chs.length, doneN = 0;
+  chs.forEach(function(_,i){ if (S.done[String(i)]) doneN++; });
+  var h = '<div class="wrap fadeIn" style="padding-top:34px;padding-bottom:56px">';
+  h += '<div style="text-align:center;margin-bottom:28px">';
+  h += '<h1 style="color:#fff;font-size:2rem;margin-bottom:8px">' + esc(P.lomda.title || '') + '</h1>';
+  h += '<p class="dim">' + total + ' פרקים · ' + doneN + ' הושלמו</p>';
+  h += '<div class="prog" style="max-width:420px;margin:14px auto 0"><div class="progf" style="width:' + (total?Math.round(doneN/total*100):0) + '%"></div></div>';
+  h += '</div><div class="chaplist">';
+  chs.forEach(function(c,i){
+    var done = !!S.done[String(i)];
+    var locked = false;
+    h += '<div class="chaprow' + (done?' done':'') + '" onclick="openChapter(' + i + ')">';
+    h += '<div class="chapnum' + (done?' done':'') + '">' + (done ? icon('check',18) : (i+1)) + '</div>';
+    h += '<div style="flex:1;min-width:0">';
+    h += '<div style="color:#fff;font-weight:700;font-size:1.02rem">' + esc(c.title || ('פרק ' + (i+1))) + '</div>';
+    if (c.desc) h += '<div class="dim" style="font-size:.86rem;margin-top:3px">' + esc(c.desc) + '</div>';
+    h += '<div class="dim" style="font-size:.78rem;margin-top:5px">' + ((c.slides||[]).length) + ' שקפים' + (done ? ' · הושלם' : '') + '</div>';
+    h += '</div>';
+    h += '<div class="dim chaparrow">' + icon('play',17) + '</div>';
+    h += '</div>';
+  });
+  h += '</div></div>';
+  return h;
+}
+
+function slideShell(inner, canPrev, canNext, nextGated){
+  var slides = curSlides();
+  var chs = CH();
+  var ch = chs[S.chapter] || {};
+  var last = S.slide === slides.length - 1;
+  var h = '<div class="wrap fadeIn" style="padding-top:20px;padding-bottom:50px">';
+  h += '<div class="chapbar"><button class="btn btn-g" style="padding:7px 13px;font-size:.82rem" onclick="backToChapters()">' + icon('layers',14) + ' כל הפרקים</button>';
+  h += '<span class="dim" style="font-size:.85rem"><span>פרק ' + (S.chapter+1) + '/' + chs.length + '</span> · <span>' + esc(ch.title||'') + '</span></span></div>';
+  h += '<div class="row" style="display:flex;gap:14px;align-items:center;margin:16px 0 26px"><div class="dots">';
+  slides.forEach(function(_,i){
+    var c = i===S.slide ? 'on' : (i<S.slide ? 'done' : '');
+    h += '<span class="dot ' + c + '" onclick="goSlide(' + i + ')"></span>';
+  });
+  h += '</div><div class="prog"><div class="progf" style="width:' + Math.round(((S.slide+1)/slides.length)*100) + '%"></div></div>';
+  h += '<span class="dim" style="font-size:.8rem;white-space:nowrap">' + (S.slide+1) + ' / ' + slides.length + '</span></div>';
+  h += inner;
+  h += '<div class="lomda-nav">';
+  h += canPrev ? '<button class="btn btn-g" onclick="goSlide(' + (S.slide-1) + ')">' + esc(P.ui.back) + '</button>' : '<span></span>';
+  if (canNext) h += '<button class="btn btn-p" ' + (nextGated ? 'disabled' : '') + ' onclick="goSlide(' + (S.slide+1) + ')">' + esc(P.ui.next) + '</button>';
+  else if (last) h += '<button class="btn btn-p" ' + (nextGated ? 'disabled' : '') + ' onclick="finishChapter()">' + (S.chapter < chs.length-1 ? 'סיים והמשך לפרק הבא' : 'סיים פרק') + '</button>';
+  h += '</div></div>';
+  return h;
+}
+
+function rLomda(){
+  var chs = CH();
+  if (!chs.length) return '<div class="wrap" style="padding:60px 22px;text-align:center"><span class="dim">—</span></div>';
+  if (S.chapter === null) return rChapterList();
+  var slides = curSlides();
+  if (!slides.length) return rChapterList();
+  if (S.slide >= slides.length) S.slide = 0;
+  var s = slides[S.slide], inner = '';
+  var canPrev = S.slide > 0, canNext = S.slide < slides.length - 1, gated = false;
+
+  if (s.type === 'hero') {
+    inner = '<div style="text-align:center;padding:40px 0">';
+    inner += '<div style="display:flex;justify-content:center;margin-bottom:24px"><span class="logo" style="font-size:1.8rem"><span class="logo-mark" style="width:48px;height:48px"></span>' + esc(P.branding.productName) + '</span></div>';
+    inner += '<h1 class="big">' + esc(s.title) + '</h1>';
+    if (s.subtitle) inner += '<p class="dim" style="font-size:1.1rem;max-width:620px;margin:16px auto 30px">' + esc(s.subtitle) + '</p>';
+    if (canNext) inner += '<button class="btn btn-p" style="font-size:1.05rem;padding:14px 30px" onclick="goSlide(' + (S.slide+1) + ')">' + icon('play',16) + ' ' + esc(s.buttonLabel || P.ui.next) + '</button>';
+    if (s.meta) inner += '<p class="dim" style="margin-top:24px;font-size:.85rem">' + esc(s.meta) + '</p>';
+    inner += '</div>';
+    return slideShell(inner, canPrev, false, false);
+  }
+  if (s.type === 'text') {
+    inner = '<h2 style="color:#fff;font-size:1.9rem;margin-bottom:8px">' + esc(s.title) + '</h2>';
+    if (s.lead) inner += '<p class="dim" style="font-size:1.05rem;margin-bottom:18px">' + esc(s.lead) + '</p>';
+    (s.paragraphs||[]).forEach(function(p){ inner += '<p style="line-height:1.75;margin-bottom:13px">' + esc(p) + '</p>'; });
+    if (s.mediaUrl) inner += '<img class="txtimg" src="' + esc(s.mediaUrl) + '" alt="">';
+  }
+  else if (s.type === 'features') {
+    inner = '<h2 style="color:#fff;font-size:1.9rem;margin-bottom:8px">' + esc(s.title) + '</h2>';
+    if (s.lead) inner += '<p class="dim" style="margin-bottom:20px">' + esc(s.lead) + '</p>';
+    inner += '<div class="feats">';
+    (s.items||[]).forEach(function(f){
+      inner += '<div class="feat"><div class="ficon">' + icon(f.icon||'sparkles',21) + '</div><h3 style="color:#fff;font-size:1rem;margin-bottom:6px">' + esc(f.t) + '</h3><p class="dim" style="font-size:.88rem;line-height:1.5">' + esc(f.d) + '</p></div>';
+    });
+    inner += '</div>';
+  }
+  else if (s.type === 'cards') {
+    inner = '<h2 style="color:#fff;font-size:1.9rem;margin-bottom:8px">' + esc(s.title) + '</h2>';
+    if (s.lead) inner += '<p class="dim" style="margin-bottom:8px">' + esc(s.lead) + '</p>';
+    inner += '<div class="chgrid">';
+    (s.items||[]).forEach(function(c,i){
+      inner += '<div class="chcard ' + (S.hsActive===i?'on':'') + '" onclick="S.hsActive=' + i + ';render()">' + esc(c.t) + '</div>';
+    });
+    inner += '</div><div class="glass" style="padding:18px;min-height:76px">';
+    if (S.hsActive === null || !(s.items||[])[S.hsActive]) inner += '<span class="dim" style="font-style:italic">' + esc(s.pickHint || '...') + '</span>';
+    else inner += '<div style="color:var(--accent);font-weight:700;margin-bottom:5px">' + esc(s.items[S.hsActive].t) + '</div><div>' + esc(s.items[S.hsActive].d) + '</div>';
+    inner += '</div>';
+  }
+  else if (s.type === 'hotspots') {
+    var spots = s.spots || [];
+    gated = S.hsDone.length < spots.length;
+    inner = '<h2 style="color:#fff;font-size:1.9rem;margin-bottom:8px">' + esc(s.title) + '</h2>';
+    if (s.lead) inner += '<p class="dim" style="margin-bottom:16px">' + esc(s.lead) + '</p>';
+    inner += '<div class="hswrap" ' + (s.imageUrl ? 'style="background-image:url(' + esc(s.imageUrl) + ')"' : '') + '>';
+    if (!s.imageUrl) inner += '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center" class="dim">' + esc(s.placeholder || '') + '</div>';
+    spots.forEach(function(sp,i){
+      var done = S.hsDone.indexOf(i) >= 0;
+      inner += '<button class="hspot ' + (done?'done':'') + '" style="left:' + esc(sp.x) + ';top:' + esc(sp.y) + '" onclick="hsClick(' + i + ')">' + (done ? icon('check',13) : (i+1)) + '</button>';
+      if (S.hsActive === i) {
+        inner += '<div class="htip" style="left:' + esc(sp.x) + ';top:calc(' + esc(sp.y) + ' + 38px)"><div style="color:var(--accent);font-weight:700;margin-bottom:4px">' + esc(sp.t) + '</div>' + esc(sp.d) + '</div>';
+      }
+    });
+    inner += '</div><div class="row" style="display:flex;gap:11px;align-items:center;margin-top:13px"><span class="dim" style="font-size:.83rem">' + S.hsDone.length + ' / ' + spots.length + '</span><div class="prog"><div class="progf" style="width:' + (spots.length?Math.round(S.hsDone.length/spots.length*100):0) + '%"></div></div></div>';
+    if (!gated && s.doneMsg) inner += '<div class="glass" style="padding:13px 17px;margin-top:13px;border-color:var(--ok);color:#6ee7b7;display:flex;gap:9px;align-items:center">' + icon('check',17) + ' ' + esc(s.doneMsg) + '</div>';
+  }
+  else if (s.type === 'sim') {
+    var steps = s.steps || [];
+    var done = S.simStep >= steps.length;
+    gated = !done;
+    inner = '<h2 style="color:#fff;font-size:1.9rem;margin-bottom:8px">' + esc(s.title) + '</h2>';
+    if (s.lead) inner += '<p class="dim" style="margin-bottom:14px">' + esc(s.lead) + '</p>';
+    inner += '<div style="margin-bottom:13px">';
+    steps.slice(0, S.simStep).forEach(function(st){ inner += '<span class="crumb">' + esc(st.target) + '</span>'; });
+    if (!done && s.hint) inner += '<span class="dim" style="font-size:.83rem">' + esc(s.hint) + '</span>';
+    inner += '</div>';
+    if (!done) {
+      var st = steps[S.simStep];
+      inner += '<div class="glass" style="padding:24px"><h3 style="color:#fff;text-align:center;margin-bottom:18px">' + esc(st.screenTitle) + '</h3><div class="simgrid">';
+      (st.items||[]).forEach(function(it){
+        var isT = it === st.target;
+        inner += '<button class="simbtn ' + (isT?'target':'') + '" onclick="simClick(' + JSON.stringify(String(it)).replace(/"/g,'&quot;') + ')">' + esc(it) + '</button>';
+      });
+      inner += '</div></div>';
+    } else {
+      inner += '<div class="glass" style="padding:30px;text-align:center;border-color:var(--ok)"><div style="color:var(--ok);display:flex;justify-content:center;margin-bottom:12px">' + icon('check',44) + '</div><h3 style="color:#6ee7b7;font-size:1.3rem;margin-bottom:8px">' + esc(s.doneTitle) + '</h3><p class="dim">' + esc(s.doneDesc) + '</p></div>';
+    }
+  }
+  else if (s.type === 'quiz') {
+    var qs = s.questions || [];
+    var score = 0;
+    qs.forEach(function(q,i){ if (S.qAns[i] === q.correct) score++; });
+    var passed = score >= qs.length - 1;
+    gated = !(S.qShow && passed);
+    inner = '<h2 style="color:#fff;font-size:1.9rem;margin-bottom:8px">' + esc(s.title) + '</h2>';
+    if (s.lead) inner += '<p class="dim" style="margin-bottom:18px">' + esc(s.lead) + '</p>';
+    if (S.qShow) {
+      inner += '<div class="glass" style="padding:30px;text-align:center"><div style="display:flex;justify-content:center;margin-bottom:12px;color:' + (passed?'var(--ok)':'var(--err)') + '">' + icon(passed?'check':'x',48) + '</div>';
+      inner += '<div style="font-size:2rem;font-weight:800;color:#fff;margin-bottom:7px">' + score + ' / ' + qs.length + '</div>';
+      inner += '<p style="color:' + (passed?'#6ee7b7':'#fca5a5') + ';margin-bottom:18px">' + esc(passed ? (s.passText||'') : (s.retryText||'')) + '</p>';
+      inner += '<button class="btn btn-g" onclick="qReset()">' + esc(s.retryBtn || P.ui.retry) + '</button></div>';
+    } else {
+      var q = qs[S.qIdx];
+      var ans = S.qAns[S.qIdx];
+      var answered = ans !== undefined;
+      inner += '<div class="glass" style="padding:24px"><div class="dim" style="font-size:.83rem;margin-bottom:8px">' + (S.qIdx+1) + ' / ' + qs.length + '</div>';
+      inner += '<h3 style="color:#fff;font-size:1.25rem;margin-bottom:16px">' + esc(q.q) + '</h3>';
+      (q.opts||[]).forEach(function(o,i){
+        var cls = 'qopt';
+        if (answered) { if (i === q.correct) cls += ' ok'; else if (i === ans) cls += ' bad'; }
+        inner += '<button class="' + cls + '" ' + (answered?'disabled':'') + ' onclick="qAnswer(' + i + ')">' + esc(o) + '</button>';
+      });
+      if (answered) inner += '<div style="margin-top:14px;text-align:end"><button class="btn btn-p" onclick="qNext()">' + esc(S.qIdx < qs.length-1 ? P.ui.next : P.ui.finish) + '</button></div>';
+      inner += '</div>';
+    }
+  }
+  else if (s.type === 'summary') {
+    inner = '<div style="text-align:center;margin-bottom:26px"><div style="color:var(--accent);display:flex;justify-content:center;margin-bottom:12px">' + icon('sparkles',52) + '</div><h2 style="color:#fff;font-size:2.2rem">' + esc(s.title) + '</h2>';
+    if (s.lead) inner += '<p class="dim" style="margin-top:8px">' + esc(s.lead) + '</p></div>';
+    inner += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px">';
+    inner += '<div class="glass" style="padding:20px"><h3 style="color:#fff;margin-bottom:11px">' + esc(s.learnedTitle||'') + '</h3>';
+    (s.learned||[]).forEach(function(l){ inner += '<div class="chk"><span class="chki">' + icon('check',13) + '</span><span>' + esc(l) + '</span></div>'; });
+    inner += '</div>';
+    if (s.nextTitle) {
+      inner += '<div class="glass" style="padding:20px;border-color:var(--accent)"><div style="color:var(--accent);font-weight:700;font-size:.82rem;margin-bottom:7px">' + esc(s.nextEyebrow||'') + '</div><h3 style="color:#fff;margin-bottom:9px">' + esc(s.nextTitle) + '</h3><p class="dim" style="font-size:.9rem;line-height:1.6">' + esc(s.nextDesc||'') + '</p></div>';
+    }
+    inner += '</div>';
+    if (s.thanks) inner += '<p style="text-align:center;color:#fff;font-size:1.05rem;margin-top:26px">' + esc(s.thanks) + '</p>';
+    inner += '<div style="display:flex;justify-content:center;gap:11px;margin-top:16px;flex-wrap:wrap">';
+    inner += '<button class="btn btn-g" onclick="goSlide(0)">' + icon('play',14) + ' ' + esc(P.ui.restart) + '</button>';
+    inner += '<button class="btn btn-p" onclick="finishChapter()">' + (S.chapter < CH().length-1 ? 'לפרק הבא' : 'סיים') + '</button>';
+    inner += '</div>';
+    return slideShell(inner, canPrev, false, false);
+  }
+  else { inner = '<p class="dim">unknown slide type: ' + esc(s.type) + '</p>'; }
+
+  return slideShell(inner, canPrev, canNext, gated);
+}
+
+function hsClick(i){ if (S.hsDone.indexOf(i)<0) S.hsDone.push(i); S.hsActive = (S.hsActive===i ? null : i); render(); }
+function simClick(item){
+  var s = curSlides()[S.slide]; var st = (s.steps||[])[S.simStep];
+  if (st && item === st.target) { S.simStep++; render(); }
+}
+function qAnswer(i){ if (S.qAns[S.qIdx] !== undefined) return; S.qAns[S.qIdx] = i; render(); }
+function qNext(){
+  var s = curSlides()[S.slide];
+  if (S.qIdx < (s.questions||[]).length - 1) S.qIdx++; else S.qShow = true;
+  render();
+}
+function qReset(){ S.qIdx=0; S.qAns={}; S.qShow=false; render(); }
+
+function rDocs(){
+  var D = P.docs, arts = D.articles || [];
+  var h = '<div class="wrap fadeIn" style="padding-top:26px;padding-bottom:50px">';
+  if (S.dArt) {
+    var a = null; arts.forEach(function(x){ if (x.slug === S.dArt) a = x; });
+    if (a) {
+      var catL = ''; (D.categories||[]).forEach(function(c){ if (c.key===a.cat) catL = c.label; });
+      h += '<button class="btn btn-g" style="margin-bottom:18px" onclick="S.dArt=null;render()">' + esc(P.ui.backToList) + '</button>';
+      h += '<div class="dart"><div class="dtag">' + esc(catL) + '</div><h1>' + esc(a.title) + '</h1><p class="dim" style="margin-bottom:18px">' + esc(a.summary) + '</p>';
+      (a.body||[]).forEach(function(b){
+        if (b[0]==='p') h += '<p>' + esc(b[1]) + '</p>';
+        else if (b[0]==='h2') h += '<h2>' + esc(b[1]) + '</h2>';
+        else if (b[0]==='ul') { h += '<ul>'; (b[1]||[]).forEach(function(li){ h += '<li>' + esc(li) + '</li>'; }); h += '</ul>'; }
+        else if (b[0]==='pre') h += '<pre>' + esc(b[1]) + '</pre>';
+        else if (b[0]==='img') h += '<img class="txtimg" src="' + esc(b[1]) + '" alt="">';
+      });
+      h += '</div>';
+      var rel = arts.filter(function(x){ return x.cat===a.cat && x.slug!==a.slug; }).slice(0,3);
+      if (rel.length) {
+        h += '<h3 style="color:#fff;margin:26px 0 13px">' + esc(P.ui.related) + '</h3><div class="dcards">';
+        rel.forEach(function(r){ h += '<div class="dcard" onclick="S.dArt=' + JSON.stringify(r.slug).replace(/"/g,'&quot;') + ';render()"><h4 style="color:#fff;margin-bottom:5px">' + esc(r.title) + '</h4><p class="dim" style="font-size:.85rem">' + esc(r.summary) + '</p></div>'; });
+        h += '</div>';
+      }
+      return h + '</div>';
+    }
+    S.dArt = null;
+  }
+  h += '<h1 style="color:#fff;font-size:1.9rem;text-align:center">' + esc(D.title) + '</h1>';
+  h += '<div class="dsearch"><input value="' + esc(S.dSearch) + '" placeholder="' + esc(D.searchPlaceholder||'') + '" oninput="S.dSearch=this.value;renderDocsList()">' + icon('search',19) + '</div>';
+  h += '<div class="dlayout"><aside class="dside"><div class="dim" style="font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:6px 11px">' + esc(P.ui.categories) + '</div>';
+  var cats = [{key:'all', label:P.ui.allArticles}].concat(D.categories||[]);
+  cats.forEach(function(c){
+    var n = c.key==='all' ? arts.length : arts.filter(function(a){ return a.cat===c.key; }).length;
+    h += '<div class="dcat ' + (S.dCat===c.key?'on':'') + '" onclick="S.dCat=' + JSON.stringify(c.key).replace(/"/g,'&quot;') + ';render()"><span>' + esc(c.label) + '</span><span class="dim" style="font-size:.78rem">' + n + '</span></div>';
+  });
+  h += '</aside><div id="docs-list">' + docsListHtml() + '</div></div></div>';
+  return h;
+}
+function docsListHtml(){
+  var D = P.docs, arts = D.articles || [];
+  var q = S.dSearch.trim().toLowerCase();
+  var list = arts.filter(function(a){
+    if (S.dCat !== 'all' && a.cat !== S.dCat) return false;
+    if (!q) return true;
+    return (a.title + ' ' + a.summary + ' ' + JSON.stringify(a.body)).toLowerCase().indexOf(q) >= 0;
+  });
+  if (!list.length) return '<div class="glass" style="padding:26px;text-align:center" ><span class="dim">' + esc(P.ui.noResults) + '</span></div>';
+  var h = '<div class="dcards">';
+  list.forEach(function(a){
+    var catL = ''; (D.categories||[]).forEach(function(c){ if (c.key===a.cat) catL = c.label; });
+    h += '<div class="dcard" onclick="S.dArt=' + JSON.stringify(a.slug).replace(/"/g,'&quot;') + ';render()"><div class="dtag">' + esc(catL) + '</div><h3 style="color:#fff;font-size:1.02rem;margin-bottom:6px">' + esc(a.title) + '</h3><p class="dim" style="font-size:.87rem;line-height:1.5">' + esc(a.summary) + '</p></div>';
+  });
+  return h + '</div>';
+}
+function renderDocsList(){
+  var el = document.getElementById('docs-list');
+  if (el) el.innerHTML = docsListHtml();
+}
+
+function enabledSections(){ return ['marketing','lomda','docs'].filter(secOn); }
+
+function render(){
+  var app = document.getElementById('app');
+  var only = enabledSections();
+  if (only.length === 1 && S.route === 'portal') S.route = only[0];
+  var body = '';
+  if (S.route === 'portal') body = rPortal();
+  else if (S.route === 'marketing') body = rMarketing();
+  else if (S.route === 'lomda') body = rLomda();
+  else if (S.route === 'docs') body = rDocs();
+  app.innerHTML = topbar() + body;
+  localizeDom(app);
+}
+
+(function init(){
+  var c = P.branding.colors || {};
+  var r = document.documentElement.style;
+  if (c.accent) r.setProperty('--accent', c.accent);
+  if (c.accent2) r.setProperty('--accent2', c.accent2);
+  if (c.bg) r.setProperty('--bg', c.bg);
+  if (c.bg2) r.setProperty('--bg2', c.bg2);
+  if (c.text) r.setProperty('--text', c.text);
+  if (c.dim) r.setProperty('--dim', c.dim);
+  r.setProperty('--ok', '#10b981'); r.setProperty('--err', '#ef4444');
+  document.documentElement.dir = (S.lang === 'he') ? 'rtl' : 'ltr';
+  document.documentElement.lang = S.lang;
+  document.title = P.branding.productName + ' — ' + P.branding.customerName;
+  render();
+})();
+  
+</script>
+</body>
+</html>

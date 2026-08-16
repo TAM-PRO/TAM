@@ -1,0 +1,3136 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digi-TAM | </title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --text-color: #1f2937;
+            --muted-color: #64748b;
+            --border-color: #d7dee8;
+            --background-color: #f4f7fb;
+            --surface-color: #ffffff;
+            --header-bg: #2563eb;
+            --header-text-color: #ffffff;
+            --header-border-color: rgba(255,255,255,0.12);
+            --toolbar-button-bg: rgba(255,255,255,0.12);
+            --toolbar-button-border: rgba(255,255,255,0.2);
+            --toolbar-button-text: #ffffff;
+            --toc-bg: #ffffff;
+            --toc-text-color: #334155;
+            --toc-active-bg: #2563eb;
+            --toc-active-text: #ffffff;
+            --content-bg: #ffffff;
+            --media-bg: #f9f9f9;
+            --media-text-color: #e5edf7;
+            --media-border-color: #e0e0e0;
+            --table-header-bg: #2563eb;
+            --media-pane-width: 33%;
+            --toc-pane-width: 280px;
+            --content-max-width: 980px;
+            --header-height: 60px;
+            --body-font-size: 16px;
+            --radius: 8px;
+            --heading-scale: 1;
+        }
+    </style>
+    <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+    
+
+    <header class="site-header">
+        <div class="logo-zone">
+            
+            <div class="titles">
+                <h1>Digi-TAM</h1>
+                <span class="version">Version: 1.0</span>
+            </div>
+        </div>
+
+        <div class="global-toolbar" id="global-toolbar">
+            
+            <button type="button" class="global-toolbar-btn" data-tool="home" data-home-target="sec-preamble">Home</button>
+            
+            <button type="button" class="global-toolbar-btn" data-tool="toggle_toc">TOC</button>
+            <button type="button" class="global-toolbar-btn" data-tool="prev_section">◀</button>
+            <button type="button" class="global-toolbar-btn" data-tool="next_section">▶</button>
+            <button type="button" class="global-toolbar-btn" data-tool="copy_link">Link</button>
+            <button type="button" class="global-toolbar-btn" data-tool="focus_mode">Focus</button>
+            <button type="button" class="global-toolbar-btn" data-tool="pdf" data-pdf-url="assets/docs/source.pdf" >PDF</button>
+        </div>
+
+        <div class="search-zone">
+            <input type="text" id="search-input" placeholder="Search documentation (press '/' to search)...">
+        </div>
+    </header>
+
+    <div class="app-container" data-sticky-toc="true">
+        <aside class="pane toc-pane">
+            <nav id="toc-nav" class="toc-nav">
+                <div class="toc-toolbar"><button type="button" class="toc-toolbar-btn" id="toc-expand-all" aria-label="פתח הכל">+</button><button type="button" class="toc-toolbar-btn" id="toc-collapse-all" aria-label="סגור הכל">-</button><button type="button" class="toc-toolbar-btn" id="toc-toggle-numbers" aria-label="הסתרת מספור">123</button></div>
+<ul class="toc-tree toc-front-matter">
+  <li class="toc-item" data-level="0">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-preamble" class="toc-link toc-home" data-target="sec-preamble"><span class="toc-number"></span><span class="toc-text">Home</span></a>
+    </div>
+  </li>
+</ul>
+<ul class="toc-tree">
+  <li class="toc-item" data-level="1">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-3" class="toc-link toc-h1 toc-empty-redirect" data-target="sec-3" data-source-id="sec-1"><span class="toc-number">1</span><span class="toc-text">Introduction</span></a>
+    </div>
+  </li>
+  <li class="toc-item has-children" data-level="1">
+    <div class="toc-row">
+      <button type="button" class="toc-toggle" aria-expanded="true" aria-label="Toggle section"><span class="toc-toggle-icon"></span></button>
+      <a href="#sec-3" class="toc-link toc-h1 toc-empty-redirect" data-target="sec-3" data-source-id="sec-2"><span class="toc-number">2</span><span class="toc-text">Assembly and Sub-Assemblies Procedures</span></a>
+    </div>
+<ul class="toc-tree">
+  <li class="toc-item" data-level="2">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-3" class="toc-link toc-h2" data-target="sec-3" data-source-id="sec-3"><span class="toc-number">2.1</span><span class="toc-text">Scope</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="2">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-5" class="toc-link toc-h2 toc-empty-redirect" data-target="sec-5" data-source-id="sec-4"><span class="toc-number">2.2</span><span class="toc-text">Assembly Process</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="2">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-5" class="toc-link toc-h2" data-target="sec-5" data-source-id="sec-5"><span class="toc-number">2.3</span><span class="toc-text">Drawing List</span></a>
+    </div>
+  </li>
+  <li class="toc-item has-children" data-level="2">
+    <div class="toc-row">
+      <button type="button" class="toc-toggle" aria-expanded="true" aria-label="Toggle section"><span class="toc-toggle-icon"></span></button>
+      <a href="#sec-9" class="toc-link toc-h2 toc-empty-redirect" data-target="sec-9" data-source-id="sec-6"><span class="toc-number">2.4</span><span class="toc-text">Assembly Procedures</span></a>
+    </div>
+<ul class="toc-tree">
+  <li class="toc-item has-children" data-level="3">
+    <div class="toc-row">
+      <button type="button" class="toc-toggle" aria-expanded="true" aria-label="Toggle section"><span class="toc-toggle-icon"></span></button>
+      <a href="#sec-9" class="toc-link toc-h3 toc-empty-redirect" data-target="sec-9" data-source-id="sec-7"><span class="toc-number">2.4.1</span><span class="toc-text">Left/Right Beam Installation</span></a>
+    </div>
+<ul class="toc-tree">
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-9" class="toc-link toc-h4 toc-empty-redirect" data-target="sec-9" data-source-id="sec-8"><span class="toc-number">2.4.1.1</span><span class="toc-text">Left Beam Installation</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-9" class="toc-link toc-h4" data-target="sec-9" data-source-id="sec-9"><span class="toc-number">2.4.1.2</span><span class="toc-text">Left Beam Installation Part List</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-10" class="toc-link toc-h4" data-target="sec-10" data-source-id="sec-10"><span class="toc-number">2.4.1.3</span><span class="toc-text">Left Beam Installation Procedure</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-12" class="toc-link toc-h4 toc-empty-redirect" data-target="sec-12" data-source-id="sec-11"><span class="toc-number">2.4.1.4</span><span class="toc-text">Right Beam Installation</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-12" class="toc-link toc-h4" data-target="sec-12" data-source-id="sec-12"><span class="toc-number">2.4.1.5</span><span class="toc-text">Right Beam Installation Parts List</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-13" class="toc-link toc-h4" data-target="sec-13" data-source-id="sec-13"><span class="toc-number">2.4.1.6</span><span class="toc-text">Right Beam Installation Procedure</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-15" class="toc-link toc-h4 toc-empty-redirect" data-target="sec-15" data-source-id="sec-14"><span class="toc-number">2.4.1.7</span><span class="toc-text">Left Index Plungers Installation</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-15" class="toc-link toc-h4" data-target="sec-15" data-source-id="sec-15"><span class="toc-number">2.4.1.8</span><span class="toc-text">Part List</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-16" class="toc-link toc-h4" data-target="sec-16" data-source-id="sec-16"><span class="toc-number">2.4.1.9</span><span class="toc-text">Installation Procedure</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-18" class="toc-link toc-h4 toc-empty-redirect" data-target="sec-18" data-source-id="sec-17"><span class="toc-number">2.4.1.10</span><span class="toc-text">Right Index Plungers Installation</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-18" class="toc-link toc-h4" data-target="sec-18" data-source-id="sec-18"><span class="toc-number">2.4.1.11</span><span class="toc-text">Part List</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-19" class="toc-link toc-h4" data-target="sec-19" data-source-id="sec-19"><span class="toc-number">2.4.1.12</span><span class="toc-text">Installation Procedure</span></a>
+    </div>
+  </li>
+</ul>
+  </li>
+  <li class="toc-item has-children" data-level="3">
+    <div class="toc-row">
+      <button type="button" class="toc-toggle" aria-expanded="true" aria-label="Toggle section"><span class="toc-toggle-icon"></span></button>
+      <a href="#sec-21" class="toc-link toc-h3 toc-empty-redirect" data-target="sec-21" data-source-id="sec-20"><span class="toc-number">2.4.2</span><span class="toc-text">Horizontal Beams</span></a>
+    </div>
+<ul class="toc-tree">
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-21" class="toc-link toc-h4" data-target="sec-21" data-source-id="sec-21"><span class="toc-number">2.4.2.1</span><span class="toc-text">Part List</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-22" class="toc-link toc-h4" data-target="sec-22" data-source-id="sec-22"><span class="toc-number">2.4.2.2</span><span class="toc-text">Installation Procedure</span></a>
+    </div>
+  </li>
+</ul>
+  </li>
+  <li class="toc-item has-children" data-level="3">
+    <div class="toc-row">
+      <button type="button" class="toc-toggle" aria-expanded="true" aria-label="Toggle section"><span class="toc-toggle-icon"></span></button>
+      <a href="#sec-24" class="toc-link toc-h3 toc-empty-redirect" data-target="sec-24" data-source-id="sec-23"><span class="toc-number">2.4.3</span><span class="toc-text">Drive Shaft Assembly</span></a>
+    </div>
+<ul class="toc-tree">
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-24" class="toc-link toc-h4" data-target="sec-24" data-source-id="sec-24"><span class="toc-number">2.4.3.1</span><span class="toc-text">Part List</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-25" class="toc-link toc-h4" data-target="sec-25" data-source-id="sec-25"><span class="toc-number">2.4.3.2</span><span class="toc-text">Assembly Procedure</span></a>
+    </div>
+  </li>
+</ul>
+  </li>
+  <li class="toc-item has-children" data-level="3">
+    <div class="toc-row">
+      <button type="button" class="toc-toggle" aria-expanded="true" aria-label="Toggle section"><span class="toc-toggle-icon"></span></button>
+      <a href="#sec-27" class="toc-link toc-h3 toc-empty-redirect" data-target="sec-27" data-source-id="sec-26"><span class="toc-number">2.4.4</span><span class="toc-text">Drive Shaft Installation</span></a>
+    </div>
+<ul class="toc-tree">
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-27" class="toc-link toc-h4" data-target="sec-27" data-source-id="sec-27"><span class="toc-number">2.4.4.1</span><span class="toc-text">Part List</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-28" class="toc-link toc-h4" data-target="sec-28" data-source-id="sec-28"><span class="toc-number">2.4.4.2</span><span class="toc-text">Installation Procedure</span></a>
+    </div>
+  </li>
+</ul>
+  </li>
+  <li class="toc-item has-children" data-level="3">
+    <div class="toc-row">
+      <button type="button" class="toc-toggle" aria-expanded="true" aria-label="Toggle section"><span class="toc-toggle-icon"></span></button>
+      <a href="#sec-30" class="toc-link toc-h3 toc-empty-redirect" data-target="sec-30" data-source-id="sec-29"><span class="toc-number">2.4.5</span><span class="toc-text">Closed Chain Assembly</span></a>
+    </div>
+<ul class="toc-tree">
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-30" class="toc-link toc-h4" data-target="sec-30" data-source-id="sec-30"><span class="toc-number">2.4.5.1</span><span class="toc-text">Part List</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-31" class="toc-link toc-h4" data-target="sec-31" data-source-id="sec-31"><span class="toc-number">2.4.5.2</span><span class="toc-text">Assembly Procedure</span></a>
+    </div>
+  </li>
+</ul>
+  </li>
+  <li class="toc-item has-children" data-level="3">
+    <div class="toc-row">
+      <button type="button" class="toc-toggle" aria-expanded="true" aria-label="Toggle section"><span class="toc-toggle-icon"></span></button>
+      <a href="#sec-33" class="toc-link toc-h3 toc-empty-redirect" data-target="sec-33" data-source-id="sec-32"><span class="toc-number">2.4.6</span><span class="toc-text">Roller Chain Adjustment</span></a>
+    </div>
+<ul class="toc-tree">
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-33" class="toc-link toc-h4" data-target="sec-33" data-source-id="sec-33"><span class="toc-number">2.4.6.1</span><span class="toc-text">Part List</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-34" class="toc-link toc-h4" data-target="sec-34" data-source-id="sec-34"><span class="toc-number">2.4.6.2</span><span class="toc-text">Adjustment Procedure</span></a>
+    </div>
+  </li>
+</ul>
+  </li>
+  <li class="toc-item has-children" data-level="3">
+    <div class="toc-row">
+      <button type="button" class="toc-toggle" aria-expanded="true" aria-label="Toggle section"><span class="toc-toggle-icon"></span></button>
+      <a href="#sec-36" class="toc-link toc-h3 toc-empty-redirect" data-target="sec-36" data-source-id="sec-35"><span class="toc-number">2.4.7</span><span class="toc-text">Right/Left Roller Assembly</span></a>
+    </div>
+<ul class="toc-tree">
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-36" class="toc-link toc-h4" data-target="sec-36" data-source-id="sec-36"><span class="toc-number">2.4.7.1</span><span class="toc-text">Part List</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-37" class="toc-link toc-h4" data-target="sec-37" data-source-id="sec-37"><span class="toc-number">2.4.7.2</span><span class="toc-text">Assembly Procedure</span></a>
+    </div>
+  </li>
+</ul>
+  </li>
+  <li class="toc-item has-children" data-level="3">
+    <div class="toc-row">
+      <button type="button" class="toc-toggle" aria-expanded="true" aria-label="Toggle section"><span class="toc-toggle-icon"></span></button>
+      <a href="#sec-39" class="toc-link toc-h3 toc-empty-redirect" data-target="sec-39" data-source-id="sec-38"><span class="toc-number">2.4.8</span><span class="toc-text">Right/Left Roller Installation</span></a>
+    </div>
+<ul class="toc-tree">
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-39" class="toc-link toc-h4" data-target="sec-39" data-source-id="sec-39"><span class="toc-number">2.4.8.1</span><span class="toc-text">Part List</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-40" class="toc-link toc-h4" data-target="sec-40" data-source-id="sec-40"><span class="toc-number">2.4.8.2</span><span class="toc-text">Installation Procedure</span></a>
+    </div>
+  </li>
+</ul>
+  </li>
+  <li class="toc-item has-children" data-level="3">
+    <div class="toc-row">
+      <button type="button" class="toc-toggle" aria-expanded="true" aria-label="Toggle section"><span class="toc-toggle-icon"></span></button>
+      <a href="#sec-42" class="toc-link toc-h3 toc-empty-redirect" data-target="sec-42" data-source-id="sec-41"><span class="toc-number">2.4.9</span><span class="toc-text">Cart Assembly</span></a>
+    </div>
+<ul class="toc-tree">
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-42" class="toc-link toc-h4" data-target="sec-42" data-source-id="sec-42"><span class="toc-number">2.4.9.1</span><span class="toc-text">Part List</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-43" class="toc-link toc-h4" data-target="sec-43" data-source-id="sec-43"><span class="toc-number">2.4.9.2</span><span class="toc-text">Installation Procedure</span></a>
+    </div>
+  </li>
+</ul>
+  </li>
+  <li class="toc-item has-children" data-level="3">
+    <div class="toc-row">
+      <button type="button" class="toc-toggle" aria-expanded="true" aria-label="Toggle section"><span class="toc-toggle-icon"></span></button>
+      <a href="#sec-45" class="toc-link toc-h3 toc-empty-redirect" data-target="sec-45" data-source-id="sec-44"><span class="toc-number">2.4.10</span><span class="toc-text">Cart Installation</span></a>
+    </div>
+<ul class="toc-tree">
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-45" class="toc-link toc-h4" data-target="sec-45" data-source-id="sec-45"><span class="toc-number">2.4.10.1</span><span class="toc-text">Part List</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-46" class="toc-link toc-h4" data-target="sec-46" data-source-id="sec-46"><span class="toc-number">2.4.10.2</span><span class="toc-text">Installation Procedure</span></a>
+    </div>
+  </li>
+</ul>
+  </li>
+  <li class="toc-item has-children" data-level="3">
+    <div class="toc-row">
+      <button type="button" class="toc-toggle" aria-expanded="true" aria-label="Toggle section"><span class="toc-toggle-icon"></span></button>
+      <a href="#sec-48" class="toc-link toc-h3 toc-empty-redirect" data-target="sec-48" data-source-id="sec-47"><span class="toc-number">2.4.11</span><span class="toc-text">Right/Left Roller Chain Installation</span></a>
+    </div>
+<ul class="toc-tree">
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-48" class="toc-link toc-h4" data-target="sec-48" data-source-id="sec-48"><span class="toc-number">2.4.11.1</span><span class="toc-text">Part List</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-49" class="toc-link toc-h4" data-target="sec-49" data-source-id="sec-49"><span class="toc-number">2.4.11.2</span><span class="toc-text">Installation Procedure</span></a>
+    </div>
+  </li>
+</ul>
+  </li>
+  <li class="toc-item has-children" data-level="3">
+    <div class="toc-row">
+      <button type="button" class="toc-toggle" aria-expanded="true" aria-label="Toggle section"><span class="toc-toggle-icon"></span></button>
+      <a href="#sec-51" class="toc-link toc-h3 toc-empty-redirect" data-target="sec-51" data-source-id="sec-50"><span class="toc-number">2.4.12</span><span class="toc-text">Cable Chain (Igus) and Vertical Wire Chanel</span></a>
+    </div>
+<ul class="toc-tree">
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-51" class="toc-link toc-h4" data-target="sec-51" data-source-id="sec-51"><span class="toc-number">2.4.12.1</span><span class="toc-text">Part List</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-52" class="toc-link toc-h4" data-target="sec-52" data-source-id="sec-52"><span class="toc-number">2.4.12.2</span><span class="toc-text">Installation Procedure</span></a>
+    </div>
+  </li>
+</ul>
+  </li>
+  <li class="toc-item has-children" data-level="3">
+    <div class="toc-row">
+      <button type="button" class="toc-toggle" aria-expanded="true" aria-label="Toggle section"><span class="toc-toggle-icon"></span></button>
+      <a href="#sec-54" class="toc-link toc-h3 toc-empty-redirect" data-target="sec-54" data-source-id="sec-53"><span class="toc-number">2.4.13</span><span class="toc-text">Safe Sensor Cascade and Inductive Sensors</span></a>
+    </div>
+<ul class="toc-tree">
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-54" class="toc-link toc-h4" data-target="sec-54" data-source-id="sec-54"><span class="toc-number">2.4.13.1</span><span class="toc-text">Part List</span></a>
+    </div>
+  </li>
+  <li class="toc-item" data-level="4">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-55" class="toc-link toc-h4" data-target="sec-55" data-source-id="sec-55"><span class="toc-number">2.4.13.2</span><span class="toc-text">Installation Procedure</span></a>
+    </div>
+  </li>
+</ul>
+  </li>
+  <li class="toc-item" data-level="3">
+    <div class="toc-row">
+      <span class="toc-toggle-spacer"></span>
+      <a href="#sec-56" class="toc-link toc-h3" data-target="sec-56" data-source-id="sec-56"><span class="toc-number">2.4.14</span><span class="toc-text">Lift Assembly Calibrations</span></a>
+    </div>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+
+            </nav>
+        </aside>
+
+        <div class="toc-resizer" id="toc-resizer" role="separator" aria-orientation="vertical" aria-label="Resize table of contents"></div>
+
+        <main class="pane content-pane">
+            <div class="breadcrumbs" id="breadcrumbs">Home > </div>
+            <div id="content-container">
+                <section class="page-view active" id="sec-preamble">
+  <p>Lift Assembly</p>
+</section>
+
+<section class="page-view" id="sec-3" data-section-aliases="sec-1 sec-2" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Scope" data-breadcrumb-numbers="2|2.1" data-breadcrumb-ids="sec-2|sec-3">
+  <h1 class="section-heading merged-empty-heading" data-merged-section="sec-1"><span class="section-number">1</span><span class="section-title">Introduction</span></h1>
+  <h1 class="section-heading merged-empty-heading" data-merged-section="sec-2"><span class="section-number">2</span><span class="section-title">Assembly and Sub-Assemblies Procedures</span></h1>
+  <h2 class="section-heading"><span class="section-number">2.1</span><span class="section-title">Scope</span></h2>
+  <ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">This section outlines the stepbystep procedures required for assembling the Lift assembly.</li>
+</ol>
+<div class="alert alert-info"><strong>Note</strong><br></div>
+<figure class="inline-figure">
+  <img src="assets/images/image1.png" alt="" loading="lazy">
+</figure>
+  </section>
+
+<section class="page-view" id="sec-5" data-section-aliases="sec-4" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Drawing List" data-breadcrumb-numbers="2|2.3" data-breadcrumb-ids="sec-2|sec-5">
+  <h2 class="section-heading merged-empty-heading" data-merged-section="sec-4"><span class="section-number">2.2</span><span class="section-title">Assembly Process</span></h2>
+  <h2 class="section-heading"><span class="section-number">2.3</span><span class="section-title">Drawing List</span></h2>
+      <div class="table-wrap">
+    <table class="doc-table">
+      <tr>
+        <th>#</th>
+        <th>Drawing P/N</th>
+        <th>Drawing Name</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>AS230145</td>
+        <td>LIFT ASSEMBLY</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>AS230135</td>
+        <td>RIGHT BEAM WELDING</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>AS230137</td>
+        <td>LEFT BEAM WELDING</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>SL230172</td>
+        <td>Top / Middle / Bottom Horizontal beam</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>MH230046</td>
+        <td>Roller Chain</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>SL230174</td>
+        <td>Left Roller Base</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>SL230184</td>
+        <td>Right Roller Base</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>AS230149</td>
+        <td>Lift Electric Box</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>AS230140</td>
+        <td>Cart Assembly</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td>SL230192</td>
+        <td>Vertical Wire Channel</td>
+      </tr>
+      <tr>
+        <td>11</td>
+        <td>SL230191</td>
+        <td>Igus Bracket</td>
+      </tr>
+      <tr>
+        <td>12</td>
+        <td>IG230001</td>
+        <td>Cable Chain (Igus)</td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+<section class="page-view" id="sec-9" data-section-aliases="sec-6 sec-7 sec-8" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Left/Right Beam Installation|Left Beam Installation Part List" data-breadcrumb-numbers="2|2.4|2.4.1|2.4.1.2" data-breadcrumb-ids="sec-2|sec-6|sec-7|sec-9">
+  <h2 class="section-heading merged-empty-heading" data-merged-section="sec-6"><span class="section-number">2.4</span><span class="section-title">Assembly Procedures</span></h2>
+  <h3 class="section-heading merged-empty-heading" data-merged-section="sec-7"><span class="section-number">2.4.1</span><span class="section-title">Left/Right Beam Installation</span></h3>
+  <h4 class="section-heading merged-empty-heading" data-merged-section="sec-8"><span class="section-number">2.4.1.1</span><span class="section-title">Left Beam Installation</span></h4>
+  <h4 class="section-heading"><span class="section-number">2.4.1.2</span><span class="section-title">Left Beam Installation Part List</span></h4>
+      <div class="table-wrap">
+    <table class="doc-table">
+      <tr>
+        <th>#</th>
+        <th>Figure No.</th>
+        <th>P/N</th>
+        <th>Description</th>
+        <th>Qty.</th>
+        <th>Type</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎21</td>
+        <td>AS230136</td>
+        <td>Left Beam</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎21</td>
+        <td>FS230272</td>
+        <td>DIN912 M10x30 Screw</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎21</td>
+        <td>FS230138</td>
+        <td>DIN9021 M10 Washer</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎21</td>
+        <td>SL230171</td>
+        <td>Lift Bracket Left</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎21</td>
+        <td>FS230374</td>
+        <td>DIN912 M10x20 Screw</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎21</td>
+        <td>FS230146</td>
+        <td>DIN125 M10 Washer</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Figure ‎21</td>
+        <td>FS230586</td>
+        <td>ISO7380 M5X8 Screw</td>
+        <td>8</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Figure ‎21</td>
+        <td>LS230066</td>
+        <td>Cable Tie Holder</td>
+        <td>8</td>
+        <td>Fastener</td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+<section class="page-view" id="sec-10" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Left/Right Beam Installation|Left Beam Installation Procedure" data-breadcrumb-numbers="2|2.4|2.4.1|2.4.1.3" data-breadcrumb-ids="sec-2|sec-6|sec-7|sec-10">
+  <h4 class="section-heading"><span class="section-number">2.4.1.3</span><span class="section-title">Left Beam Installation Procedure</span></h4>
+  <p>.</p>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Install the electronic cabinet according to section TBD.</li>
+<li data-list-level="0">Assemble Left Beam Welding, refer to assembly drawing <strong>AS230137</strong>.</li>
+<li data-list-level="0">Position the Left Beam (1) on the UPS and FAN Electrical Assembly in its most forward position (View A) as defined by the base installation ellipse bores.</li>
+</ol>
+<div class="alert alert-info"><strong>Note</strong><br></div>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Using an 8 mm Allen bit, install two M10 Allen-head screws (2) and two M10 flat washers (3) which secure the Left Beam (1) to the UPS and FAN Electrical Assembly.</li>
+<li data-list-level="0">Position the Lift Bracket (4) in its place on the Left Beam (1).</li>
+</ol>
+<div class="alert alert-info"><strong>Note</strong><br></div>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Using an 8 mm Allen bit, install two M10 Allen-head screws (6) and two M10 washers (5), to secure the Lift Bracket (4) to the Left Beam (1).</li>
+<li data-list-level="0">Using an 8 mm Allen bit, install two Allen-head M10 screws (7) and two M10 washers (6), to secure the Lift Bracket (5) to the Left Beam (1).</li>
+<li data-list-level="0">Position eight Tie Mounts (8) on the installation bores of the Beam (1).</li>
+<li data-list-level="0">Using a 4 mm Allen-head bit, install eight M5 Allen-head screws (7) which secure eight Tie Mounts (8) to the Left Beam (1).</li>
+</ol>
+  <div class="section-media" style="display:none">
+  <figure class="media-figure">
+  <img src="assets/images/image2.png" alt="Left/Right Beam Installation" loading="lazy">
+  <figcaption>Left/Right Beam Installation</figcaption>
+</figure>
+</div>
+</section>
+
+<section class="page-view" id="sec-12" data-section-aliases="sec-11" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Left/Right Beam Installation|Right Beam Installation Parts List" data-breadcrumb-numbers="2|2.4|2.4.1|2.4.1.5" data-breadcrumb-ids="sec-2|sec-6|sec-7|sec-12">
+  <h4 class="section-heading merged-empty-heading" data-merged-section="sec-11"><span class="section-number">2.4.1.4</span><span class="section-title">Right Beam Installation</span></h4>
+  <h4 class="section-heading"><span class="section-number">2.4.1.5</span><span class="section-title">Right Beam Installation Parts List</span></h4>
+      <div class="table-wrap">
+    <table class="doc-table">
+      <tr>
+        <th>#</th>
+        <th>Figure No.</th>
+        <th>P/N</th>
+        <th>Description</th>
+        <th>Qty.</th>
+        <th>Type</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎23</td>
+        <td>AS230134</td>
+        <td>Right Beam</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎23</td>
+        <td>LS230066</td>
+        <td>Cable Tie Holder</td>
+        <td>8</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎23</td>
+        <td>FS230586</td>
+        <td>ISO7380 M5X8 Screw</td>
+        <td>8</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎23</td>
+        <td>FS230272</td>
+        <td>DIN912 M10x30 Screw</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎23</td>
+        <td>FS230138</td>
+        <td>DIN9021 M10 Washer</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎23</td>
+        <td>SL230168</td>
+        <td>Lift Bracket Right</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Figure ‎21</td>
+        <td>Part of CH230024</td>
+        <td>Chassis beam</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Figure ‎23</td>
+        <td>FS230146</td>
+        <td>DIN125 M10 Washer</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Figure ‎23</td>
+        <td>FS230374</td>
+        <td>DIN912 M10x20 Screw</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+<section class="page-view" id="sec-13" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Left/Right Beam Installation|Right Beam Installation Procedure" data-breadcrumb-numbers="2|2.4|2.4.1|2.4.1.6" data-breadcrumb-ids="sec-2|sec-6|sec-7|sec-13">
+  <h4 class="section-heading"><span class="section-number">2.4.1.6</span><span class="section-title">Right Beam Installation Procedure</span></h4>
+  <ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Assemble Right Beam Welding, refer to assembly drawing <strong>AS230135</strong>.</li>
+<li data-list-level="0">Position the Right Beam (1) on the UPS and FAN Electrical Assembly in its most forward position (View D) as defined by the base installation ellipse bores.</li>
+</ol>
+<div class="alert alert-info"><strong>Note</strong><br></div>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Using an 8 mm Allen bit, install two M10 Allen-head screws (4) and two M10 flat washers (5) which secure the Right Beam (1) to the UPS and FAN Electrical Assembly.</li>
+<li data-list-level="0">Position the Lift Bracket (6) in its place on the Right Beam (1).</li>
+</ol>
+<div class="alert alert-info"><strong>Note</strong><br></div>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Using an 8 mm Allen bit, install two M10 Allen-head screws (9) and two M10 washers (8), to secure the Lift Bracket (6) to the Right Beam (1).</li>
+<li data-list-level="0">Position eight Tie Mounts (2) on the installation bores of the Right Beam (1).</li>
+<li data-list-level="0">Using a 4 mm Allen-head bit, install eight M5 Allen-head screws (3) which secure eight Tie Mounts to the Right Beam (1).</li>
+</ol>
+  <div class="section-media" style="display:none">
+  <figure class="media-figure">
+  <img src="assets/images/image3.png" alt="Left/Right Beam Installation" loading="lazy">
+  <figcaption>Left/Right Beam Installation</figcaption>
+</figure>
+</div>
+</section>
+
+<section class="page-view" id="sec-15" data-section-aliases="sec-14" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Left/Right Beam Installation|Part List" data-breadcrumb-numbers="2|2.4|2.4.1|2.4.1.8" data-breadcrumb-ids="sec-2|sec-6|sec-7|sec-15">
+  <h4 class="section-heading merged-empty-heading" data-merged-section="sec-14"><span class="section-number">2.4.1.7</span><span class="section-title">Left Index Plungers Installation</span></h4>
+  <h4 class="section-heading"><span class="section-number">2.4.1.8</span><span class="section-title">Part List</span></h4>
+      <div class="table-wrap">
+    <table class="doc-table">
+      <tr>
+        <th>#</th>
+        <th>Figure No.</th>
+        <th>P/N</th>
+        <th>Description</th>
+        <th>Qty.</th>
+        <th>Type</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎24</td>
+        <td>Part of MH230039</td>
+        <td>Nut</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎24</td>
+        <td>Part of MH230039</td>
+        <td>Plunger Body</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎24</td>
+        <td>Part of MH230039</td>
+        <td>Plunger Knob</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎24</td>
+        <td>MH230039</td>
+        <td>Index Plunger</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎24</td>
+        <td>SL230169</td>
+        <td>Stopper</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎24</td>
+        <td>AS230136</td>
+        <td>Left Beam</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Figure ‎24</td>
+        <td>N/A</td>
+        <td>Stopper with Plunger</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Figure ‎24</td>
+        <td>CC230079</td>
+        <td>Spacer</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Figure ‎24</td>
+        <td>FS230273</td>
+        <td>DIN127B M10 spring washer</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td>Figure ‎24</td>
+        <td>FS230283</td>
+        <td>DIN912 M10x30 Screw</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>#</td>
+        <td><strong>Figure No.</strong></td>
+        <td><strong>P/N</strong></td>
+        <td><strong>Description</strong></td>
+        <td><strong>Qty.</strong></td>
+        <td><strong>Type</strong></td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎25</td>
+        <td>AS230136</td>
+        <td>Left Beam</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎25</td>
+        <td>SL230170</td>
+        <td>Sensor bracket</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎25</td>
+        <td>FS230375</td>
+        <td>DIN7991 M4x8 screw</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎25</td>
+        <td>EC230057</td>
+        <td>Inductive sensor 4mm</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎25</td>
+        <td>Part of EC230057</td>
+        <td>Sensor Nut - Part of Inductive sensor 4mm</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎25</td>
+        <td>Part of EC230057</td>
+        <td>Locking Nut - Part of Inductive sensor 4mm</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Figure ‎25</td>
+        <td>SL230169</td>
+        <td>Stopper</td>
+        <td>--</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Figure ‎25</td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Figure ‎25</td>
+        <td>MH230040</td>
+        <td>Lifting eyebolt M6</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+<section class="page-view" id="sec-16" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Left/Right Beam Installation|Installation Procedure" data-breadcrumb-numbers="2|2.4|2.4.1|2.4.1.9" data-breadcrumb-ids="sec-2|sec-6|sec-7|sec-16">
+  <h4 class="section-heading"><span class="section-number">2.4.1.9</span><span class="section-title">Installation Procedure</span></h4>
+  <p>.</p>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Perform Plunger Assembly as follows:<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Install Plunger Nut (2) on the Plunger (3), tighten manually till end of move.</li>
+<li data-list-level="1">Install Securing Nut (1) on the Plunger (3), tighten manually till end of move.</li>
+</ol>
+</li>
+</ol>
+<div class="alert alert-info"><strong>Note</strong><br></div>
+<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Install the plunger assy. (4) into the stopper (5) by threading it into the designated bore.</li>
+<li data-list-level="1">Secure the Plunger assy. (4) in the Stopper (5) by threading the Plunger Nut (1) towards the Stopper (5), tighten the Plunger Nut (1) to the Stopper (5) by hand force.</li>
+</ol>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Repeat steps ‎1.a to ‎1.d for the second Plunger.</li>
+<li data-list-level="0">Install upper plunger as follows:<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Position the Stopper with Plunger (7) in its place on the Beam (6).</li>
+<li data-list-level="1">Insert a Spacer (8) into installation bore.</li>
+<li data-list-level="1">Using an 8 mm Allen-head bit, install M10 Allen-head screw (10) and spring washer (9) which secure Stopper with Plunger (7) to the Beam (6).</li>
+</ol>
+</li>
+<li data-list-level="0">Repeat steps ‎3.a to ‎3.c for lower plunger installation.</li>
+<li data-list-level="0">.</li>
+<li data-list-level="0">Install Upper Plunger Sensor as follows:<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Position upper Sensor Bracket (2) in its place on the Left Beam (1).</li>
+<li data-list-level="1">Using a 3 mm Allen-head bit, install two M4 Allen-head screw (3) which attach Sensor Bracket (2) to the Left Beam (1).</li>
+<li data-list-level="1">Thread the sensor nut (5) down until it reaches the sensor base.</li>
+<li data-list-level="1">Insert the Inductive Sensor (4) into Sensor Bracket (2) installation bore.</li>
+<li data-list-level="1">Thread the sensor locking nut (6) down until it reaches the sensor base.</li>
+<li data-list-level="1">Measure the distance between the Inductive Sensor tip (4) and the Stopper (6).</li>
+<li data-list-level="1">Adjust the distance (8) between Inductive Sensor tip (4) and the Stopper (7) to 1.25 mm ±0.25 mm by adjusting sensor nut (5) and locking nut (6).</li>
+<li data-list-level="1">Using a 17 mm open-wrench, tight the plunger sensor locking nut (6) until it reaches the Sensor Bracket (2).</li>
+</ol>
+</li>
+<li data-list-level="0">Repeat steps ‎5.a to ‎h for Lower Sensor Bracket.</li>
+<li data-list-level="0">Install Lifting Eyebolt (9) on the Left Beam (1) by threading it into its bore.</li>
+</ol>
+  <div class="section-media" style="display:none">
+  <figure class="media-figure">
+  <img src="assets/images/image4.png" alt="Left Index Plungers Assembly and Installation" loading="lazy">
+  <figcaption>Left Index Plungers Assembly and Installation</figcaption>
+</figure>
+<figure class="media-figure">
+  <img src="assets/images/image5.png" alt="Right Sensor Installation" loading="lazy">
+  <figcaption>Right Sensor Installation</figcaption>
+</figure>
+</div>
+</section>
+
+<section class="page-view" id="sec-18" data-section-aliases="sec-17" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Left/Right Beam Installation|Part List" data-breadcrumb-numbers="2|2.4|2.4.1|2.4.1.11" data-breadcrumb-ids="sec-2|sec-6|sec-7|sec-18">
+  <h4 class="section-heading merged-empty-heading" data-merged-section="sec-17"><span class="section-number">2.4.1.10</span><span class="section-title">Right Index Plungers Installation</span></h4>
+  <h4 class="section-heading"><span class="section-number">2.4.1.11</span><span class="section-title">Part List</span></h4>
+      <div class="table-wrap">
+    <table class="doc-table">
+      <tr>
+        <th>#</th>
+        <th>Figure No.</th>
+        <th>P/N</th>
+        <th>Description</th>
+        <th>Qty.</th>
+        <th>Type</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎24</td>
+        <td>Part of MH230039</td>
+        <td>Nut</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎24</td>
+        <td>Part of MH230039</td>
+        <td>Plunger Body</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎24</td>
+        <td>Part of MH230039</td>
+        <td>Plunger Knob</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎24</td>
+        <td>MH230039</td>
+        <td>Index Plunger</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎24</td>
+        <td>SL230169</td>
+        <td>Stopper</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎24</td>
+        <td>AS230134</td>
+        <td>Right Beam</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Figure ‎24</td>
+        <td>N/A</td>
+        <td>Stopper with Plunger</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Figure ‎24</td>
+        <td>CC230079</td>
+        <td>Spacer</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Figure ‎24</td>
+        <td>FS230273</td>
+        <td>DIN127B M10 spring washer</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td>Figure ‎24</td>
+        <td>FS230283</td>
+        <td>DIN912 M10x30 Screw</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>#</td>
+        <td><strong>Figure No.</strong></td>
+        <td><strong>P/N</strong></td>
+        <td><strong>Description</strong></td>
+        <td><strong>Qty.</strong></td>
+        <td><strong>Type</strong></td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎25</td>
+        <td>AS230134</td>
+        <td>Right Beam</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎25</td>
+        <td>SL230170</td>
+        <td>Sensor bracket</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎25</td>
+        <td>FS230375</td>
+        <td>DIN7991 M4x8 screw</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎25</td>
+        <td>EC230057</td>
+        <td>Inductive sensor 4mm</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎25</td>
+        <td>Part of EC230057</td>
+        <td>Sensor Nut - Part of Inductive sensor 4mm</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎25</td>
+        <td>Part of EC230057</td>
+        <td>Locking Nut - Part of Inductive sensor 4mm</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Figure ‎25</td>
+        <td>SL230169</td>
+        <td>Stopper</td>
+        <td>--</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Figure ‎25</td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Figure ‎25</td>
+        <td>MH230040</td>
+        <td>Lifting eyebolt M6</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+<section class="page-view" id="sec-19" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Left/Right Beam Installation|Installation Procedure" data-breadcrumb-numbers="2|2.4|2.4.1|2.4.1.12" data-breadcrumb-ids="sec-2|sec-6|sec-7|sec-19">
+  <h4 class="section-heading"><span class="section-number">2.4.1.12</span><span class="section-title">Installation Procedure</span></h4>
+  <p>.</p>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Perform Plunger Assembly as follows:<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Install Plunger Nut (2) on the Plunger (3), tighten manually till end of move.</li>
+<li data-list-level="1">Install Securing Nut (1) on the Plunger (3), tighten manually till end of move.</li>
+</ol>
+</li>
+</ol>
+<div class="alert alert-info"><strong>Note</strong><br></div>
+<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Install the plunger assy. (4) into the stopper (5) by threading it into the designated bore.</li>
+<li data-list-level="1">Secure the Plunger assy. (4) in the Stopper (5) by threading the Plunger Nut (1) towards the Stopper (5), tighten the Plunger Nut (1) to the Stopper (5) by hand force.</li>
+</ol>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Repeat steps ‎1.a to ‎1.d for the second Plunger.</li>
+<li data-list-level="0">Install upper plunger as follows:<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Position the Stopper with Plunger (7) in its place on the Right Beam (6).</li>
+<li data-list-level="1">Insert a Spacer (8) into installation bore.</li>
+<li data-list-level="1">Using an 8 mm Allen-head bit, install M10 Allen-head screw (10) and spring washer (9) which secure Stopper with Plunger (7) to the Right Beam (6).</li>
+</ol>
+</li>
+<li data-list-level="0">Repeat steps ‎3.a to ‎3.c for lower plunger installation.</li>
+<li data-list-level="0">.</li>
+<li data-list-level="0">Install Upper Plunger Sensor as follows:<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Position upper Sensor Bracket (2) in its place on the Right Beam (1).</li>
+<li data-list-level="1">Using a 3 mm Allen-head bit, install two M4 Allen-head screw (3) which attach Sensor Bracket (2) to the Right Beam (1).</li>
+<li data-list-level="1">Thread the sensor nut (4) on the Inductive Sensor (5) until it reaches the sensor base.</li>
+<li data-list-level="1">Insert the Inductive Sensor (5) into Sensor Bracket (2) installation bore.</li>
+<li data-list-level="1">Thread the sensor locking nut (6) down until it reaches the Sensor Bracket (2).</li>
+<li data-list-level="1">Measure the distance (7) between the Inductive Sensor tip (5) and the Stopper (2).</li>
+<li data-list-level="1">Adjust the distance (7) between Inductive Sensor tip (5) and the Stopper (8) to 1.25 mm ±0.25 mm by adjusting sensor nut (4) and locking nut (7).</li>
+<li data-list-level="1">Using a 17 mm open-wrench, tight the plunger sensor locking nut (7) until it reaches the Sensor Bracket (2).</li>
+</ol>
+</li>
+<li data-list-level="0">Repeat steps ‎5.a to ‎h for Lower Sensor Bracket.</li>
+<li data-list-level="0">Install Lifting Eyebolt (9) on the Right Beam (1) by threading it into its bore.</li>
+</ol>
+  <div class="section-media" style="display:none">
+  <figure class="media-figure">
+  <img src="assets/images/image6.png" alt="Right Index Plunger Assembly and Installation" loading="lazy">
+  <figcaption>Right Index Plunger Assembly and Installation</figcaption>
+</figure>
+<figure class="media-figure">
+  <img src="assets/images/image7.png" alt="Right Sensor Installation" loading="lazy">
+  <figcaption>Right Sensor Installation</figcaption>
+</figure>
+</div>
+</section>
+
+<section class="page-view" id="sec-21" data-section-aliases="sec-20" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Horizontal Beams|Part List" data-breadcrumb-numbers="2|2.4|2.4.2|2.4.2.1" data-breadcrumb-ids="sec-2|sec-6|sec-20|sec-21">
+  <h3 class="section-heading merged-empty-heading" data-merged-section="sec-20"><span class="section-number">2.4.2</span><span class="section-title">Horizontal Beams</span></h3>
+  <h4 class="section-heading"><span class="section-number">2.4.2.1</span><span class="section-title">Part List</span></h4>
+      <div class="table-wrap">
+    <table class="doc-table">
+      <tr>
+        <th>#</th>
+        <th>Figure No.</th>
+        <th>P/N</th>
+        <th>Description</th>
+        <th>Qty.</th>
+        <th>Type</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎28</td>
+        <td>SL230172</td>
+        <td>Top Horizontal beam</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎28</td>
+        <td>SL230172</td>
+        <td>Middle Horizontal beam</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎28</td>
+        <td>SL230172</td>
+        <td>Bottom Horizontal beam</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎28</td>
+        <td>AS230134</td>
+        <td>Right Beam</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎28</td>
+        <td>AS230136</td>
+        <td>Left Beam</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎28</td>
+        <td>FS230376</td>
+        <td>DIN7991 M8x25 screw</td>
+        <td>24</td>
+        <td>Fastener</td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+<section class="page-view" id="sec-22" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Horizontal Beams|Installation Procedure" data-breadcrumb-numbers="2|2.4|2.4.2|2.4.2.2" data-breadcrumb-ids="sec-2|sec-6|sec-20|sec-22">
+  <h4 class="section-heading"><span class="section-number">2.4.2.2</span><span class="section-title">Installation Procedure</span></h4>
+  <p>.</p>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Position Bottom Horizontal Beam (3) in its place on the Left (5) and Right (4) Beams.</li>
+<li data-list-level="0">Using a 6 mm Allen-head bit, install eight (four on each side) M6 Allen-head screws (6) which secure Bottom Horizontal Beam (3) to the Left (5) and Right (4) Beams.</li>
+<li data-list-level="0">Repeat steps ‎1 to ‎2 for Middle Horizontal Beam (2).</li>
+<li data-list-level="0">Repeat steps ‎1 to ‎2 for Top Horizontal Beam (1).</li>
+</ol>
+  <div class="section-media" style="display:none">
+  <figure class="media-figure">
+  <img src="assets/images/image8.png" alt="Horizontal Beams Installation" loading="lazy">
+  <figcaption>Horizontal Beams Installation</figcaption>
+</figure>
+</div>
+</section>
+
+<section class="page-view" id="sec-24" data-section-aliases="sec-23" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Drive Shaft Assembly|Part List" data-breadcrumb-numbers="2|2.4|2.4.3|2.4.3.1" data-breadcrumb-ids="sec-2|sec-6|sec-23|sec-24">
+  <h3 class="section-heading merged-empty-heading" data-merged-section="sec-23"><span class="section-number">2.4.3</span><span class="section-title">Drive Shaft Assembly</span></h3>
+  <h4 class="section-heading"><span class="section-number">2.4.3.1</span><span class="section-title">Part List</span></h4>
+      <div class="table-wrap">
+    <table class="doc-table">
+      <tr>
+        <th>#</th>
+        <th>Figure No.</th>
+        <th>P/N</th>
+        <th>Description</th>
+        <th>Qty.</th>
+        <th>Type</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎29</td>
+        <td>MH230048</td>
+        <td>Gear</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎29</td>
+        <td>FS230178</td>
+        <td>DIN985 M6 Nut</td>
+        <td>5</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎29</td>
+        <td>FS230142</td>
+        <td>DIN125 M6 Washer</td>
+        <td>5</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎29</td>
+        <td>FS230388</td>
+        <td>DIN912 M6x30 Screw</td>
+        <td>5</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎29</td>
+        <td>OT230012</td>
+        <td>Motor</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎29</td>
+        <td>FS230389</td>
+        <td>DIN985 M8 Nut</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Figure ‎29</td>
+        <td>SL230198</td>
+        <td>Gear Mount</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Figure ‎29</td>
+        <td>FS230143</td>
+        <td>DIN125A M8 Washer</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Figure ‎29</td>
+        <td>FS230386</td>
+        <td>DIN912 M8x25 Screw</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td>Figure ‎29</td>
+        <td>N/A</td>
+        <td>Groove – Prat of MH230048</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>11</td>
+        <td>Figure ‎29</td>
+        <td>CC230081</td>
+        <td>Drive Shaft</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>12</td>
+        <td>Figure ‎29</td>
+        <td>MH230045</td>
+        <td>Feather Key 90mm</td>
+        <td>1</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>13</td>
+        <td>Figure ‎29</td>
+        <td>MH230044</td>
+        <td>Feather Key 28mm</td>
+        <td>1</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>#</td>
+        <td><strong>Figure No.</strong></td>
+        <td><strong>P/N</strong></td>
+        <td><strong>Description</strong></td>
+        <td><strong>Qty.</strong></td>
+        <td><strong>Type</strong></td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎210</td>
+        <td>CC230081</td>
+        <td>Drive Shaft</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎210</td>
+        <td>CC230082</td>
+        <td>12B12 Sprocket</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎210</td>
+        <td>FS230090</td>
+        <td>DIN471 d25 Circlip</td>
+        <td>1</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎210</td>
+        <td>MH230044</td>
+        <td>Feather Key 28mm</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎29</td>
+        <td>N/A</td>
+        <td>Groove – Prat of CC230082</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎210</td>
+        <td>MH230047</td>
+        <td>Housing Bearing</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Figure ‎210</td>
+        <td>FS230399</td>
+        <td>DIN9021 M12 Washer</td>
+        <td>1</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Figure ‎210</td>
+        <td>FS230374</td>
+        <td>DIN912 M10x20 Screw</td>
+        <td>1</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Figure ‎210</td>
+        <td>FS230374</td>
+        <td>DIN912 M10x20 Screw</td>
+        <td>1</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td>Figure ‎210</td>
+        <td>FS230399</td>
+        <td>DIN9021 M12 Washer</td>
+        <td>1</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>11</td>
+        <td>Figure ‎210</td>
+        <td>MH230047</td>
+        <td>Housing Bearing</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>12</td>
+        <td>Figure ‎210</td>
+        <td>FS230090</td>
+        <td>DIN471 d25 Circlip</td>
+        <td>1</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>13</td>
+        <td>Figure ‎210</td>
+        <td>CC230082</td>
+        <td>12B12 Sprocket</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>14</td>
+        <td>Figure ‎210</td>
+        <td>MH230044</td>
+        <td>Feather Key 28mm</td>
+        <td>1</td>
+        <td>Fastener</td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+<section class="page-view" id="sec-25" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Drive Shaft Assembly|Assembly Procedure" data-breadcrumb-numbers="2|2.4|2.4.3|2.4.3.2" data-breadcrumb-ids="sec-2|sec-6|sec-23|sec-25">
+  <h4 class="section-heading"><span class="section-number">2.4.3.2</span><span class="section-title">Assembly Procedure</span></h4>
+  <p>.</p>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Position Motor (5) in its place (ensuring the orientation matches the direction indicated as 5*) on the Gear (1).</li>
+<li data-list-level="0">Using a 5 mm Allen-head bit and a 10 mm open-end wrench, install four M6 Allen-head screws (4), four flat washers (3) and four M6 nuts (2) which secure the Motor (5) to the Gear (1).</li>
+<li data-list-level="0">Position Gear Mount (7) in its place on the Drive Shaft Gear (1).</li>
+<li data-list-level="0">Using a 6 mm Allen-head bit and a 6 mm open-end wrench, install four M8 Allen-head screws (9), four flat washers (8) and four M8 nuts (6) which secure Gear Mount (7) to Drive Shaft Gear (1).</li>
+<li data-list-level="0">Install 90 mm Feather Key (12) in its place on the Drive Shaft (11).</li>
+<li data-list-level="0">Insert the Drive Shaft (11) into Drive Shaft Gear (1), make sure to align 90 mm Feather Key (12) with the Drive Shaft groove.</li>
+<li data-list-level="0">Install 28 mm Feather Key (13) in its place on Drive Shaft (11).</li>
+<li data-list-level="0">.</li>
+<li data-list-level="0">Slide the Sprocket (2) onto Drive Shaft (1), make sure to align 28 mm Feather Key (4) with the Sprocket groove (5).</li>
+<li data-list-level="0">Push the Sprocket (2) as to the end on Drive Shaft (1) so the Drive Shaft groove will be visible.</li>
+<li data-list-level="0">Using circlip pliers, install circlip (3) in its groove on the Drive Shaft (1).</li>
+<li data-list-level="0">Install Housing Bearing (6) onto Drive Shaft (1).</li>
+<li data-list-level="0">Using an 8 mm Allen bit, install M10 Allen-head screw (8) and flat washer (7) which secure the Housing Bearing (6) on the Drive Shaft (1).</li>
+<li data-list-level="0">On the other side of the Drive Shaft, Install 28 mm Feather Key (14) in its place on the Drive Shaft (1).</li>
+<li data-list-level="0">Slide the Sprocket (13) onto Drive Shaft (1), make sure to align 28 mm Feather Key (14) with the Sprocket groove (15).</li>
+<li data-list-level="0">Position the Sprocket (13) as close as possible to Drive Shaft (1) so the Drive Shaft groove will be visible.</li>
+<li data-list-level="0">Using circlip pliers, install circlip (12) in its groove on the Drive Shaft (1).</li>
+<li data-list-level="0">Install Housing Bearing (11) onto Drive Shaft (1).</li>
+<li data-list-level="0">Using an 8 mm Allen bit, install M10 Allen-head screw (9) and flat washer (10) which secure the Housing Bearing (11) on the Drive Shaft (1).</li>
+</ol>
+  <div class="section-media" style="display:none">
+  <figure class="media-figure">
+  <img src="assets/images/image9.png" alt="Drive Shaft Assembly (1 of 2)" loading="lazy">
+  <figcaption>Drive Shaft Assembly (1 of 2)</figcaption>
+</figure>
+<figure class="media-figure">
+  <img src="assets/images/image10.png" alt="Drive Shaft Assembly (2 of 2)" loading="lazy">
+  <figcaption>Drive Shaft Assembly (2 of 2)</figcaption>
+</figure>
+</div>
+</section>
+
+<section class="page-view" id="sec-27" data-section-aliases="sec-26" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Drive Shaft Installation|Part List" data-breadcrumb-numbers="2|2.4|2.4.4|2.4.4.1" data-breadcrumb-ids="sec-2|sec-6|sec-26|sec-27">
+  <h3 class="section-heading merged-empty-heading" data-merged-section="sec-26"><span class="section-number">2.4.4</span><span class="section-title">Drive Shaft Installation</span></h3>
+  <h4 class="section-heading"><span class="section-number">2.4.4.1</span><span class="section-title">Part List</span></h4>
+      <div class="table-wrap">
+    <table class="doc-table">
+      <tr>
+        <th>#</th>
+        <th>Figure No.</th>
+        <th>P/N</th>
+        <th>Description</th>
+        <th>Qty.</th>
+        <th>Type</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎214</td>
+        <td>MH230048</td>
+        <td>Gear</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎214</td>
+        <td>FS230272</td>
+        <td>DIN912 M10x30 Screw</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎214</td>
+        <td>FS230146</td>
+        <td>DIN125 M10 Washer</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎214</td>
+        <td>AS230134</td>
+        <td>Right Beam</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎214</td>
+        <td>AS230136</td>
+        <td>Left Beam</td>
+        <td>&nbsp;</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎23</td>
+        <td>SL230171</td>
+        <td>Lift Bracket Left</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Figure ‎21</td>
+        <td>FS230146</td>
+        <td>DIN125 M10 Washer</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Figure ‎21</td>
+        <td>FS230374</td>
+        <td>DIN912 M10x20 Screw</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Figure ‎23</td>
+        <td>SL230168</td>
+        <td>Lift Bracket Right</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td>Figure ‎214</td>
+        <td>SL230172</td>
+        <td>Top Horizontal Beam</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>11</td>
+        <td>Figure ‎214</td>
+        <td>FS230143</td>
+        <td>DIN125A M8 Washer</td>
+        <td>6</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>12</td>
+        <td>Figure ‎214</td>
+        <td>FS230385</td>
+        <td>DIN912 M8x16 Screw</td>
+        <td>6</td>
+        <td>Fastener</td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+<section class="page-view" id="sec-28" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Drive Shaft Installation|Installation Procedure" data-breadcrumb-numbers="2|2.4|2.4.4|2.4.4.2" data-breadcrumb-ids="sec-2|sec-6|sec-26|sec-28">
+  <h4 class="section-heading"><span class="section-number">2.4.4.2</span><span class="section-title">Installation Procedure</span></h4>
+  <p>.</p>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Position the Drive Shaft Assembly (1) in its place on both Vertical Rail<br>Beams (4 and 5).</li>
+</ol>
+<div class="alert alert-info"><strong>Note</strong><br></div>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Using an 8 mm Allen bit, install four Allen-head screws (2) and four flat washers (3), which secure the Drive Shaft Assembly (1) to the Vertical Rail Beams (4 and 5).</li>
+<li data-list-level="0">Using an 8 mm Allen bit, install two M10 Allen-head screws (8) and two M10 washers (7), to secure Left Lift Bracket (6) to the UPS and FAN Electrical Assembly.</li>
+<li data-list-level="0">Using an 8 mm Allen bit, install two M10 Allen-head screws (8) and two M10 washers (7), to secure Right Lift Bracket (9) to the UPS and FAN Electrical Assembly.</li>
+<li data-list-level="0">Using an 8 mm Allen bit, install two M10 Allen-head screws and two M10 flat washers which secure the Left Beam to the UPS and FAN Electrical Assembly.</li>
+<li data-list-level="0">Using an 8 mm Allen bit, install two M10 Allen-head screws and two M10 flat washers which secure the Left Beam to the UPS and FAN Electrical Assembly.</li>
+<li data-list-level="0">Using an 8 mm Allen bit, install two M10 Allen-head screws and two M10 flat washers which secure the Right Beam to the UPS and FAN Electrical Assembly.</li>
+<li data-list-level="0">Using a 6 mm Allen bit, install six Allen-head screws (12) and six flat washers (11), which secure the Drive Shaft Assembly (1) to the upper Horizontal Beam (10).</li>
+</ol>
+  <div class="section-media" style="display:none">
+  <figure class="media-figure">
+  <img src="assets/images/image11.png" alt="Drive Shaft Installation" loading="lazy">
+  <figcaption>Drive Shaft Installation</figcaption>
+</figure>
+</div>
+</section>
+
+<section class="page-view" id="sec-30" data-section-aliases="sec-29" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Closed Chain Assembly|Part List" data-breadcrumb-numbers="2|2.4|2.4.5|2.4.5.1" data-breadcrumb-ids="sec-2|sec-6|sec-29|sec-30">
+  <h3 class="section-heading merged-empty-heading" data-merged-section="sec-29"><span class="section-number">2.4.5</span><span class="section-title">Closed Chain Assembly</span></h3>
+  <h4 class="section-heading"><span class="section-number">2.4.5.1</span><span class="section-title">Part List</span></h4>
+      <div class="table-wrap">
+    <table class="doc-table">
+      <tr>
+        <th>#</th>
+        <th>Figure No.</th>
+        <th>P/N</th>
+        <th>Description</th>
+        <th>Qty.</th>
+        <th>Type</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎215</td>
+        <td>FS230377</td>
+        <td>DIN471 D6 Circlip</td>
+        <td>1</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎215</td>
+        <td>SL230193</td>
+        <td>Pully Mount</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎215</td>
+        <td>CC230078</td>
+        <td>Idler Shaft</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎215</td>
+        <td>FS230377</td>
+        <td>DIN471 D6 Circlip</td>
+        <td>1</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎215</td>
+        <td>CC230077</td>
+        <td>Chain Idler</td>
+        <td>1</td>
+        <td>Components</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎215</td>
+        <td>SL230172</td>
+        <td>Bottom Horizontal Beam</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Figure ‎215</td>
+        <td>SL230193</td>
+        <td>Pully Mount</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Figure ‎215</td>
+        <td>FS230141</td>
+        <td>DIN125 M5 Washer</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Figure ‎215</td>
+        <td>FS230384</td>
+        <td>DIN912 M5x10 Screw</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+<section class="page-view" id="sec-31" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Closed Chain Assembly|Assembly Procedure" data-breadcrumb-numbers="2|2.4|2.4.5|2.4.5.2" data-breadcrumb-ids="sec-2|sec-6|sec-29|sec-31">
+  <h4 class="section-heading"><span class="section-number">2.4.5.2</span><span class="section-title">Assembly Procedure</span></h4>
+  <p>.</p>
+<div class="alert alert-info"><strong>Note</strong><br></div>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Position Chain Idler (5) in its place in Pulley Mount (2).</li>
+<li data-list-level="0">Insert Idler Shaft (3) in Pulley Mount (2) and the Chain Idler (5)</li>
+<li data-list-level="0">Using circlip pliers, install two circlips (1 and 4) on the Idler Shaft (3) both ends.</li>
+<li data-list-level="0">Position two Closed Chain Assemblies (7) in their place on the Bottom Horizontal Beam (6).</li>
+</ol>
+<div class="alert alert-info"><strong>Note</strong><br></div>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Using a 4 mm Allen-head bit, install eight Allen-head screws (9) and eight flat washers (8), which secure the two Closed Chain Assemblies (7) to the Horizontal Beam (6).</li>
+</ol>
+  <div class="section-media" style="display:none">
+  <figure class="media-figure">
+  <img src="assets/images/image12.png" alt="Closed Chain Assembly" loading="lazy">
+  <figcaption>Closed Chain Assembly</figcaption>
+</figure>
+</div>
+</section>
+
+<section class="page-view" id="sec-33" data-section-aliases="sec-32" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Roller Chain Adjustment|Part List" data-breadcrumb-numbers="2|2.4|2.4.6|2.4.6.1" data-breadcrumb-ids="sec-2|sec-6|sec-32|sec-33">
+  <h3 class="section-heading merged-empty-heading" data-merged-section="sec-32"><span class="section-number">2.4.6</span><span class="section-title">Roller Chain Adjustment</span></h3>
+  <h4 class="section-heading"><span class="section-number">2.4.6.1</span><span class="section-title">Part List</span></h4>
+      <div class="table-wrap">
+    <table class="doc-table">
+      <tr>
+        <th>#</th>
+        <th>Figure No.</th>
+        <th>P/N</th>
+        <th>Description</th>
+        <th>Qty.</th>
+        <th>Type</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎216</td>
+        <td>MH230046</td>
+        <td>Roller Chain</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎216</td>
+        <td>Part of MH230046</td>
+        <td>Pin Assembly</td>
+        <td>1</td>
+        <td>--</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎216</td>
+        <td>MH230091</td>
+        <td>Spring Clip</td>
+        <td>1</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎216</td>
+        <td>Part of MH230046</td>
+        <td>Link Plate</td>
+        <td>1</td>
+        <td>--</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎216</td>
+        <td>CC230080</td>
+        <td>Chain Centering</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎216</td>
+        <td>MH230049</td>
+        <td>Swing Bolt M10</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Figure ‎216</td>
+        <td>FS230275</td>
+        <td>DIN934 M10 Nut</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Figure ‎216</td>
+        <td>FS230146</td>
+        <td>DIN125 M10 Washer</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Figure ‎216</td>
+        <td>FS230146</td>
+        <td>DIN125 M10 Washer</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td>Figure ‎216</td>
+        <td>FS230275</td>
+        <td>DIN934 M10 Nut</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>11</td>
+        <td>Figure ‎216</td>
+        <td>Part of MH230046</td>
+        <td>Connection Pin</td>
+        <td>--</td>
+        <td>N/A</td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+<section class="page-view" id="sec-34" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Roller Chain Adjustment|Adjustment Procedure" data-breadcrumb-numbers="2|2.4|2.4.6|2.4.6.2" data-breadcrumb-ids="sec-2|sec-6|sec-32|sec-34">
+  <h4 class="section-heading"><span class="section-number">2.4.6.2</span><span class="section-title">Adjustment Procedure</span></h4>
+  <p>.</p>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Install one M10 nut (7) onto the Swing Bolt (6) and thread the nut down until it reaches the bolt base.</li>
+<li data-list-level="0">Install two flat washers (8 and 9) onto the Swing Bolt (6).</li>
+<li data-list-level="0">Install another M10 nut (10) onto the Swing Bolt (6) and thread the nut close to both flat washers (8 and 9).</li>
+<li data-list-level="0">Connect the Swing Bolt (6) to the Roller Chain (1) as follows:<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Insert a Chain Centering (5) into Swing Bolt (6) bore.</li>
+<li data-list-level="1">Insert Pin Assembly (2) through the Swing Bolt (6) bore and the Chain installation bores.</li>
+<li data-list-level="1">Install Link Plate (4) on Pin Assembly (2) both pins.</li>
+<li data-list-level="1">Install spring Clip (3) on Pin Assembly both pins (2) groove to secure the Swing Bolt (6) to the Roller Chain (1).</li>
+</ol>
+</li>
+<li data-list-level="0">Fully extend the Roller Chain (1) and measure 2.88 meters from the end, corresponding to <strong>152</strong> pins.</li>
+<li data-list-level="0">Remove the connection pin (11) from Roller Chain <strong>152</strong><sup><strong>nd</strong></sup> pin (1).</li>
+<li data-list-level="0">Repeat steps ‎1 to ‎4 to install another Swing Bolt (6) on the other end of the Roller Chain (1).</li>
+</ol>
+  <div class="section-media" style="display:none">
+  <figure class="media-figure">
+  <img src="assets/images/image13.png" alt="Roller Chain Adjustment" loading="lazy">
+  <figcaption>Roller Chain Adjustment</figcaption>
+</figure>
+</div>
+</section>
+
+<section class="page-view" id="sec-36" data-section-aliases="sec-35" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Right/Left Roller Assembly|Part List" data-breadcrumb-numbers="2|2.4|2.4.7|2.4.7.1" data-breadcrumb-ids="sec-2|sec-6|sec-35|sec-36">
+  <h3 class="section-heading merged-empty-heading" data-merged-section="sec-35"><span class="section-number">2.4.7</span><span class="section-title">Right/Left Roller Assembly</span></h3>
+  <h4 class="section-heading"><span class="section-number">2.4.7.1</span><span class="section-title">Part List</span></h4>
+      <div class="table-wrap">
+    <table class="doc-table">
+      <tr>
+        <th>#</th>
+        <th>Figure No.</th>
+        <th>P/N</th>
+        <th>Description</th>
+        <th>Qty.</th>
+        <th>Type</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎217</td>
+        <td>FS230398</td>
+        <td>DIN471 d20 Circlip</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎217</td>
+        <td>MH230041</td>
+        <td>Heavy Duty Wheel</td>
+        <td>4</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎217</td>
+        <td>CC230075</td>
+        <td>Wheel Shaft</td>
+        <td>4</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎217</td>
+        <td>SL230174<br>SL230184</td>
+        <td>Left Roller Base<br>Right Roller Base</td>
+        <td>1<br>1</td>
+        <td>Component<br>Component</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎217</td>
+        <td>FS230144</td>
+        <td>DIN125 M16 Washer</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎217</td>
+        <td>FS230379</td>
+        <td>DIN985 M16 Nut</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Figure ‎217</td>
+        <td>FS230377</td>
+        <td>DIN471 D6 Circlip</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Figure ‎217</td>
+        <td>SL230173</td>
+        <td>Side Wheel Bracket</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Figure ‎217</td>
+        <td>CC230076</td>
+        <td>Side Wheel Shaft</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td>Figure ‎217</td>
+        <td>MH230042</td>
+        <td>Wheel</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>11</td>
+        <td>Figure ‎217</td>
+        <td>FS230377</td>
+        <td>DIN471 D6 Circlip</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>12</td>
+        <td>Figure ‎222</td>
+        <td>FS230284</td>
+        <td>mounting pin - DIN6325 D8x34</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>13</td>
+        <td>Figure ‎217</td>
+        <td>FS230148</td>
+        <td>DIN125A M6 Washer</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>14</td>
+        <td>Figure ‎217</td>
+        <td>CC230076</td>
+        <td>Side Wheel Shaft</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>15</td>
+        <td>Figure ‎217</td>
+        <td>FS230380</td>
+        <td>DIN933 M6x35 Screw</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>16</td>
+        <td>Figure ‎217</td>
+        <td>FS230321</td>
+        <td>DIN934 M6 Nut</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>17</td>
+        <td>Figure ‎217</td>
+        <td>SL230178</td>
+        <td>Tension Screw Holder</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>#</td>
+        <td><strong>Figure No.</strong></td>
+        <td><strong>P/N</strong></td>
+        <td><strong>Description</strong></td>
+        <td><strong>Qty.</strong></td>
+        <td><strong>Type</strong></td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎218</td>
+        <td>FS230220</td>
+        <td>DIN912 M5x12 Screw</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎218</td>
+        <td>FS230141</td>
+        <td>DIN125 M5 Washer</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎218</td>
+        <td>SL230181</td>
+        <td>Lift Flag</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎218</td>
+        <td>SL230183</td>
+        <td>Lift Flag Base</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎218</td>
+        <td>SL230182</td>
+        <td>Lift Flag Nut</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎218</td>
+        <td>SL230180</td>
+        <td>Right Roller</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Figure ‎218</td>
+        <td>FS230220</td>
+        <td>DIN912 M5x12 Screw</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Figure ‎218</td>
+        <td>FS230141</td>
+        <td>DIN125 M5 Washer</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Figure ‎218</td>
+        <td>FS230160</td>
+        <td>Nut</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+<section class="page-view" id="sec-37" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Right/Left Roller Assembly|Assembly Procedure" data-breadcrumb-numbers="2|2.4|2.4.7|2.4.7.2" data-breadcrumb-ids="sec-2|sec-6|sec-35|sec-37">
+  <h4 class="section-heading"><span class="section-number">2.4.7.2</span><span class="section-title">Assembly Procedure</span></h4>
+  <p>.</p>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Perform Left Roller assembly as follows:<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Insert two Wheel Shafts (3) into Roller Base installation bores (4).</li>
+<li data-list-level="1">Using a 24 mm open-end wrench, install two M16 nuts (6) and two M16 flat washers (5) which secure Wheel Shafts (3) to the Roller Base (4).</li>
+<li data-list-level="1">Slide two Wheels (2) onto Wheel Shafts (3) until fully seated.</li>
+<li data-list-level="1">Using circlip pliers, install one circlip (1) in its groove on each Wheel</li>
+</ol>
+</li>
+<li data-list-level="0">Shaft (3).<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Position the Side Wheel (10) at the center of the Side Wheel Bracket (8), aligned between the shaft installation bores.</li>
+<li data-list-level="1">Insert Side Wheel Shaft (9) into Side Wheel Bracket (8) through the Side Wheel (10), make sure the Side Wheel Shaft (9) is positioned at the center.</li>
+<li data-list-level="1">Using circlip pliers, install two circlips (7) into the groove on each Side Wheel Shaft (9) to secure the Side Wheel (10) and the shaft to the Side Wheel bracket (8).</li>
+<li data-list-level="1">Position the Side Wheel Bracket (8) between two Shaft Holders, aligned between the Shaft Holders and Side Wheel Bracket installation bores.</li>
+<li data-list-level="1">Insert Side Wheel Bracket Shaft (14) into Shaft Holders through the Side Wheel Bracket (8) with two M6 flat washers (13), make sure the Side Wheel Bracket Shaft (14) is positioned at the center.</li>
+<li data-list-level="1">Using circlip pliers, install two circlips (11) into the groove on each Side Wheel Shaft (14) to secure the Side Wheel Bracket (8) and the shaft to the Side Wheel Bracket Shaft (14).</li>
+<li data-list-level="1">Manually tread M6 nut (16) on M6 Tension Screw (15) to the end its length.</li>
+<li data-list-level="1">Manually install M6 Tension Screw (15) into Tension Screw Holder (17) until M6 nut (16) touches Tension Screw Holder (17).</li>
+<li data-list-level="1">Using Plastic Hammer install two mounting pins (12) into four pin bores.</li>
+</ol>
+</li>
+<li data-list-level="0">Repeat steps ‎a to ‎m for Right Roller assembly.</li>
+</ol>
+<div class="alert alert-info"><strong>Note</strong><br></div>
+<p>.</p>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Perform Lift Flag assembly as follows:<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Position two Lift Flags (3 and 6) on Lift Flag Base (4).</li>
+<li data-list-level="1">Using a 4 mm Allen-head bit, install four (two on each Lift Flag) Allen-head screws (1), four flat washers (2) and two Lift Flag Nuts (5), which secure the two Lift Flags (3 and 6) to Lift Flag Base (4).</li>
+</ol>
+</li>
+<li data-list-level="0">Position Lift Flag assembly (4) in its place on Right Roller assembly (7).</li>
+<li data-list-level="0">Using a 4 mm Allen-head bit, install four Allen-head screws (8) and four flat washers (9), which secure the Lift Flag assembly (4) to Right Roller assembly (7).</li>
+</ol>
+  <div class="section-media" style="display:none">
+  <figure class="media-figure">
+  <img src="assets/images/image14.png" alt="Right/Left Roller Assembly" loading="lazy">
+  <figcaption>Right/Left Roller Assembly</figcaption>
+</figure>
+<figure class="media-figure">
+  <img src="assets/images/image15.png" alt="Lift Flag assembly" loading="lazy">
+  <figcaption>Lift Flag assembly</figcaption>
+</figure>
+</div>
+</section>
+
+<section class="page-view" id="sec-39" data-section-aliases="sec-38" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Right/Left Roller Installation|Part List" data-breadcrumb-numbers="2|2.4|2.4.8|2.4.8.1" data-breadcrumb-ids="sec-2|sec-6|sec-38|sec-39">
+  <h3 class="section-heading merged-empty-heading" data-merged-section="sec-38"><span class="section-number">2.4.8</span><span class="section-title">Right/Left Roller Installation</span></h3>
+  <h4 class="section-heading"><span class="section-number">2.4.8.1</span><span class="section-title">Part List</span></h4>
+      <div class="table-wrap">
+    <table class="doc-table">
+      <tr>
+        <th>#</th>
+        <th>Figure No.</th>
+        <th>P/N</th>
+        <th>Description</th>
+        <th>Qty.</th>
+        <th>Type</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎219</td>
+        <td>AS230134</td>
+        <td>Right Beam</td>
+        <td>--</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎219</td>
+        <td>AS230147</td>
+        <td>Right Roller</td>
+        <td>--</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎219</td>
+        <td>AS230146</td>
+        <td>Left Roller</td>
+        <td>--</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎219</td>
+        <td>AS230136</td>
+        <td>Left Beam</td>
+        <td>--</td>
+        <td>Component</td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+<section class="page-view" id="sec-40" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Right/Left Roller Installation|Installation Procedure" data-breadcrumb-numbers="2|2.4|2.4.8|2.4.8.2" data-breadcrumb-ids="sec-2|sec-6|sec-38|sec-40">
+  <h4 class="section-heading"><span class="section-number">2.4.8.2</span><span class="section-title">Installation Procedure</span></h4>
+  <p>.</p>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Position Right Roller Assembly (2), Left Roller Assembly (3) so that their wheels are located inside the right (1) and left (4) vertical rail beams.</li>
+</ol>
+  <div class="section-media" style="display:none">
+  <figure class="media-figure">
+  <img src="assets/images/image16.png" alt="Right/Left Roller Installation" loading="lazy">
+  <figcaption>Right/Left Roller Installation</figcaption>
+</figure>
+</div>
+</section>
+
+<section class="page-view" id="sec-42" data-section-aliases="sec-41" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Cart Assembly|Part List" data-breadcrumb-numbers="2|2.4|2.4.9|2.4.9.1" data-breadcrumb-ids="sec-2|sec-6|sec-41|sec-42">
+  <h3 class="section-heading merged-empty-heading" data-merged-section="sec-41"><span class="section-number">2.4.9</span><span class="section-title">Cart Assembly</span></h3>
+  <h4 class="section-heading"><span class="section-number">2.4.9.1</span><span class="section-title">Part List</span></h4>
+      <div class="table-wrap">
+    <table class="doc-table">
+      <tr>
+        <th>#</th>
+        <th>Figure No.</th>
+        <th>P/N</th>
+        <th>Description</th>
+        <th>Qty.</th>
+        <th>Type</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎220</td>
+        <td>AS230149</td>
+        <td>Lift Electric Box</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎220</td>
+        <td>Part of AS230149</td>
+        <td>Philips-head screws</td>
+        <td>6</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎220</td>
+        <td>Part of AS230149</td>
+        <td>Lift Electric Box Cover</td>
+        <td>1</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎220</td>
+        <td>AS230140</td>
+        <td>Cart Assembly</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎220</td>
+        <td>FS230278</td>
+        <td>DIN912 M4x8 Screw</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>#</td>
+        <td><strong>Figure No.</strong></td>
+        <td><strong>P/N</strong></td>
+        <td><strong>Description</strong></td>
+        <td><strong>Qty.</strong></td>
+        <td><strong>Type</strong></td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎221</td>
+        <td>SL230187</td>
+        <td>Igus Chain Bracket</td>
+        <td>-</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎221</td>
+        <td>SL230190</td>
+        <td>Igus U Bracket</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎221</td>
+        <td>FS230141</td>
+        <td>DIN125 M5 Washer</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎221</td>
+        <td>FS230384</td>
+        <td>DIN912 M5x10 Screw</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎221</td>
+        <td>SL230186</td>
+        <td>Feet Bracket</td>
+        <td>-</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎221</td>
+        <td>Part of MH230043</td>
+        <td>Nut</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Figure ‎221</td>
+        <td>MH230043</td>
+        <td>Leveling Foot</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Figure ‎221</td>
+        <td>LS230021</td>
+        <td>NIL Ribbed Tube End Plug</td>
+        <td>4</td>
+        <td>Component</td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+<section class="page-view" id="sec-43" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Cart Assembly|Installation Procedure" data-breadcrumb-numbers="2|2.4|2.4.9|2.4.9.2" data-breadcrumb-ids="sec-2|sec-6|sec-41|sec-43">
+  <h4 class="section-heading"><span class="section-number">2.4.9.2</span><span class="section-title">Installation Procedure</span></h4>
+  <p>.</p>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Install Lift Electric Box (1) as follows:<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Using a Philips-head bit, remove six Philips-head screws (2) which secure Lift Electric Box Cover (3) to the Lift Electric Box (1).</li>
+<li data-list-level="1">Remove Lift Electric Box Cover (3) from the Lift Electric Box (1).</li>
+<li data-list-level="1">Position Lift Electric Box (1) on the Electrical Box Holder (4) which welded to the Cart Assembly.</li>
+<li data-list-level="1">Using a 3 mm Allen-head bit, install four M4 Allen-head screws (5) which secure Lift Electric Box (1) to the Electrical Box Holder (4).</li>
+<li data-list-level="1">Position Lift Electric Box Cover (3) in its place on the Lift Electric Box (1).</li>
+<li data-list-level="1">Using a Philips-head bit, install six Philips-head screws (2) which secure Lift Electric Box Cover (3) to the Lift Electric Box (1).</li>
+</ol>
+</li>
+<li data-list-level="0">.</li>
+<li data-list-level="0">Install Igus U Bracket (2) as follows:<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Position Igus U Bracket (2) in its place on the Chain Bracket (1).</li>
+<li data-list-level="1">Using a 4 mm Allen-head bit, install four M5 Allen-head screws (4) and four M5 flat washers (3) which secure Igus Bracket (2) to the Chain Bracket (1).</li>
+</ol>
+</li>
+<li data-list-level="0">Insert two Cart Leveling Foots (7) into Feet Bracket (5) installation bores.</li>
+<li data-list-level="0">Using a 13 mm open-end wrench, release (CCW) the M8 Leveling Nut (6) and fully tighten Cart Leveling Foot (7).</li>
+<li data-list-level="0">Using a 13 mm open-end wrench, tighten (CCW) the M8 Leveling Nut (6).</li>
+<li data-list-level="0">Install four End-Plugs (8) into four Cart corners.</li>
+</ol>
+  <div class="section-media" style="display:none">
+  <figure class="media-figure">
+  <img src="assets/images/image17.png" alt="Lift Electric Box Installation" loading="lazy">
+  <figcaption>Lift Electric Box Installation</figcaption>
+</figure>
+<figure class="media-figure">
+  <img src="assets/images/image18.png" alt="Cart Assembly" loading="lazy">
+  <figcaption>Cart Assembly</figcaption>
+</figure>
+</div>
+</section>
+
+<section class="page-view" id="sec-45" data-section-aliases="sec-44" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Cart Installation|Part List" data-breadcrumb-numbers="2|2.4|2.4.10|2.4.10.1" data-breadcrumb-ids="sec-2|sec-6|sec-44|sec-45">
+  <h3 class="section-heading merged-empty-heading" data-merged-section="sec-44"><span class="section-number">2.4.10</span><span class="section-title">Cart Installation</span></h3>
+  <h4 class="section-heading"><span class="section-number">2.4.10.1</span><span class="section-title">Part List</span></h4>
+      <div class="table-wrap">
+    <table class="doc-table">
+      <tr>
+        <th>#</th>
+        <th>Figure No.</th>
+        <th>P/N</th>
+        <th>Description</th>
+        <th>Qty.</th>
+        <th>Type</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎222</td>
+        <td>AS230147<br>AS230146</td>
+        <td>Right Roller<br>Left Roller</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎222</td>
+        <td>FS230284</td>
+        <td>mounting pin - DIN6325 D8x34</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎222</td>
+        <td>AS230140</td>
+        <td>Cart Assembly</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎222</td>
+        <td>FS230143</td>
+        <td>DIN125 M8 Washer</td>
+        <td>-</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎222</td>
+        <td>FS230386</td>
+        <td>DIN912 M8x25 Screw</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+<section class="page-view" id="sec-46" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Cart Installation|Installation Procedure" data-breadcrumb-numbers="2|2.4|2.4.10|2.4.10.2" data-breadcrumb-ids="sec-2|sec-6|sec-44|sec-46">
+  <h4 class="section-heading"><span class="section-number">2.4.10.2</span><span class="section-title">Installation Procedure</span></h4>
+  <ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">.</li>
+<li data-list-level="0">Mount the Cart Assembly (3) on Right and Left Rollers (1), make sure that four mounting pins (2) are inserted into four bores on Right and Left Rollers (1).</li>
+<li data-list-level="0">Using a 6 mm Alen-head bit, install eight M8 Allen-head screws (5) and eight M8 flat washers (4) which secure Cart Assembly (3) to Right and Left Rollers (1).</li>
+</ol>
+  <div class="section-media" style="display:none">
+  <figure class="media-figure">
+  <img src="assets/images/image19.png" alt="Cart Installation" loading="lazy">
+  <figcaption>Cart Installation</figcaption>
+</figure>
+</div>
+</section>
+
+<section class="page-view" id="sec-48" data-section-aliases="sec-47" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Right/Left Roller Chain Installation|Part List" data-breadcrumb-numbers="2|2.4|2.4.11|2.4.11.1" data-breadcrumb-ids="sec-2|sec-6|sec-47|sec-48">
+  <h3 class="section-heading merged-empty-heading" data-merged-section="sec-47"><span class="section-number">2.4.11</span><span class="section-title">Right/Left Roller Chain Installation</span></h3>
+  <h4 class="section-heading"><span class="section-number">2.4.11.1</span><span class="section-title">Part List</span></h4>
+      <div class="table-wrap">
+    <table class="doc-table">
+      <tr>
+        <th>#</th>
+        <th>Figure No.</th>
+        <th>P/N</th>
+        <th>Description</th>
+        <th>Qty.</th>
+        <th>Type</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎223</td>
+        <td>MH230049</td>
+        <td>Swing Bolt M10</td>
+        <td>--</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎223</td>
+        <td>AS230147<br>AS230146</td>
+        <td>Right Roller<br>Left Roller</td>
+        <td>--</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎223</td>
+        <td>FS230146</td>
+        <td>DIN125 M10 Washer</td>
+        <td>--</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎223</td>
+        <td>FS230275</td>
+        <td>DIN934 M10 Nut</td>
+        <td>--</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎223</td>
+        <td>CC230082</td>
+        <td>Sprocket</td>
+        <td>--</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎223</td>
+        <td>MH230046</td>
+        <td>Roller Chain</td>
+        <td>--</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Figure ‎223</td>
+        <td>AS230143</td>
+        <td>Closed Chain Assembly</td>
+        <td>--</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Figure ‎223</td>
+        <td>CC230077</td>
+        <td>Idler</td>
+        <td>--</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Figure ‎223</td>
+        <td>MH230049</td>
+        <td>Swing Bolt M10</td>
+        <td>--</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td>Figure ‎223</td>
+        <td>AS230147<br>AS230146</td>
+        <td>Right Roller<br>Left Roller</td>
+        <td>--</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>11</td>
+        <td>Figure ‎223</td>
+        <td>FS230146</td>
+        <td>DIN125 M10 Washer</td>
+        <td>--</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>12</td>
+        <td>Figure ‎223</td>
+        <td>FS230275</td>
+        <td>DIN934 M10 Nut</td>
+        <td>--</td>
+        <td>Fastener</td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+<section class="page-view" id="sec-49" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Right/Left Roller Chain Installation|Installation Procedure" data-breadcrumb-numbers="2|2.4|2.4.11|2.4.11.2" data-breadcrumb-ids="sec-2|sec-6|sec-47|sec-49">
+  <h4 class="section-heading"><span class="section-number">2.4.11.2</span><span class="section-title">Installation Procedure</span></h4>
+  <ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">.</li>
+<li data-list-level="0">Install Left Roller Chain as follows:<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Remove one M10 nut (4) and one flat washer (3) from the Swing Bolt (1).</li>
+<li data-list-level="1">Insert the Swing Bolt (1) into Roller Primary Rib (2) installation bore.</li>
+<li data-list-level="1">Install one M10 nut (4) and one flat washer (3) onto the Swing Bolt (1) and thread the nut down until it reaches the Roller Primary Rib (2).</li>
+<li data-list-level="1">Route the Roller Chain (6) upwards to the Drive Shaft Sprocket (5).</li>
+<li data-list-level="1">Install the Roller Chain (6) on the Drive Shaft Sprocket (5).</li>
+<li data-list-level="1">Apply tension to the Roller Chain (6) and position it so the links fully engage the Drive Shaft Sprocket (5) teeth encircling it.</li>
+<li data-list-level="1">Ensure the Roller Chain (6) is properly seated and aligned on the Drive Shaft Sprocket (5).</li>
+<li data-list-level="1">Route the Roller Chain (6) downward through the Closed Chain Assembly (7) behind the chain Idler (8).</li>
+<li data-list-level="1">Remove one M10 nut (12) and one flat washer (11) from the Swing Bolt (9)</li>
+<li data-list-level="1">Insert the Swing Bolt (9) into Lower Roller Rib (10) installation bore.</li>
+<li data-list-level="1">Install M10 nut (12) and flat washer (11) onto the Swing Bolt (9) and thread the nut down until it reaches the Lower Roller Rib (10).</li>
+</ol>
+</li>
+<li data-list-level="0">Repeat steps ‎1.a to step ‎1.k to install the Right Roller Chain.</li>
+<li data-list-level="0">Apply Loctite LB8101 on both Roller Chains.</li>
+<li data-list-level="0">Position Right and Left Rollers at the lower position by operating the Roller Chains.</li>
+<li data-list-level="0">Using a 4 mm Allen bit, tighten eight Allen-head screws and eight flat washers, which secure the two Closed Chain Assemblies to the Horizontal Beam.</li>
+</ol>
+  <div class="section-media" style="display:none">
+  <figure class="media-figure">
+  <img src="assets/images/image20.png" alt="Right/Left Roller Chain Installation" loading="lazy">
+  <figcaption>Right/Left Roller Chain Installation</figcaption>
+</figure>
+</div>
+</section>
+
+<section class="page-view" id="sec-51" data-section-aliases="sec-50" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Cable Chain (Igus) and Vertical Wire Chanel|Part List" data-breadcrumb-numbers="2|2.4|2.4.12|2.4.12.1" data-breadcrumb-ids="sec-2|sec-6|sec-50|sec-51">
+  <h3 class="section-heading merged-empty-heading" data-merged-section="sec-50"><span class="section-number">2.4.12</span><span class="section-title">Cable Chain (Igus) and Vertical Wire Chanel</span></h3>
+  <h4 class="section-heading"><span class="section-number">2.4.12.1</span><span class="section-title">Part List</span></h4>
+      <div class="table-wrap">
+    <table class="doc-table">
+      <tr>
+        <th>#</th>
+        <th>Figure No.</th>
+        <th>P/N</th>
+        <th>Description</th>
+        <th>Qty.</th>
+        <th>Type</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎224</td>
+        <td>SL230192</td>
+        <td>Vertical Wire Channel</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎224</td>
+        <td>LS230066</td>
+        <td>Cable Tie Holder</td>
+        <td>7</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎224</td>
+        <td>FS230586</td>
+        <td>ISO7380 M5X8 Screw</td>
+        <td>7</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎224</td>
+        <td>SL230172</td>
+        <td>Middle Horizontal beam</td>
+        <td>-</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎224</td>
+        <td>SL230172</td>
+        <td>Bottom Horizontal beam</td>
+        <td>-</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎224</td>
+        <td>FS230142</td>
+        <td>DIN125 M6 Washer</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Figure ‎224</td>
+        <td>FS230383</td>
+        <td>DIN912 M6x12 Screw</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>#</td>
+        <td><strong>Figure No.</strong></td>
+        <td><strong>P/N</strong></td>
+        <td><strong>Description</strong></td>
+        <td><strong>Qty.</strong></td>
+        <td><strong>Type</strong></td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎225</td>
+        <td>SL230172</td>
+        <td>Middle Horizontal beam</td>
+        <td>-</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎225</td>
+        <td>SL230172</td>
+        <td>Bottom Horizontal beam</td>
+        <td>-</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎225</td>
+        <td>SL230191</td>
+        <td>Igus Bracket</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎225</td>
+        <td>FS230142</td>
+        <td>DIN125 M6 Washer</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎225</td>
+        <td>FS230383</td>
+        <td>DIN912 M6x12 Screw</td>
+        <td>4</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>#</td>
+        <td><strong>Figure No.</strong></td>
+        <td><strong>P/N</strong></td>
+        <td><strong>Description</strong></td>
+        <td><strong>Qty.</strong></td>
+        <td><strong>Type</strong></td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Figure ‎226</td>
+        <td>FS230212</td>
+        <td>DIN985 M5 Nut</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Figure ‎226</td>
+        <td>FS230141</td>
+        <td>DIN125 M5 Washer</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎226</td>
+        <td>SL230191</td>
+        <td>Igus Bracket</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎226</td>
+        <td>IG230001</td>
+        <td>Cable Chain (Igus)</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎226</td>
+        <td>FS230199</td>
+        <td>DIN912 M5x16 Screw</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎226</td>
+        <td>FS230212</td>
+        <td>DIN985 M5 Nut</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Figure ‎226</td>
+        <td>FS230141</td>
+        <td>DIN125 M5 Washer</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Figure ‎226</td>
+        <td>SL230190</td>
+        <td>Igus U Bracket</td>
+        <td>-</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Figure ‎226</td>
+        <td>IG230001</td>
+        <td>Cable Chain (Igus)</td>
+        <td>-</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td>Figure ‎226</td>
+        <td>FS230199</td>
+        <td>DIN912 M5x16 Screw</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+<section class="page-view" id="sec-52" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Cable Chain (Igus) and Vertical Wire Chanel|Installation Procedure" data-breadcrumb-numbers="2|2.4|2.4.12|2.4.12.2" data-breadcrumb-ids="sec-2|sec-6|sec-50|sec-52">
+  <h4 class="section-heading"><span class="section-number">2.4.12.2</span><span class="section-title">Installation Procedure</span></h4>
+  <p>.</p>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Install Vertical Wire Channel (1) as follows:<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Position seven Tie Mounts (2) in its place on the Vertical Wire Channel (1).</li>
+<li data-list-level="1">Using a 4 mm Allen-head bit, install seven M5 Allen-head screws (3) which secure seven Tie Mounts (2) to the Vertical Wire Channel (1).</li>
+<li data-list-level="1">Position Vertical Wire Channel (1) in its place on the Middle (4) and Bottom (5) Horizontal Beams.</li>
+<li data-list-level="1">Using a 5 mm Allen-head bit, install four M6 Allen-head screws (7) and four M6 flat washers (6) which secure Vertical Wire Channel (1) to the Middle (4) and Bottom (5) Horizontal Beams.</li>
+</ol>
+</li>
+<li data-list-level="0">.</li>
+<li data-list-level="0">Install Igus Bracket (3) as follows:<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Position Igus Bracket (3) in its place on the Middle (1) and Bottom (2) Horizontal Beams.</li>
+<li data-list-level="1">Using a 5 mm Allen-head bit, install four Allen-head screws (5) and four flat washers (3) which secure Igus Bracket (1) to the Middle (2) and Bottom (5) Horizontal Beams.</li>
+</ol>
+</li>
+</ol>
+<p>.</p>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Install Cable Chain (Igus) (4) as follows:<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Position one side of the Igus (4) in its place on the Igus Bracket (3).</li>
+<li data-list-level="1">Using a 4 mm Allen-head bit and an 8 mm open-end wrench, install two Allen-head screws (5), two flat washers (2) and two nuts (1) which secure Igus (4) to the Igus Bracket (3).</li>
+<li data-list-level="1">Route the other end Igus and position Igus part on the outer side of the Igus Bracket (8).</li>
+<li data-list-level="1">Using a 4 mm Allen-head bit and an 8 mm open-end wrench, install two Allen-head screws (10), two flat washers (7) and two nuts (6) which secure Igus (9) to the Igus Bracket (8).</li>
+</ol>
+</li>
+</ol>
+  <div class="section-media" style="display:none">
+  <figure class="media-figure">
+  <img src="assets/images/image21.png" alt="Vertical Wire Channel Installation" loading="lazy">
+  <figcaption>Vertical Wire Channel Installation</figcaption>
+</figure>
+<figure class="media-figure">
+  <img src="assets/images/image22.png" alt="Igus Bracket Installation" loading="lazy">
+  <figcaption>Igus Bracket Installation</figcaption>
+</figure>
+<figure class="media-figure">
+  <img src="assets/images/image23.png" alt="Igus Installation" loading="lazy">
+  <figcaption>Igus Installation</figcaption>
+</figure>
+</div>
+</section>
+
+<section class="page-view" id="sec-54" data-section-aliases="sec-53" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Safe Sensor Cascade and Inductive Sensors|Part List" data-breadcrumb-numbers="2|2.4|2.4.13|2.4.13.1" data-breadcrumb-ids="sec-2|sec-6|sec-53|sec-54">
+  <h3 class="section-heading merged-empty-heading" data-merged-section="sec-53"><span class="section-number">2.4.13</span><span class="section-title">Safe Sensor Cascade and Inductive Sensors</span></h3>
+  <h4 class="section-heading"><span class="section-number">2.4.13.1</span><span class="section-title">Part List</span></h4>
+      <div class="table-wrap">
+    <table class="doc-table">
+      <tr>
+        <th>#</th>
+        <th>Figure No.</th>
+        <th>P/N</th>
+        <th>Description</th>
+        <th>Qty.</th>
+        <th>Type</th>
+      </tr>
+      <tr>
+        <td>1, 2</td>
+        <td>Figure ‎227</td>
+        <td>SL230172</td>
+        <td>Upper and Lower Horizontal Beams</td>
+        <td>-</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Figure ‎227</td>
+        <td>EC230057</td>
+        <td>Inductive Sensor, 4mm, PNP, NC, 10-30VDC</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Figure ‎227</td>
+        <td>Part of EC230057</td>
+        <td>M10 nut</td>
+        <td>-</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Figure ‎227</td>
+        <td>SL230172</td>
+        <td>Middle Horizontal Beam</td>
+        <td>-</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Figure ‎227</td>
+        <td>SL230141</td>
+        <td>Flexi loop holder</td>
+        <td>2</td>
+        <td>Fastener</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Figure ‎227</td>
+        <td>FS230200</td>
+        <td>DIN7991 M4x10</td>
+        <td>4</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Figure ‎227</td>
+        <td>EC230080</td>
+        <td>Safe Sensor Cascade, Flexi Loop</td>
+        <td>2</td>
+        <td>Component</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Figure ‎227</td>
+        <td>EC230160</td>
+        <td>Safe Sensor Cascade</td>
+        <td>1</td>
+        <td>Component</td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+<section class="page-view" id="sec-55" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Safe Sensor Cascade and Inductive Sensors|Installation Procedure" data-breadcrumb-numbers="2|2.4|2.4.13|2.4.13.2" data-breadcrumb-ids="sec-2|sec-6|sec-53|sec-55">
+  <h4 class="section-heading"><span class="section-number">2.4.13.2</span><span class="section-title">Installation Procedure</span></h4>
+  <p>.</p>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Install Top Inductive Sensor (3) on the Upper Horizontal Beam (1) as follows:<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Insert the Inductive Sensor (3) into Top Horizontal Beam installation bore.</li>
+<li data-list-level="1">Tighten M10 nut (4) onto the Inductive Sensor (3) and thread the nut down until it reaches the Upper Horizontal Beam (1).</li>
+</ol>
+</li>
+<li data-list-level="0">Repeat steps ‎a to ‎b for Bottom Inductive Sensor.</li>
+<li data-list-level="0">Position two Flexi Loop Holders (6) in its place on the Middle Horizontal Beam (5).</li>
+<li data-list-level="0">Using a 3 mm Allen-head bit, install four M4 Allen-head screws (7) which secure two Flexi Loop Holders (6) to the Middle Horizontal Beam (5).</li>
+<li data-list-level="0">Install Safe Sensor Cascade (9) into one Safe Sensor Cascade (8) MS connector.</li>
+</ol>
+<div class="alert alert-info"><strong>Note</strong><br></div>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Insert two Safe Sensor Cascade Flexi Loop (8 and 9) into two Flexi Loop Holders (6).</li>
+</ol>
+  <div class="section-media" style="display:none">
+  <figure class="media-figure">
+  <img src="assets/images/image24.png" alt="Safe Sensor Cascade and Inductive Sensors Installation" loading="lazy">
+  <figcaption>Safe Sensor Cascade and Inductive Sensors Installation</figcaption>
+</figure>
+</div>
+</section>
+
+<section class="page-view" id="sec-56" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Assembly Procedures|Lift Assembly Calibrations" data-breadcrumb-numbers="2|2.4|2.4.14" data-breadcrumb-ids="sec-2|sec-6|sec-56">
+  <h3 class="section-heading"><span class="section-number">2.4.14</span><span class="section-title">Lift Assembly Calibrations</span></h3>
+  <p>.</p>
+<ol class="word-list-numbered word-list-decimal" style="list-style-type: decimal;">
+<li data-list-level="0">Left and Right Roller Assembly Calibration:<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Connect Motion Jig to the Drive Shaft Motor connector, for Motion Jig Connection refer to OPT1-D-063.</li>
+<li data-list-level="1">Lift the Lift Assembly 50 cm above the ground.</li>
+<li data-list-level="1">Measure the distance between the Roller Base (2) and the Side Beam (1).</li>
+<li data-list-level="1">Adjust the distance between Roller Base (2) and the Side Beam (1) to 3 mm as follows:<ol class="word-list-numbered word-list-lowerRoman" style="list-style-type: lower-roman;">
+<li data-list-level="2">Using a 5 mm open-end wrench, release M6 nut (3).</li>
+<li data-list-level="2">Using a 5 mm open-end wrench, adjust the distance between Roller Base (1) and the Side Beam (2) by turning the M6 Fastner<br>Screw (4):<ul class="word-list-bullet">
+<li data-list-level="4"><strong>Turn CW</strong> to increase the distance.</li>
+<li data-list-level="4"><strong>Turn CCW</strong> to decrease the distance.</li>
+</ul>
+</li>
+<li data-list-level="2">Using a 5 mm open-end wrench, tighten M6 nut (3).</li>
+</ol>
+</li>
+<li data-list-level="1">Repeat steps ‎a to ‎d for the other Roller Assembly (Left).</li>
+</ol>
+</li>
+<li data-list-level="0">.</li>
+<li data-list-level="0">Inductive Sensors Calibration:<ol class="word-list-numbered word-list-lowerLetter" style="list-style-type: lower-alpha;">
+<li data-list-level="1">Connect Motion Jig to the Drive Shaft Motor connector, for Motion Jig Connection refer to OPT1-D-063.</li>
+<li data-list-level="1">Lower the Lift Assembly to the lower position.</li>
+<li data-list-level="1">Using filler gauge, measure the distance between the Inductive Sensor tip (2) and the Flags Assembly (1).</li>
+<li data-list-level="1">Adjust the distance between Inductive Sensor tip (2) and the Flags Assembly (1) to <strong>1.25 mm ±</strong><strong> </strong><strong>0.25 mm</strong>:<ol class="word-list-numbered word-list-lowerRoman" style="list-style-type: lower-roman;">
+<li data-list-level="2">Using a 17 mm open-end wrench, release two M10 nuts (3, 4), one from each side of the horizontal beam (5).</li>
+<li data-list-level="2">Position Inductive Sensor tip (2) at <strong>1.25</strong><strong> mm ±</strong><strong> </strong><strong>0.25 mm</strong> from the Flags Assembly (1).</li>
+<li data-list-level="2">Using a 17 mm open-end wrench, tighten two M10 nuts (3, 4).</li>
+</ol>
+</li>
+<li data-list-level="1">Lift the Lift Assembly to the upper position.</li>
+<li data-list-level="1">Repeat steps ‎c and ‎d for the upper Inductive Sensor.</li>
+</ol>
+</li>
+</ol>
+  <div class="section-media" style="display:none">
+  <figure class="media-figure">
+  <img src="assets/images/image25.png" alt="Lift Assembly Calibrations - Left and Right Roller Assembly Calibration" loading="lazy">
+  <figcaption>Lift Assembly Calibrations - Left and Right Roller Assembly Calibration</figcaption>
+</figure>
+<figure class="media-figure">
+  <img src="assets/images/image26.png" alt="Lift Assembly Calibrations - Inductive Sensors" loading="lazy">
+  <figcaption>Lift Assembly Calibrations - Inductive Sensors</figcaption>
+</figure>
+</div>
+</section>
+
+
+            </div>
+        </main>
+
+        <div class="media-resizer" id="media-resizer" role="separator" aria-orientation="vertical" aria-label="Resize media area"></div>
+
+        <aside class="pane media-pane">
+            <div class="media-toolbar" id="media-toolbar">
+                <button type="button" class="media-toolbar-btn" id="media-zoom-out" data-tool="zoom_out" aria-label="Zoom out">−</button>
+                <button type="button" class="media-toolbar-btn" id="media-zoom-reset" data-tool="zoom_reset" aria-label="Reset zoom">100%</button>
+                <button type="button" class="media-toolbar-btn" id="media-zoom-in" data-tool="zoom_in" aria-label="Zoom in">+</button>
+            </div>
+            <div id="media-container">
+                <p class="media-placeholder">Select a section to view associated media.</p>
+            </div>
+        </aside>
+    </div>
+
+    <div class="lightbox" id="image-lightbox" hidden>
+        <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close image viewer">&times;</button>
+        <figure class="lightbox-figure">
+            <img id="lightbox-image" alt="">
+            <figcaption id="lightbox-caption"></figcaption>
+        </figure>
+    </div>
+
+    <script id="runtime-features-data" type="application/json">{"search": true, "hierarchical_toc": true, "breadcrumbs": true, "section_navigation": true, "show_hide_numbering": true, "image_lightbox": true, "media_zoom": true, "keyboard_shortcuts": true, "copy_section_link": true, "focus_mode": true, "remember_last_section": true}</script>
+    <script id="toolbar-config-data" type="application/json">{"global": [{"id": "home", "label": "Home", "enabled": true}, {"id": "toggle_toc", "label": "TOC", "enabled": true}, {"id": "search", "label": "Search", "enabled": true}, {"id": "prev_section", "label": "Prev", "enabled": true}, {"id": "next_section", "label": "Next", "enabled": true}, {"id": "copy_link", "label": "Copy Link", "enabled": true}, {"id": "focus_mode", "label": "Focus", "enabled": true}, {"id": "pdf", "label": "PDF", "enabled": true}], "toc": [{"id": "expand_all", "label": "+", "enabled": true}, {"id": "collapse_all", "label": "-", "enabled": true}, {"id": "toggle_numbers", "label": "123", "enabled": true}], "media": [{"id": "zoom_out", "label": "-", "enabled": true}, {"id": "zoom_reset", "label": "100%", "enabled": true}, {"id": "zoom_in", "label": "+", "enabled": true}, {"id": "lightbox", "label": "Full", "enabled": true}]}</script>
+    <script id="layout-config-data" type="application/json">{"toc_width": 280, "content_max_width": 980, "media_width": 300, "media_width_percent": 33, "header_height": 60, "content_density": "comfortable", "toc_resizable": true, "media_resizable": true, "sticky_header": true, "sticky_toc": true}</script>
+    <script id="component-rules-data" type="application/json">{"headings": {"show_numbering": true, "toc_levels": 5, "open_new_page_from_level": 1}, "lists": {"bullet_style": "disc", "ordered_style": "decimal", "show_step_badges": true, "compact_spacing": false}, "tables": {"compact": false, "zebra_rows": true, "sticky_header": true, "show_borders": true, "first_row_header": true, "responsive_overflow": true}, "callouts": {"icon_style": "status", "title_visibility": true, "collapsible": false}, "links": {"xref_format": "number_and_title", "external_target": "new_tab", "show_link_icon": false}, "media": {"show_captions": true, "zoom_enabled": true, "lightbox_enabled": true, "fit_mode": "contain"}}</script>
+    <script id="landing-config-data" type="application/json">{"enabled": false, "title": "Digi-TAM", "subtitle": "", "search_enabled": false, "cards": [], "categories": []}</script>
+    <script src="js/app.js"></script>
+</body>
+</html>

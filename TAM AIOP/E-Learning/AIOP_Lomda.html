@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" id="html-root">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIOP — Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b1622; --bg-2: #112c3b;
+      --surface: rgba(255,255,255,0.04); --surface-2: rgba(255,255,255,0.07);
+      --border: rgba(81,196,211,0.2); --border-strong: rgba(81,196,211,0.5);
+      --accent: #51c4d3; --accent-2: #2563eb;
+      --text: #e2e8f0; --text-dim: #8a9cae;
+      --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body {
+      background: var(--bg);
+      background-image: radial-gradient(circle at 50% 0%, var(--bg-2) 0%, var(--bg) 70%);
+      color: var(--text);
+      font-family: 'Heebo','Inter',system-ui,sans-serif;
+      min-height: 100vh; overflow-x: hidden;
+    }
+    html[dir="ltr"] body { font-family: 'Inter','Heebo',system-ui,sans-serif; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+    @keyframes zoomIn { from{transform:scale(0.95);opacity:0} to{transform:scale(1);opacity:1} }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(81,196,211,0.7)} 50%{box-shadow:0 0 0 12px rgba(81,196,211,0)} }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .fade-in { animation: fadeIn 0.4s ease-out; }
+    .slide-up { animation: slideUp 0.5s ease-out; }
+    .zoom-in { animation: zoomIn 0.35s ease-out; }
+    .float { animation: float 4s ease-in-out infinite; }
+
+    .glass {
+      background: var(--surface);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+    }
+    .glow-border { box-shadow: 0 0 24px rgba(81,196,211,0.15); border: 1px solid var(--border-strong); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px; justify-content: center;
+      padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 0.95rem;
+      cursor: pointer; transition: all 0.2s; border: none; user-select: none;
+    }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color:#fff; box-shadow: 0 4px 20px rgba(81,196,211,0.3); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(81,196,211,0.45); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-ghost { background: rgba(255,255,255,0.05); color: var(--text); border:1px solid rgba(255,255,255,0.1); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.1); }
+    .btn-outline { background:transparent; color:var(--accent); border:1.5px solid var(--accent); }
+    .btn-outline:hover { background:rgba(81,196,211,0.1); }
+
+    .channel-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 28px 20px; cursor: pointer; transition: all 0.25s ease;
+      text-align: center;
+    }
+    .channel-card:hover { background: rgba(30,41,59,0.6); border-color: var(--border-strong); box-shadow: 0 0 20px rgba(81,196,211,0.2); transform: translateY(-4px); }
+    .channel-card.active { border-color: var(--accent); box-shadow: 0 0 24px rgba(81,196,211,0.4); }
+
+    .portal-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px; padding: 40px 28px; cursor: pointer; transition: all 0.3s ease;
+      text-align: center; min-height: 240px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .portal-card:hover { background: rgba(30,41,59,0.6); border-color: var(--border-strong); transform: translateY(-6px); box-shadow: 0 12px 40px rgba(81,196,211,0.25); }
+    .portal-icon {
+      width: 72px; height: 72px; border-radius: 18px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(81,196,211,0.3);
+    }
+
+    .hotspot {
+      position: absolute; width: 32px; height: 32px; border-radius: 50%;
+      background: var(--accent); color: #0b1622;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 14px; cursor: pointer;
+      animation: pulse 2s infinite; border: 2px solid #fff; z-index: 5;
+    }
+    .hotspot.done { background: var(--success); color: #fff; animation: none; }
+
+    .progress-bar { height: 4px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width 0.4s ease; }
+
+    .chapter-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); transition: all 0.2s; cursor: pointer; }
+    .chapter-dot.active { background: var(--accent); transform: scale(1.4); }
+    .chapter-dot.done { background: var(--success); }
+
+    .mock-screen { background: #0d1f2d; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; position: relative; }
+    .mock-header { background: rgba(255,255,255,0.04); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+    .mock-search { background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 999px; padding: 8px 16px; color: var(--text-dim); font-size: 13px; flex: 1; max-width: 400px; display: flex; align-items: center; gap: 8px; }
+
+    .quiz-option { background: rgba(255,255,255,0.04); border: 1.5px solid var(--border); border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s; text-align: start; color: var(--text); font-weight: 500; }
+    .quiz-option:hover { border-color: var(--border-strong); background: rgba(81,196,211,0.08); }
+    .quiz-option.correct { border-color: var(--success); background: rgba(16,185,129,0.15); color: #6ee7b7; }
+    .quiz-option.wrong { border-color: var(--danger); background: rgba(239,68,68,0.12); color: #fca5a5; }
+    .quiz-option:disabled { cursor: default; }
+
+    .tooltip { position: absolute; background: #0d1f2d; color: var(--text); border: 1px solid var(--border-strong); border-radius: 10px; padding: 10px 14px; font-size: 13px; max-width: 240px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 10; pointer-events: none; }
+
+    .checklist-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; color: var(--text); }
+    .check-icon { width: 28px; height: 28px; border-radius: 50%; background: rgba(16,185,129,0.15); border: 2px solid var(--success); display: flex; align-items: center; justify-content: center; color: var(--success); flex-shrink: 0; font-weight: 800; }
+
+    .aiop-logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.4rem; color: #fff; letter-spacing: 0.5px; }
+    .aiop-logo-mark { position: relative; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(81,196,211,0.4); }
+    .aiop-logo-mark::before { content:''; position:absolute; inset:4px; border:2px solid rgba(255,255,255,0.85); border-radius:6px; }
+    .aiop-logo-mark::after { content:''; position:absolute; width:8px; height:8px; background:#fff; border-radius:50%; }
+
+    /* Marketing-only */
+    .mkt-section { padding: 80px 24px; max-width: 1200px; margin: 0 auto; }
+    .mkt-eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; font-size: 0.85rem; margin-bottom: 12px; }
+    .mkt-hero-bg { background: radial-gradient(ellipse at 50% 0%, rgba(81,196,211,0.18) 0%, transparent 60%); }
+    .stat-num { font-size: 2.6rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .pain-row { display: flex; align-items: start; gap: 14px; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .pain-row:last-child { border-bottom: none; }
+    .pain-icon { width: 32px; height: 32px; border-radius: 8px; background: rgba(239,68,68,0.12); color: #fca5a5; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .feature-card { background: var(--surface); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 28px; transition: all 0.25s ease; }
+    .feature-card:hover { border-color: var(--border-strong); background: rgba(255,255,255,0.05); }
+    .feature-icon { width: 48px; height: 48px; border-radius: 12px; background: rgba(81,196,211,0.12); color: var(--accent); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+    .step-card { background: var(--surface); border-radius: 18px; padding: 32px; border: 1px solid rgba(255,255,255,0.06); position: relative; }
+    .step-num { position: absolute; top: -18px; inset-inline-start: 24px; width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; font-weight: 800; font-size: 1.3rem; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 18px rgba(81,196,211,0.3); }
+    .case-stat { text-align: center; padding: 16px; }
+
+    /* Docs-only */
+    .docs-search { position: relative; margin-bottom: 28px; }
+    .docs-search input { width: 100%; background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 16px 50px 16px 20px; color: #fff; font-size: 1rem; outline: none; transition: all 0.2s; }
+    html[dir="rtl"] .docs-search input { padding: 16px 20px 16px 50px; }
+    .docs-search input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(81,196,211,0.15); }
+    .docs-search .docs-search-icon { position: absolute; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none; }
+    html[dir="rtl"] .docs-search .docs-search-icon { left: 18px; }
+    html[dir="ltr"] .docs-search .docs-search-icon { right: 18px; }
+    .docs-sidebar { background: var(--surface); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 18px; }
+    .docs-cat-title { color: var(--text-dim); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; padding: 12px 10px 6px; }
+    .docs-cat-item { display: block; padding: 8px 12px; border-radius: 8px; color: var(--text); font-size: 0.9rem; cursor: pointer; transition: all 0.15s; }
+    .docs-cat-item:hover { background: rgba(81,196,211,0.08); color: var(--accent); }
+    .docs-cat-item.active { background: rgba(81,196,211,0.15); color: var(--accent); font-weight: 600; }
+    .docs-card { background: var(--surface); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 20px; cursor: pointer; transition: all 0.2s; }
+    .docs-card:hover { border-color: var(--border-strong); background: rgba(255,255,255,0.05); transform: translateY(-2px); }
+    .docs-card .cat-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; color: var(--accent); background: rgba(81,196,211,0.1); padding: 3px 8px; border-radius: 6px; margin-bottom: 10px; }
+    .docs-article { background: var(--surface); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 36px; }
+    .docs-article h1 { color: #fff; font-size: 2rem; font-weight: 800; margin: 0 0 8px; }
+    .docs-article h2 { color: #fff; font-size: 1.3rem; font-weight: 700; margin: 28px 0 12px; }
+    .docs-article p { color: var(--text); line-height: 1.7; margin: 0 0 14px; }
+    .docs-article ul { color: var(--text); line-height: 1.7; padding-inline-start: 22px; margin: 0 0 14px; }
+    .docs-article code { background: rgba(255,255,255,0.07); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: var(--accent); font-family: 'Consolas', monospace; }
+    .docs-article pre { background: #0a131c; border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 14px; overflow: auto; color: var(--text); font-size: 0.85rem; direction: ltr; text-align: left; }
+    .docs-article pre code { background: transparent; padding: 0; color: var(--text); }
+
+    @media (max-width: 768px) {
+      .channel-card { padding: 20px 14px; }
+      .mkt-section { padding: 50px 18px; }
+    }
+  </style>
+
+  <script>
+    function loadScript(urls, name, cb) {
+      var i = 0;
+      function tryNext() {
+        if (i >= urls.length) { cb(new Error(name + ' failed all CDNs')); return; }
+        var s = document.createElement('script');
+        s.src = urls[i++]; s.crossOrigin = 'anonymous';
+        s.onload = function(){ cb(null); };
+        s.onerror = function(){ tryNext(); };
+        document.head.appendChild(s);
+      }
+      tryNext();
+    }
+    function showError(msg) {
+      var el = document.getElementById('root') || document.body;
+      var box = document.createElement('div');
+      box.style.cssText = 'background:#111;color:#fca5a5;padding:20px;margin:20px;border:1px solid #ef4444;border-radius:8px;font-family:monospace;font-size:13px;white-space:pre-wrap;direction:ltr;text-align:left;';
+      box.textContent = msg;
+      el.parentNode.insertBefore(box, el);
+    }
+    window.addEventListener('error', function(e) {
+      var msg = (e.error && e.error.stack) ? e.error.stack : (e.message + ' at ' + (e.filename||'') + ':' + (e.lineno||''));
+      showError('JS ERROR:\n' + msg);
+    });
+    loadScript([
+      'https://unpkg.com/react@18/umd/react.production.min.js',
+      'https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js'
+    ], 'React', function(err){
+      if (err) { showError(err.message); return; }
+      loadScript([
+        'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',
+        'https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js'
+      ], 'ReactDOM', function(err){
+        if (err) { showError(err.message); return; }
+        loadScript([
+          'https://unpkg.com/@babel/standalone/babel.min.js',
+          'https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js',
+          'https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js'
+        ], 'Babel', function(err){
+          if (err) { showError(err.message); return; }
+          var src = document.getElementById('app-source').textContent;
+          try {
+            var out = Babel.transform(src, { presets: [['react', { runtime: 'classic' }]] }).code;
+            (0, eval)(out);
+          } catch (e) {
+            showError('Babel/eval error:\n' + (e.stack || e.message));
+          }
+        });
+      });
+    });
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/plain" id="app-source">
+    const { useState, useEffect, useMemo } = React;
+
+    /* ================================ I18N ================================ */
+    const I18N = {
+      he: {
+        appName: "AIOP", appTagline: "All In One Place",
+        languageToggle: "EN",
+        back: "חזור", next: "המשך", start: "התחל", finish: "סיים",
+        restart: "התחל מחדש", continue: "המשך", progress: "התקדמות",
+        slideOf: (a,b) => `שקף ${a} מתוך ${b}`,
+
+        // Portal
+        portal_welcome: "ברוכים הבאים ל-",
+        portal_subtitle: "בחרו את המסלול שלכם",
+        portal_marketing_t: "שיווק",
+        portal_marketing_d: "למה AIOP, ולמי",
+        portal_lomda_t: "לומדה אינטראקטיבית",
+        portal_lomda_d: "כיצד להשתמש במערכת",
+        portal_docs_t: "ספרות תפעול",
+        portal_docs_d: "התקנה, התאמה וניהול",
+        back_to_portal: "פורטל",
+
+        // Marketing
+        mkt_eyebrow: "פלטפורמת ניהול ידע",
+        mkt_hero_a: "כל הידע התפעולי שלכם — ",
+        mkt_hero_b: "במקום אחד",
+        mkt_hero_sub: "AIOP מאחדת מסמכים, תקלות, הדרכות וכלי עזר לתוך ממשק אחד המותאם לארגון שלכם. עובד אופליין. מותקן בקליק.",
+        mkt_cta_primary: "צפו בלומדה",
+        mkt_cta_secondary: "עיינו בספרות",
+        mkt_s1_l: "ערוצי ידע", mkt_s2_l: "אופליין", mkt_s3_l: "שפות נתמכות", mkt_s4_l: "ללא הגבלה",
+        mkt_problem_t: "המידע שלכם מפוזר?",
+        mkt_problem_s: "ארגוני תפעול שוברים שיניים על אותו דבר שוב ושוב.",
+        mkt_p1: "מסמכים טכניים פזורים על SharePoint, Drive, ומיילים ישנים",
+        mkt_p2: "תקלות שכבר נפתרו פעם — אף אחד לא זוכר איך",
+        mkt_p3: "טכנאים חדשים מבזבזים שבועות על הכשרה לא-מאורגנת",
+        mkt_p4: "אין דרך לחפש רוחבית בכל המקורות בו-זמנית",
+        mkt_solution_t: "AIOP פותרת את זה",
+        mkt_solution_s: "חמישה ערוצים שמכסים את כל הצרכים התפעוליים, מאוחדים בממשק אחד שמותאם לארגון שלכם.",
+        mkt_features_t: "מה מקבלים",
+        mkt_f1_t: "ניהול ידע מודולרי", mkt_f1_d: "מסמכים, מדריכים ו-FAQs במבנה ברור עם חיפוש רוחבי.",
+        mkt_f2_t: "Troubleshooting אינטראקטיבי", mkt_f2_d: "עץ אבחון שמדריך את הטכנאי שלב-אחר-שלב.",
+        mkt_f3_t: "מותאם לכל ארגון", mkt_f3_d: "צבעים, לוגו, שפה ותכנים מותאמים אישית.",
+        mkt_f4_t: "אופליין-ראשון", mkt_f4_d: "קובץ HTML יחיד שעובד בלי חיבור לרשת.",
+        mkt_f5_t: "רב-לשוני", mkt_f5_d: "תמיכה מובנית בעברית RTL ובאנגלית.",
+        mkt_f6_t: "ללא תלות בתשתית", mkt_f6_d: "אין שרת, אין DB, אין רישיון חודשי.",
+        mkt_how_t: "איך זה עובד",
+        mkt_h1_t: "לומדים את התחום שלכם", mkt_h1_d: "איפוי הידע הקיים: מסמכים, תקלות נפוצות, תהליכי תפעול.",
+        mkt_h2_t: "בונים AIOP מותאם", mkt_h2_d: "מיתוג, ערוצים ועץ Troubleshooting לפי הצרכים שלכם.",
+        mkt_h3_t: "הצוות שלכם משתמש", mkt_h3_d: "קובץ אחד מופץ — בלי הדרכה ארוכה ובלי הקמת שרת.",
+        mkt_case_eye: "מקרה לקוח",
+        mkt_case_t: "RADA Technologies",
+        mkt_case_d: "Leonardo DRS RADA, יצרנית מכ\"מי AESA טקטיים. AIOP מאחדת את ידע הטיפול ב-5 דגמי מכ\"ם עם עץ Troubleshooting לטכנאי השדה.",
+        mkt_cs1: "5", mkt_cs1_l: "דגמי מכ\"ם",
+        mkt_cs2: "30+", mkt_cs2_l: "תרחישי תקלה",
+        mkt_cs3: "100%", mkt_cs3_l: "אופליין בשטח",
+        mkt_final_t: "מוכנים לראות איך זה ייראה אצלכם?",
+        mkt_final_s: "AIOP מותאמת אישית לכל לקוח. נשמח להציג דמו ולתאם פיילוט.",
+        mkt_final_cta: "צרו קשר",
+        mkt_footer: "© 2026 AIOP · נבנה בישראל",
+
+        // Docs
+        docs_title: "ספרות תפעול AIOP",
+        docs_search_ph: "חיפוש בספרות... (כותרת, תיאור, תוכן)",
+        docs_categories: "קטגוריות",
+        docs_all: "כל המאמרים",
+        docs_no_results: "לא נמצאו תוצאות.",
+        docs_results_count: (n) => `${n} מאמרים`,
+        docs_read_more: "קרא עוד",
+        docs_back_to_list: "חזרה לרשימה",
+        docs_in_cat: "קטגוריה:",
+        docs_related: "מאמרים נוספים בקטגוריה",
+        cat_gs: "התחלה מהירה",
+        cat_arch: "ארכיטקטורה",
+        cat_content: "ניהול תוכן",
+        cat_brand: "מיתוג ועיצוב",
+        cat_i18n: "רב-לשוניות",
+        cat_deploy: "הפצה ותחזוקה",
+        cat_faq: "שאלות נפוצות",
+
+        // Lomda slides
+        lomdaTitle: "לומדה — היכרות עם AIOP",
+        s1_welcome: "ברוכים הבאים ל-",
+        s1_sub: "פלטפורמת ניהול הידע שמרכזת את כל מה שצוות התפעול שלכם צריך — במקום אחד.",
+        s1_cta: "בואו נתחיל",
+        s1_meta: "פרק 1 · 7 שקפים · ≈ 5 דקות",
+        s2_title: "מה זה AIOP?",
+        s2_lead: "פלטפורמת ניהול ידע מודולרית עם הרחבת Troubleshooting אינטראקטיבית.",
+        s2_f1_t: "ניהול ידע מרכזי", s2_f1_d: "ספרות טכנית, הדרכות, FAQs וכלי עזר — בממשק אחד.",
+        s2_f2_t: "Troubleshooting אינטראקטיבי", s2_f2_d: "עץ החלטה שמדריך את הטכנאי לפתרון תקלה.",
+        s2_f3_t: "מותאם לכל ארגון", s2_f3_d: "תוכן, מיתוג ושפה — מותאמים אישית לכל לקוח.",
+        s2_f4_t: "עובד אופליין", s2_f4_d: "קובץ HTML יחיד שעובד גם בלי חיבור לרשת.",
+        s3_title: "5 הערוצים של AIOP",
+        s3_lead: "כל ערוץ פותר צורך תפעולי שונה. בחרו כרטיס כדי לקרוא עליו.",
+        s3_c1: "Troubleshooting", s3_c1d: "עץ אבחון שמוביל את המשתמש לפתרון תקלה ספציפית.",
+        s3_c2: "Technical Manuals", s3_c2d: "ספרות טכנית מלאה — שרטוטים, מפרטים, מדריכים.",
+        s3_c3: "Training", s3_c3d: "לומדות, סרטונים ותרגולים להכשרת אנשי תפעול.",
+        s3_c4: "Utilities", s3_c4d: "כלי עזר חישוביים, מחשבונים והמרות.",
+        s3_c5: "FAQs", s3_c5d: "תשובות מהירות לשאלות נפוצות.",
+        s3_pick: "בחרו כרטיס למעלה...",
+        s4_title: "סיור במסך הראשי",
+        s4_lead: "לחצו על כל נקודה כדי ללמוד מה היא עושה. כשתסיימו את כולן — תוכלו להמשיך.",
+        s4_h1_t: "לוגו AIOP", s4_h1_d: "לחיצה על הלוגו תמיד מחזירה למסך הבית.",
+        s4_h2_t: "סרגל חיפוש", s4_h2_d: "חיפוש חופשי בכל הערוצים בו-זמנית.",
+        s4_h3_t: "כפתורי ערוצים", s4_h3_d: "כניסה מהירה ל-5 הערוצים. ניתן להתאים אותם ללקוח.",
+        s4_h4_t: "מיתוג לקוח", s4_h4_d: "לוגו הלקוח (כאן: RADA) למעלה. החלפת ערכת צבעים שלמה.",
+        s4_search_ph: "חפש בכל הערוצים...",
+        s4_done: "מצוין! ראיתם את כל החלקים. ננסה לנווט בעצמכם.",
+        s5_title: 'נסו בעצמכם — איתור תקלת AGC',
+        s5_lead: 'טכנאי דיווח על תקלת AGC במכ"ם MHR בתחנת ATP Calibration. עקבו אחרי המסלול.',
+        s5_hint: (n) => `שלב ${n}: לחצו על ההמשך המודגש`,
+        s5_done_t: "מצוין! איתרתם את התקלה תוך 4 לחיצות.",
+        s5_done_d: "זה בדיוק היעד של AIOP — לקצר את זמן האבחון מדקות לשניות.",
+        s6_title: "בוחן קצר",
+        s6_lead: "4 שאלות לסיכום. רוצים לבדוק שהבנתם?",
+        s6_q1: "כמה ערוצים יש ב-AIOP?",
+        s6_q1_o: ["3","4","5","6"], s6_q1_c: 2,
+        s6_q2: "באיזה ערוץ תמצאו עץ אבחון אינטראקטיבי?",
+        s6_q2_o: ["Technical Manuals","Troubleshooting","Utilities","FAQs"], s6_q2_c: 1,
+        s6_q3: "מה ההבדל המרכזי בין Troubleshooting ל-FAQs?",
+        s6_q3_o: ["אין הבדל","Troubleshooting הוא תהליך אבחון, FAQs הוא תשובות מהירות","FAQs לאדמינים בלבד","Troubleshooting במובייל בלבד"], s6_q3_c: 1,
+        s6_q4: "האם AIOP יכול לעבוד אופליין?",
+        s6_q4_o: ["לא, דורש חיבור","כן — קובץ HTML יחיד","רק במובייל","רק אחרי תשלום"], s6_q4_c: 1,
+        s6_score: (a,b) => `ציון: ${a} מתוך ${b}`,
+        s6_perfect: "מושלם! עברתם בהצלחה.",
+        s6_good: "כל הכבוד — אפשר להמשיך.",
+        s6_retry: "נסו שוב",
+        s6_next: "המשך לסיכום",
+        s6_correct_l: "תשובה נכונה",
+        s6_wrong_l: "תשובה שגויה — הנכונה מסומנת",
+        s7_title: "סיימתם את הפרק!",
+        s7_lead: "סיכום של מה שלמדתם:",
+        s7_l1: "מה זה AIOP ועל איזה צורך עונה",
+        s7_l2: "5 הערוצים: Troubleshooting, Manuals, Training, Utilities, FAQs",
+        s7_l3: "ניווט במסך הבית של AIOP",
+        s7_l4: "ביצוע איתור תקלה ראשון",
+        s7_what: "מה למדת",
+        s7_up: "הבא בתור",
+        s7_next_ch: "הפרק הבא: פתרון תקלה מקצה-לקצה",
+        s7_next_d: "נצא למסע מלא — מקבלת התקלה ועד הדוח הסופי — דרך כלי ה-Troubleshooting של AIOP.",
+        s7_thanks: "תודה שהשתתפתם!",
+        s7_soon: "בקרוב",
+        question: "שאלה",
+        pick_card_above: "בחרו כרטיס למעלה...",
+      },
+      en: {
+        appName: "AIOP", appTagline: "All In One Place",
+        languageToggle: "עב",
+        back: "Back", next: "Next", start: "Start", finish: "Finish",
+        restart: "Restart", continue: "Continue", progress: "Progress",
+        slideOf: (a,b) => `Slide ${a} of ${b}`,
+
+        portal_welcome: "Welcome to ",
+        portal_subtitle: "Choose your path",
+        portal_marketing_t: "Marketing",
+        portal_marketing_d: "Why AIOP, and for whom",
+        portal_lomda_t: "Interactive Course",
+        portal_lomda_d: "How to use the system",
+        portal_docs_t: "Documentation",
+        portal_docs_d: "Install, customize, manage",
+        back_to_portal: "Portal",
+
+        mkt_eyebrow: "Knowledge Management Platform",
+        mkt_hero_a: "All your operational knowledge — ",
+        mkt_hero_b: "in one place",
+        mkt_hero_sub: "AIOP unifies documents, failures, training and utilities into a single interface tailored to your organization. Works offline. Installs in a click.",
+        mkt_cta_primary: "Watch the Course",
+        mkt_cta_secondary: "Browse the Docs",
+        mkt_s1_l: "Knowledge Channels", mkt_s2_l: "Offline", mkt_s3_l: "Languages", mkt_s4_l: "No-Limit Customers",
+        mkt_problem_t: "Your knowledge is scattered?",
+        mkt_problem_s: "Ops organizations keep breaking their teeth on the same things.",
+        mkt_p1: "Technical docs scattered across SharePoint, Drive, and old emails",
+        mkt_p2: "Failures that were solved before — nobody remembers how",
+        mkt_p3: "New technicians waste weeks on disorganized onboarding",
+        mkt_p4: "No way to search across all sources at once",
+        mkt_solution_t: "AIOP solves it",
+        mkt_solution_s: "Five channels covering every operational need, unified in a single interface tailored to your organization.",
+        mkt_features_t: "What you get",
+        mkt_f1_t: "Modular Knowledge Hub", mkt_f1_d: "Docs, guides and FAQs in a clear structure with cross-channel search.",
+        mkt_f2_t: "Interactive Troubleshooting", mkt_f2_d: "Diagnostic tree that guides the technician step-by-step.",
+        mkt_f3_t: "Tailored per Organization", mkt_f3_d: "Colors, logo, language and content — fully customized.",
+        mkt_f4_t: "Offline-First", mkt_f4_d: "A single HTML file that works without internet.",
+        mkt_f5_t: "Multilingual", mkt_f5_d: "Built-in support for Hebrew RTL and English.",
+        mkt_f6_t: "No Infrastructure", mkt_f6_d: "No server, no DB, no monthly license. Just a file.",
+        mkt_how_t: "How it works",
+        mkt_h1_t: "We learn your domain", mkt_h1_d: "Mapping existing knowledge: docs, failures, ops processes.",
+        mkt_h2_t: "We build your AIOP", mkt_h2_d: "Branding, channels and Troubleshooting tree per your needs.",
+        mkt_h3_t: "Your team uses it", mkt_h3_d: "One file distributed — no long training, no server.",
+        mkt_case_eye: "Customer Case",
+        mkt_case_t: "RADA Technologies",
+        mkt_case_d: "Leonardo DRS RADA, maker of tactical AESA radars. AIOP unifies treatment knowledge of 5 radar models with a full Troubleshooting tree for field technicians.",
+        mkt_cs1: "5", mkt_cs1_l: "Radar Models",
+        mkt_cs2: "30+", mkt_cs2_l: "Failure Scenarios",
+        mkt_cs3: "100%", mkt_cs3_l: "Offline in Field",
+        mkt_final_t: "Ready to see this for your team?",
+        mkt_final_s: "AIOP is customized per customer. We'd love to show a demo and scope a pilot.",
+        mkt_final_cta: "Contact us",
+        mkt_footer: "© 2026 AIOP · Built in Israel",
+
+        docs_title: "AIOP Documentation",
+        docs_search_ph: "Search docs… (title, summary, content)",
+        docs_categories: "Categories",
+        docs_all: "All Articles",
+        docs_no_results: "No matching articles.",
+        docs_results_count: (n) => `${n} articles`,
+        docs_read_more: "Read more",
+        docs_back_to_list: "Back to list",
+        docs_in_cat: "Category:",
+        docs_related: "More in this category",
+        cat_gs: "Getting Started",
+        cat_arch: "Architecture",
+        cat_content: "Content Management",
+        cat_brand: "Branding & Themes",
+        cat_i18n: "Localization",
+        cat_deploy: "Deployment",
+        cat_faq: "FAQ",
+
+        lomdaTitle: "Course — Getting Started with AIOP",
+        s1_welcome: "Welcome to ",
+        s1_sub: "The knowledge management platform that brings everything your ops team needs — into one place.",
+        s1_cta: "Let's begin",
+        s1_meta: "Chapter 1 · 7 slides · ≈ 5 minutes",
+        s2_title: "What is AIOP?",
+        s2_lead: "A modular knowledge management platform with an interactive Troubleshooting extension.",
+        s2_f1_t: "Central Knowledge Hub", s2_f1_d: "Manuals, training, FAQs and utilities — in one interface.",
+        s2_f2_t: "Interactive Troubleshooting", s2_f2_d: "Decision tree that guides the technician to resolve a failure.",
+        s2_f3_t: "Tailored per Org", s2_f3_d: "Content, branding and language — customized per customer.",
+        s2_f4_t: "Works Offline", s2_f4_d: "A single HTML file that runs without internet.",
+        s3_title: "The 5 Channels of AIOP",
+        s3_lead: "Each channel solves a different operational need. Pick a card to learn more.",
+        s3_c1: "Troubleshooting", s3_c1d: "Diagnostic tree leading the user to resolve a specific failure.",
+        s3_c2: "Technical Manuals", s3_c2d: "Full technical literature — drawings, specs, maintenance.",
+        s3_c3: "Training", s3_c3d: "Courses, videos and exercises for onboarding ops staff.",
+        s3_c4: "Utilities", s3_c4d: "Calculation utilities, calculators and unit conversions.",
+        s3_c5: "FAQs", s3_c5d: "Quick answers to common questions.",
+        s3_pick: "Pick a card above…",
+        s4_title: "Home Screen Tour",
+        s4_lead: "Click each hotspot to learn what it does. When you've explored all of them, you can continue.",
+        s4_h1_t: "AIOP Logo", s4_h1_d: "Clicking the logo always returns to home.",
+        s4_h2_t: "Search Bar", s4_h2_d: "Free-text search across all channels at once.",
+        s4_h3_t: "Channel Buttons", s4_h3_d: "Quick entry to each of the 5 channels.",
+        s4_h4_t: "Customer Branding", s4_h4_d: "Customer logo shown at top. Full theme swap supported.",
+        s4_search_ph: "Search across all channels…",
+        s4_done: "Excellent! You've explored all parts. Let's try navigating yourself.",
+        s5_title: "Try It — AGC Failure Diagnosis",
+        s5_lead: "A technician reported an AGC failure on an MHR radar's ATP Calibration station. Follow the path.",
+        s5_hint: (n) => `Step ${n}: click the highlighted next item`,
+        s5_done_t: "Excellent! You found the failure in 4 clicks.",
+        s5_done_d: "This is exactly what AIOP is for — cutting diagnosis time from minutes to seconds.",
+        s6_title: "Quick Quiz",
+        s6_lead: "4 questions to wrap up.",
+        s6_q1: "How many channels are there in AIOP?",
+        s6_q1_o: ["3","4","5","6"], s6_q1_c: 2,
+        s6_q2: "Which channel contains an interactive diagnostic tree?",
+        s6_q2_o: ["Technical Manuals","Troubleshooting","Utilities","FAQs"], s6_q2_c: 1,
+        s6_q3: "Main difference between Troubleshooting and FAQs?",
+        s6_q3_o: ["None","Troubleshooting is a diagnostic process, FAQs are quick answers","FAQs is admin-only","Troubleshooting is mobile-only"], s6_q3_c: 1,
+        s6_q4: "Can AIOP work offline?",
+        s6_q4_o: ["No, requires connection","Yes — a single HTML file","Mobile only","Paid only"], s6_q4_c: 1,
+        s6_score: (a,b) => `Score: ${a} out of ${b}`,
+        s6_perfect: "Perfect! You passed.",
+        s6_good: "Well done — you can continue.",
+        s6_retry: "Try again",
+        s6_next: "Continue to summary",
+        s6_correct_l: "Correct",
+        s6_wrong_l: "Wrong — correct one highlighted",
+        s7_title: "Chapter Complete!",
+        s7_lead: "Summary of what you learned:",
+        s7_l1: "What AIOP is and what it solves",
+        s7_l2: "The 5 channels: Troubleshooting, Manuals, Training, Utilities, FAQs",
+        s7_l3: "Navigating the AIOP home screen",
+        s7_l4: "Performing a first failure diagnosis",
+        s7_what: "What you learned",
+        s7_up: "Up next",
+        s7_next_ch: "Next chapter: End-to-end failure resolution",
+        s7_next_d: "A full journey — from receiving the failure to the final report — through AIOP's Troubleshooting tool.",
+        s7_thanks: "Thanks for participating!",
+        s7_soon: "Coming soon",
+        question: "Question",
+        pick_card_above: "Pick a card above…",
+      }
+    };
+
+    /* ============================= DOCS DATA ============================= */
+    const DOCS = [
+      { slug:"welcome", cat:"gs",
+        title:{ he:"ברוכים הבאים ל-AIOP", en:"Welcome to AIOP" },
+        summary:{ he:"מבט-על על מה ש-AIOP מציעה ולמי היא מתאימה.", en:"Overview of what AIOP offers and who it fits." },
+        body:{
+          he:[
+            ["p","AIOP (All In One Place) היא פלטפורמת ניהול ידע מודולרית, שמיועדת לאחד את כל המידע התפעולי של ארגון לתוך ממשק יחיד וגישה אחת. הפלטפורמה נבנתה מתוך הבנה שצוותי תפעול נוטים לשבור שיניים על אותו ידע שוב ושוב — תקלות שכבר נפתרו, מסמכים שצריך לחפש, והליכים שמתועדים פה ושם."],
+            ["h2","למה זה שונה"],
+            ["p","במקום פתרון אחד גדול שצריך לקנפג מההתחלה (כמו ServiceNow או Notion), AIOP מסופקת כקובץ HTML יחיד — מותאם אישית לכל ארגון מראש. אתם לא בונים אותה, אנחנו בונים אותה עבורכם."],
+            ["h2","חמשת הערוצים"],
+            ["ul",["Troubleshooting — עץ אבחון אינטראקטיבי","Technical Manuals — ספרות טכנית","Training — לומדות וסרטונים","Utilities — כלי עזר וחישובים","FAQs — תשובות מהירות"]],
+            ["p","כל ערוץ נבנה ומותאם לתחום הספציפי של הלקוח."]
+          ],
+          en:[
+            ["p","AIOP (All In One Place) is a modular knowledge management platform designed to unify all operational information of an organization into a single interface and one entry point. The platform was built recognizing that ops teams keep breaking their teeth on the same knowledge over and over — failures already solved, documents to be hunted down, and processes documented here and there."],
+            ["h2","Why it's different"],
+            ["p","Instead of one large solution you have to configure from scratch (like ServiceNow or Notion), AIOP is delivered as a single HTML file — pre-customized for each organization. You don't build it; we build it for you."],
+            ["h2","The five channels"],
+            ["ul",["Troubleshooting — interactive diagnostic tree","Technical Manuals — technical literature","Training — courses and videos","Utilities — helper tools and calculations","FAQs — quick answers"]],
+            ["p","Each channel is built and tailored to the customer's specific domain."]
+          ]
+        }
+      },
+      { slug:"quick-start", cat:"gs",
+        title:{ he:"מדריך התחלה מהירה (5 דקות)", en:"5-Minute Quick Start" },
+        summary:{ he:"איך פותחים, מנווטים ומשתמשים ב-AIOP מהרגע הראשון.", en:"How to open, navigate and start using AIOP from minute one." },
+        body:{
+          he:[
+            ["h2","שלב 1 — פתיחה"],
+            ["p","קבלת AIOP מתבצעת כקובץ HTML יחיד שנשלח במייל או נשמר ב-USB. לחיצה כפולה תפתח אותו בדפדפן המוגדר ברירת מחדל (Chrome / Edge / Firefox). אין צורך בהתקנה, אין צורך בחיבור לרשת אחרי הטעינה הראשונה."],
+            ["h2","שלב 2 — מסך הבית"],
+            ["p","במסך הבית תראו 5 כפתורים — כל אחד מייצג ערוץ. לוחצים על הערוץ הרצוי כדי להיכנס פנימה."],
+            ["h2","שלב 3 — שימוש בערוצים"],
+            ["ul",["Troubleshooting: בחרו דגם → תחנה → תקלה → קבלו פתרון","Technical Manuals: דפדפו במסמכים לפי קטגוריה","Training: צפו בלומדות לפי סדר","Utilities: בחרו כלי וקיבלו תוצאה","FAQs: גלשו ברשימת שאלות נפוצות"]],
+            ["h2","שלב 4 — חיפוש רוחבי"],
+            ["p","סרגל החיפוש למעלה מחפש בכל הערוצים בו-זמנית. הקלידו מילת מפתח (לדוגמה: \"AGC\"), והמערכת תציג את כל המופעים מכל הערוצים."]
+          ],
+          en:[
+            ["h2","Step 1 — Open it"],
+            ["p","AIOP is delivered as a single HTML file sent by email or shared on a USB. Double-click opens it in your default browser (Chrome / Edge / Firefox). No installation, no internet required after first load."],
+            ["h2","Step 2 — Home screen"],
+            ["p","The home screen shows 5 buttons — one per channel. Click the channel you need."],
+            ["h2","Step 3 — Using channels"],
+            ["ul",["Troubleshooting: pick model → station → failure → solution","Technical Manuals: browse by category","Training: watch courses in order","Utilities: pick a tool, get a result","FAQs: scroll through common questions"]],
+            ["h2","Step 4 — Cross-channel search"],
+            ["p","The search bar at the top searches all channels at once. Type a keyword (e.g. \"AGC\") and the system shows every match across all channels."]
+          ]
+        }
+      },
+      { slug:"file-structure", cat:"arch",
+        title:{ he:"מבנה הקובץ HTML", en:"HTML File Structure" },
+        summary:{ he:"מה יש בקובץ AIOP, איך הוא מורכב, ולמה זה קובץ אחד.", en:"What's in the AIOP file, how it's composed, and why one file." },
+        body:{
+          he:[
+            ["p","AIOP מסופק כקובץ HTML יחיד שמכיל את כל הלוגיקה, הסגנון, התוכן והנתונים. הבחירה בקובץ יחיד נובעת מצרכים תפעוליים: ניידות, אופליין, פשטות הפצה."],
+            ["h2","שכבות הקובץ"],
+            ["ul",["שכבת CDN — React, Babel, Tailwind נטענים מספקי תוכן","שכבת CSS — סגנונות מותאמים, ערכות צבעים, אנימציות","שכבת תוכן — אובייקטי JSON: FLOW_DATA, DOCS, I18N","שכבת לוגיקה — קומפוננטות React שמרכיבות את הממשק"]],
+            ["h2","למה לא backend?"],
+            ["p","Backend היה מוסיף עלות, סיבוך הפצה, ותלות באינטרנט. עבור רוב הלקוחות, נפח הנתונים יושב על MB בודדים — זמין כקבועים בתוך הקובץ. אם יידרש בעתיד מעקב או סנכרון, אפשר לעטוף ב-LMS תקני (SCORM, xAPI) או להוסיף שכבת API."],
+            ["h2","CDN וכישלון אופליין"],
+            ["p","הטעינה הראשונה דורשת חיבור לרשת (לטעינת ה-CDNs). לאחר מכן, הדפדפן שומר את הקבצים במטמון ויפעל אופליין. בגרסאות \"אופליין-לעולם\", ניתן להטמיע את ה-CDNs ישירות בקובץ — זה מגדיל אותו אבל מסיר כל תלות."]
+          ],
+          en:[
+            ["p","AIOP is delivered as a single HTML file containing all logic, styling, content and data. The single-file choice stems from operational needs: portability, offline, simple distribution."],
+            ["h2","File layers"],
+            ["ul",["CDN layer — React, Babel, Tailwind loaded from content providers","CSS layer — custom styles, themes, animations","Content layer — JSON objects: FLOW_DATA, DOCS, I18N","Logic layer — React components composing the UI"]],
+            ["h2","Why no backend?"],
+            ["p","A backend would add cost, distribution complexity, and internet dependence. For most customers, data volume fits in a few MB — available as constants inside the file. If future tracking or sync is needed, wrap in a standard LMS (SCORM, xAPI) or add an API layer."],
+            ["h2","CDNs and full offline"],
+            ["p","First load requires internet (to fetch CDNs). After that, the browser caches the files and works offline. For \"always-offline\" builds, you can inline the CDN libs directly — larger file but no external deps."]
+          ]
+        }
+      },
+      { slug:"channels-model", cat:"arch",
+        title:{ he:"5 הערוצים — מודל לוגי", en:"The 5 Channels — Logical Model" },
+        summary:{ he:"איך הערוצים בנויים מבחינה מבנית, ולמה דווקא חמישה.", en:"How the channels are structured, and why five." },
+        body:{
+          he:[
+            ["p","המודל של חמשת הערוצים נבחר אחרי מיפוי של עשרות צרכי תפעול חוזרים. כל ערוץ מייצג מצב מנטלי שונה של המשתמש: \"איך פותרים\", \"איפה כתוב\", \"איך לומדים\", \"איך מחשבים\", \"מה השאלה הראשונה\"."],
+            ["h2","מבנה לוגי של ערוץ"],
+            ["p","כל ערוץ מורכב מ-Nodes (צמתים) בעץ. כל Node מכיל: id, title, type, content, ולעיתים targets (יעדים לערוצים אחרים)."],
+            ["pre","type Node = {\n  id: string;\n  type: 'landing' | 'question' | 'solution' | 'doc' | 'video';\n  title: string;\n  text?: string;\n  options?: { label: string; targetId: string }[];\n  media?: { type: 'image'|'video'; url: string };\n};"],
+            ["h2","מעבר בין ערוצים"],
+            ["p","ערוצים יכולים להפנות זה אל זה. למשל, פתרון ב-Troubleshooting יכול להפנות למסמך טכני, או FAQ יכול להפנות לסרטון הדרכה. זה מה שהופך את AIOP ל-\"All In One Place\" אמיתי."]
+          ],
+          en:[
+            ["p","The five-channel model was picked after mapping dozens of recurring ops needs. Each channel represents a different mental state of the user: \"how do I fix\", \"where is it documented\", \"how do I learn\", \"how do I calculate\", \"what's the first question\"."],
+            ["h2","Logical channel structure"],
+            ["p","Each channel is composed of Nodes in a tree. Each Node holds: id, title, type, content, and sometimes targets (cross-channel references)."],
+            ["pre","type Node = {\n  id: string;\n  type: 'landing' | 'question' | 'solution' | 'doc' | 'video';\n  title: string;\n  text?: string;\n  options?: { label: string; targetId: string }[];\n  media?: { type: 'image'|'video'; url: string };\n};"],
+            ["h2","Cross-channel references"],
+            ["p","Channels can reference each other. For instance, a Troubleshooting solution can link to a Technical Manual, or an FAQ can link to a training video. This is what makes AIOP truly \"All In One Place\"."]
+          ]
+        }
+      },
+      { slug:"adding-topics", cat:"content",
+        title:{ he:"הוספת נושא חדש לערוץ", en:"Adding a Topic to a Channel" },
+        summary:{ he:"איך מוסיפים נושא או מסמך חדש לכל אחד מהערוצים.", en:"How to add a new topic or document to any channel." },
+        body:{
+          he:[
+            ["p","הוספת נושא חדש מתבצעת על-ידי עריכת מבנה הנתונים של הערוץ הרלוונטי. עבור הלקוחות שלנו, אנחנו מטפלים בעדכונים — אבל למי שרוצה לערוך עצמאית, השלבים פשוטים."],
+            ["h2","Troubleshooting"],
+            ["p","ערכו את ה-FLOW_DATA והוסיפו צומת חדש עם id ייחודי, סוג (question / solution), והפניות אם יש."],
+            ["pre","window.__FLOW_DATA__['new_node_id'] = {\n  id: 'new_node_id',\n  type: 'question',\n  title: 'האם המכ\"ם מקבל מתח?',\n  options: [\n    { label: 'כן', targetId: 'next_step' },\n    { label: 'לא', targetId: 'power_issue' }\n  ]\n};"],
+            ["h2","Manuals / FAQs / Utilities"],
+            ["p","פותחים את אובייקט DOCS, מוסיפים אובייקט עם slug, cat (קטגוריה), title, summary ו-body. ה-body מבוסס על מערך של בלוקים: paragraph, heading, list, code."],
+            ["h2","שמירה"],
+            ["p","אחרי העריכה — שומרים את הקובץ ושולחים מחדש למשתמשים. מכיוון שזה קובץ HTML יחיד, אין צורך ב-CI/CD או deployments."]
+          ],
+          en:[
+            ["p","Adding a new topic is done by editing the data structure of the relevant channel. For our customers, we handle updates — but for self-editing, the steps are simple."],
+            ["h2","Troubleshooting"],
+            ["p","Edit FLOW_DATA and add a new node with a unique id, type (question / solution), and references if any."],
+            ["pre","window.__FLOW_DATA__['new_node_id'] = {\n  id: 'new_node_id',\n  type: 'question',\n  title: 'Is the radar receiving power?',\n  options: [\n    { label: 'Yes', targetId: 'next_step' },\n    { label: 'No', targetId: 'power_issue' }\n  ]\n};"],
+            ["h2","Manuals / FAQs / Utilities"],
+            ["p","Open the DOCS object, add an entry with slug, cat (category), title, summary and body. Body is an array of blocks: paragraph, heading, list, code."],
+            ["h2","Saving"],
+            ["p","After editing — save and redistribute. Since it's a single HTML file, no CI/CD or deployments required."]
+          ]
+        }
+      },
+      { slug:"troubleshooting-tree", cat:"content",
+        title:{ he:"בניית עץ Troubleshooting", en:"Building a Troubleshooting Tree" },
+        summary:{ he:"שיטות עבודה לבניית עץ אבחון יעיל לתחום שלכם.", en:"Methodologies for building an efficient diagnostic tree for your domain." },
+        body:{
+          he:[
+            ["p","עץ Troubleshooting טוב חוסך זמן יקר לטכנאים. עץ רע גורם להם להסתבך עוד יותר. הנה כללי האצבע שאנחנו מיישמים."],
+            ["h2","1. תתחילו מהתסמין, לא מהגורם"],
+            ["p","טכנאים מגיעים עם תקלה (\"המכשיר לא נדלק\"), לא עם השערה. בנו את העץ מהתסמין למטה — לא להפך."],
+            ["h2","2. שאלות בינאריות עדיפות"],
+            ["p","שאלות כן/לא קלות לאבחון. שאלות \"איזה מהבאים\" יכולות להציע 5 אפשרויות אבל רק כשיש דיפרנציאל ברור."],
+            ["h2","3. עד 5 שכבות עומק"],
+            ["p","אם הגעת לשכבה השביעית — כנראה שצריך לפצל לעץ-משנה או להפנות למסמך טכני. עומק רב מבלבל."],
+            ["h2","4. כל עלה מוביל לפעולה"],
+            ["p","אסור שיהיו עלים שאומרים \"קשה לדעת\". כל עלה חייב לתת אבחנה ופעולה — גם אם זה \"שלחו לבדיקה\"."]
+          ],
+          en:[
+            ["p","A good Troubleshooting tree saves precious time for technicians. A bad one gets them more stuck. Here are our rules of thumb."],
+            ["h2","1. Start from the symptom, not the cause"],
+            ["p","Technicians come with a failure (\"device won't turn on\"), not a hypothesis. Build the tree top-down from the symptom — not the other way."],
+            ["h2","2. Binary questions are better"],
+            ["p","Yes/no questions are easy to diagnose. \"Which of the following\" can present 5 options but only when the differential is clear."],
+            ["h2","3. Up to 5 layers deep"],
+            ["p","If you've reached the seventh layer — you probably need to split into a sub-tree or link to a technical document. Excessive depth is confusing."],
+            ["h2","4. Every leaf leads to an action"],
+            ["p","No leaves that say \"hard to tell\". Every leaf must give a diagnosis and an action — even if it's \"send for inspection\"."]
+          ]
+        }
+      },
+      { slug:"themes", cat:"brand",
+        title:{ he:"ערכות צבעים (Themes)", en:"Themes & Color Palettes" },
+        summary:{ he:"איך מחליפים ערכת צבעים שלמה ולמה מומלץ להיצמד למספר ערכות מובנות.", en:"How to swap a whole color theme and why to stick to built-in palettes." },
+        body:{
+          he:[
+            ["p","AIOP מגיעה עם 5 ערכות צבעים מובנות: Classic (לבן), Corporate (כחול), Dark (כהה), Green, Stitch Modern (ציאן-לילה). החלפת ערכה מתבצעת על-ידי שינוי משתנה בודד."],
+            ["h2","משתני CSS"],
+            ["p","כל ערכת צבעים מוגדרת כאוסף של 6 משתני CSS: --theme-header, --theme-header-text, --theme-bg, --theme-accent, --theme-card, --theme-card-border."],
+            ["pre",":root {\n  --theme-header: #1e293b;\n  --theme-header-text: #ffffff;\n  --theme-bg: #f8fafc;\n  --theme-accent: #2563eb;\n  --theme-card: #ffffff;\n  --theme-card-border: #e2e8f0;\n}"],
+            ["h2","הוספת ערכה מותאמת"],
+            ["p","אפשר להוסיף ערכה מותאמת ללקוח — בדרך כלל כדי להתאים לצבעי המותג. אבל זהירות: ניגודיות נמוכה פוגעת בנגישות. אנחנו מעדיפים להיצמד לערכות המובנות עם התאמות עדינות."]
+          ],
+          en:[
+            ["p","AIOP ships with 5 built-in themes: Classic (light), Corporate (blue), Dark, Green, Stitch Modern (cyan-night). Swapping a theme is done by changing a single variable."],
+            ["h2","CSS variables"],
+            ["p","Each theme is defined as 6 CSS variables: --theme-header, --theme-header-text, --theme-bg, --theme-accent, --theme-card, --theme-card-border."],
+            ["pre",":root {\n  --theme-header: #1e293b;\n  --theme-header-text: #ffffff;\n  --theme-bg: #f8fafc;\n  --theme-accent: #2563eb;\n  --theme-card: #ffffff;\n  --theme-card-border: #e2e8f0;\n}"],
+            ["h2","Adding a custom theme"],
+            ["p","You can add a custom theme per customer — usually to match brand colors. But beware: low contrast hurts accessibility. We prefer sticking to built-in themes with subtle tweaks."]
+          ]
+        }
+      },
+      { slug:"customer-logo", cat:"brand",
+        title:{ he:"לוגו לקוח ומיתוג", en:"Customer Logo & Branding" },
+        summary:{ he:"איך להחליף את הלוגו והמיתוג של הלקוח בקובץ AIOP.", en:"How to swap customer logo and branding in the AIOP file." },
+        body:{
+          he:[
+            ["p","המיתוג של AIOP מורכב משלושה רכיבים: לוגו AIOP (קבוע), לוגו לקוח (משתנה), וערכת צבעים. כל אחד ניתן להחלפה עצמאית."],
+            ["h2","איפה הלוגו של הלקוח"],
+            ["p","בקובץ landingConfig של ה-FLOW_DATA הראשי, יש שדה logoUrl ו-heroImage. אלו מציינים את כתובות התמונות שיופיעו במסך הפתיחה ובכותרת."],
+            ["pre","landingConfig: {\n  logoUrl: 'https://your-cdn/logo.png',\n  logoHeight: 48,\n  heroImage: 'https://your-cdn/hero.png',\n  heroHeight: 200\n}"],
+            ["h2","ניהול הנכסים"],
+            ["p","מומלץ לארח את התמונות ב-CDN ציבורי (לדוגמה: GitHub Pages, Cloudflare Images). זה מאפשר עדכון לוגו ללא ייצור-מחדש של קובץ HTML. עבור לקוחות שדורשים אופליין מלא — מטמיעים את התמונה כ-base64."]
+          ],
+          en:[
+            ["p","AIOP branding consists of three components: AIOP logo (fixed), customer logo (variable), and color theme. Each is swappable independently."],
+            ["h2","Where the customer logo lives"],
+            ["p","In the landingConfig field of the root FLOW_DATA, there are logoUrl and heroImage fields. These specify image URLs shown on the landing screen and in the header."],
+            ["pre","landingConfig: {\n  logoUrl: 'https://your-cdn/logo.png',\n  logoHeight: 48,\n  heroImage: 'https://your-cdn/hero.png',\n  heroHeight: 200\n}"],
+            ["h2","Asset hosting"],
+            ["p","We recommend hosting images on a public CDN (e.g. GitHub Pages, Cloudflare Images). This lets you update the logo without regenerating the HTML. For full-offline customers — embed images as base64."]
+          ]
+        }
+      },
+      { slug:"rtl-ltr", cat:"i18n",
+        title:{ he:"תמיכה בעברית ואנגלית (RTL/LTR)", en:"Hebrew & English (RTL/LTR) Support" },
+        summary:{ he:"איך AIOP מטפלת בעברית, אנגלית, והחלפה ביניהן.", en:"How AIOP handles Hebrew, English, and switching between them." },
+        body:{
+          he:[
+            ["p","AIOP נבנתה דו-לשונית מהיסוד. כל מחרוזת נמצאת באובייקט I18N תחת שני מפתחות: he ו-en. ההחלפה מתבצעת בכפתור עליון, והכיוון של המסמך מתחלף אוטומטית בין rtl ל-ltr."],
+            ["h2","הוספת שפה שלישית"],
+            ["p","ניתן להוסיף שפות נוספות (ערבית, רוסית, צרפתית) על-ידי הוספת מפתח חדש לאובייקט I18N והעתקת כל המחרוזות. הקיפול ל-RTL נעשה אוטומטית עבור שפות RTL מוכרות."],
+            ["h2","שמירת בחירת המשתמש"],
+            ["p","בחירת השפה נשמרת ב-localStorage תחת המפתח aiop_lang, כך שלמשתמש לא תופיע השפה הלא-נכונה אחרי רענון."],
+            ["h2","דברים שכדאי לדעת"],
+            ["ul",["מספרים תמיד מוצגים LTR — גם בעברית","תאריכים מותאמים אוטומטית לכיוון השפה","אייקונים של חצים מתהפכים בכיוון הנכון","טבלאות עם נתונים מספריים נשארות יישור-לשמאל בכל שפה"]]
+          ],
+          en:[
+            ["p","AIOP was built bilingual from the ground up. Every string lives in the I18N object under two keys: he and en. Switching happens via the top toggle, and document direction switches automatically between rtl and ltr."],
+            ["h2","Adding a third language"],
+            ["p","You can add languages (Arabic, Russian, French) by adding a new key to I18N and copying all strings. RTL folding is automatic for recognized RTL languages."],
+            ["h2","Persisting user choice"],
+            ["p","Language choice is stored in localStorage under the key aiop_lang, so the user doesn't see the wrong language after reload."],
+            ["h2","Things to know"],
+            ["ul",["Numbers always display LTR — even in Hebrew","Dates auto-adapt to language direction","Arrow icons flip in the correct direction","Tables with numeric data stay left-aligned in every language"]]
+          ]
+        }
+      },
+      { slug:"distribution", cat:"deploy",
+        title:{ he:"הפצה: מייל, USB, אינטרנט", en:"Distribution: Email, USB, Web" },
+        summary:{ he:"כל הדרכים להפיץ את קובץ AIOP למשתמשי הקצה.", en:"All the ways to distribute the AIOP file to end users." },
+        body:{
+          he:[
+            ["h2","במייל"],
+            ["p","הקובץ קטן (פחות מ-100KB ללא תמונות מוטמעות) ושולח את עצמו כצרופה רגילה. רוב מערכות המייל לא יחסמו אותו כי הוא HTML סטנדרטי."],
+            ["h2","ב-USB"],
+            ["p","פותחים מ-USB ישירות — לחיצה כפולה והוא נטען בדפדפן. שימושי לסביבות מסווגות / מנותקות."],
+            ["h2","באתר פנימי / SharePoint"],
+            ["p","מעלים את הקובץ לאתר ה-SharePoint או לאתר אינטרנט פנימי. המשתמשים פשוט פותחים את ה-URL."],
+            ["h2","באמצעות LMS (SCORM)"],
+            ["p","עבור ארגונים עם LMS (Moodle, 360Learning, וכד'), ניתן לעטוף את הקובץ באריזת SCORM שכוללת מעקב התקדמות והשלמת קורסים."]
+          ],
+          en:[
+            ["h2","Via email"],
+            ["p","The file is small (under 100KB without embedded images) and sends itself as a normal attachment. Most mail systems won't block it because it's standard HTML."],
+            ["h2","Via USB"],
+            ["p","Open directly from USB — double-click and it loads in the browser. Useful for classified / disconnected environments."],
+            ["h2","Internal site / SharePoint"],
+            ["p","Upload the file to your SharePoint or internal web. Users just open the URL."],
+            ["h2","Via LMS (SCORM)"],
+            ["p","For organizations with an LMS (Moodle, 360Learning, etc.), the file can be wrapped in a SCORM package including progress tracking and course completion."]
+          ]
+        }
+      },
+      { slug:"offline-mode", cat:"deploy",
+        title:{ he:"עבודה אופליין", en:"Offline Mode" },
+        summary:{ he:"איך AIOP פועלת בלי חיבור לאינטרנט, ומה הנקודות החשובות.", en:"How AIOP runs without internet, and what to watch out for." },
+        body:{
+          he:[
+            ["p","אחרי טעינה ראשונה (שדורשת אינטרנט בשביל CDNs), הדפדפן שומר את הקבצים במטמון. מאז — AIOP יעבוד גם בלי רשת."],
+            ["h2","Cache busting"],
+            ["p","דפדפנים מודרניים מאחסנים את CDNs לזמן ארוך (שבועות). אם הלקוח עובד אופליין במשך חודשים, ייתכן שהמטמון יתפנה. במקרה זה — תחזירו אותו לרשת לרגע, והוא יטען שוב."],
+            ["h2","פתרונות אופליין-מוחלט"],
+            ["p","עבור סביבות מסווגות שאין להן לעולם אינטרנט, ניתן להטמיע את כל ה-CDNs ישירות בקובץ HTML. הגודל יגדל ל-~3MB, אבל הקובץ יהיה עצמאי לחלוטין."],
+            ["h2","סנכרון נתונים"],
+            ["p","אם נדרש להעלות נתונים (תוצאות בחנים, סטטיסטיקות שימוש) — אפשר לאחסן ב-localStorage באופן זמני ולסנכרן כשחוזרים לרשת."]
+          ],
+          en:[
+            ["p","After first load (which needs internet for CDNs), the browser caches the files. From then on — AIOP works without network."],
+            ["h2","Cache busting"],
+            ["p","Modern browsers cache CDNs for a long time (weeks). If the customer works offline for months, the cache may evict. Then — reconnect briefly and it'll load again."],
+            ["h2","Hard-offline builds"],
+            ["p","For classified environments without internet ever, you can inline all CDNs into the HTML. Size grows to ~3MB but the file becomes fully self-contained."],
+            ["h2","Data sync"],
+            ["p","If data upload is needed (quiz results, usage stats) — store in localStorage temporarily and sync when back online."]
+          ]
+        }
+      },
+      { slug:"common-issues", cat:"faq",
+        title:{ he:"בעיות נפוצות", en:"Common Issues" },
+        summary:{ he:"FAQ של תקלות שכיחות בעת הפעלת AIOP.", en:"FAQ of common issues when running AIOP." },
+        body:{
+          he:[
+            ["h2","הקובץ נפתח לבן/ריק"],
+            ["p","בדרך כלל סימן ל-CDN שלא נטען. בדקו חיבור לאינטרנט בטעינה ראשונה. אם פיירוול חוסם — תוודאו ש-unpkg.com / cdnjs.cloudflare.com / jsdelivr.net לא חסומים."],
+            ["h2","עברית מתגלגלת לא נכון"],
+            ["p","ודאו שכפתור השפה העליון מוגדר לעברית. אם הבעיה נמשכת — נסו לרענן בלי מטמון (Ctrl+F5)."],
+            ["h2","בחירה לא נשמרת"],
+            ["p","AIOP משתמשת ב-localStorage. אם פתחתם את הקובץ ב-Incognito או שמטמון מנוקה אוטומטית — הבחירות לא יישמרו. השתמשו במצב רגיל."],
+            ["h2","התמונות לא נטענות"],
+            ["p","אם התמונות מתארחות ב-CDN חיצוני (לא מוטמעות), חיבור אינטרנט נדרש לטעינתן הראשונה. לאחר מכן הן יוצגו אופליין."],
+            ["h2","המקלדת לא קולטת עברית"],
+            ["p","בדקו שהמקלדת של מערכת ההפעלה מוגדרת לעברית (Alt+Shift ב-Windows). AIOP לא מטפלת בהגדרות מערכת."]
+          ],
+          en:[
+            ["h2","File opens blank/white"],
+            ["p","Usually means a CDN didn't load. Check internet on first load. If firewalled — ensure unpkg.com / cdnjs.cloudflare.com / jsdelivr.net aren't blocked."],
+            ["h2","Hebrew text flows wrong"],
+            ["p","Verify the top language toggle is set to Hebrew. If it persists — try a hard reload (Ctrl+F5)."],
+            ["h2","Choices aren't saved"],
+            ["p","AIOP uses localStorage. If opened in Incognito or with auto-clearing cache — choices won't persist. Use normal mode."],
+            ["h2","Images don't load"],
+            ["p","If images are hosted on an external CDN (not embedded), internet is needed for first load. After that, they display offline."],
+            ["h2","Keyboard doesn't enter Hebrew"],
+            ["p","Verify your OS keyboard layout is Hebrew (Alt+Shift on Windows). AIOP doesn't handle system input settings."]
+          ]
+        }
+      }
+    ];
+
+    /* ================================ ICON ================================ */
+    const Icon = ({ name, size = 24, className = "" }) => {
+      const paths = {
+        search: <><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></>,
+        bug: <><path d="M8 2h8M12 2v4M9 6h6a3 3 0 0 1 3 3v8a6 6 0 0 1-12 0V9a3 3 0 0 1 3-3zM3 13h3M18 13h3M3 9h3M18 9h3M3 17h3M18 17h3"/></>,
+        book: <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></>,
+        graduation: <><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.7 3.6 3 6 3s6-1.3 6-3v-5"/></>,
+        tools: <><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></>,
+        help: <><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></>,
+        check: <path d="M20 6 9 17l-5-5"/>,
+        x: <><path d="M18 6 6 18M6 6l12 12"/></>,
+        arrowRight: <><path d="M5 12h14M12 5l7 7-7 7"/></>,
+        arrowLeft: <><path d="M19 12H5M12 19l-7-7 7-7"/></>,
+        sparkles: <><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></>,
+        play: <path d="M6 3v18l15-9z"/>,
+        globe: <><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></>,
+        target: <><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></>,
+        layers: <><path d="m12 2 9 5-9 5-9-5z"/><path d="m3 12 9 5 9-5M3 17l9 5 9-5"/></>,
+        wifi_off: <><path d="M2 8.5C5 6 8.4 4.8 12 4.8s7 1.2 10 3.7M5 12.5c2-1.7 4.4-2.7 7-2.7s5 1 7 2.7M8.5 16c1-.7 2.3-1.1 3.5-1.1s2.5.4 3.5 1.1M12 20h.01M2 2l20 20"/></>,
+        rocket: <><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2zM9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></>,
+        building: <><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></>,
+        users: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/><circle cx="9" cy="7" r="4"/></>,
+        zap: <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>,
+        shield: <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>,
+        message: <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>,
+        chevronLeft: <path d="m15 18-6-6 6-6"/>,
+        chevronRight: <path d="m9 18 6-6-6-6"/>,
+        home: <><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></>,
+        file: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></>,
+      };
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+          {paths[name]}
+        </svg>
+      );
+    };
+
+    /* ================================ LOGO ================================ */
+    const Logo = ({ size = "md" }) => {
+      const sizes = { sm:{m:28,f:'1rem'}, md:{m:38,f:'1.4rem'}, lg:{m:64,f:'2.4rem'} };
+      const s = sizes[size];
+      return (
+        <div className="aiop-logo" style={{ fontSize: s.f }}>
+          <span className="aiop-logo-mark" style={{ width: s.m, height: s.m }}></span>
+          <span>AIOP</span>
+        </div>
+      );
+    };
+
+    /* ================================ SHELL ================================ */
+    const Shell = ({ route, lang, setLang, onBack, title, children, slideProgress }) => {
+      const t = I18N[lang];
+      return (
+        <div className="min-h-screen flex flex-col">
+          <header className="px-6 py-4 flex items-center justify-between border-b" style={{borderColor:'rgba(255,255,255,0.05)', backdropFilter:'blur(8px)', background:'rgba(11,22,34,0.7)', position:'sticky', top:0, zIndex:20}}>
+            <div className="flex items-center gap-4">
+              {route !== 'portal' && (
+                <button className="btn btn-ghost" style={{padding:'8px 14px', fontSize:'0.85rem'}} onClick={onBack}>
+                  <Icon name="home" size={16}/>
+                  <span>{t.back_to_portal}</span>
+                </button>
+              )}
+              <Logo size="sm"/>
+            </div>
+            <div className="hidden md:block text-sm" style={{color:'var(--text-dim)'}}>{title}</div>
+            <button className="btn btn-ghost" style={{padding:'8px 14px', fontSize:'0.85rem'}} onClick={()=>setLang(lang==='he'?'en':'he')}>
+              <Icon name="globe" size={16}/>
+              <span>{t.languageToggle}</span>
+            </button>
+          </header>
+          {slideProgress && (
+            <div className="px-6 py-3 flex items-center gap-4 border-b" style={{borderColor:'rgba(255,255,255,0.05)'}}>
+              <div className="flex items-center gap-2">
+                {Array.from({length: slideProgress.total}).map((_, i) => (
+                  <span key={i}
+                    className={`chapter-dot ${i===slideProgress.current ? 'active' : (i<slideProgress.current?'done':'')}`}
+                    onClick={()=>slideProgress.onJump(i)}
+                    title={t.slideOf(i+1, slideProgress.total)}>
+                  </span>
+                ))}
+              </div>
+              <div className="flex-1 progress-bar">
+                <div className="progress-bar-fill" style={{width: `${Math.round(((slideProgress.current + 1) / slideProgress.total) * 100)}%`}}></div>
+              </div>
+              <div className="text-xs whitespace-nowrap" style={{color:'var(--text-dim)'}}>{t.slideOf(slideProgress.current+1, slideProgress.total)}</div>
+            </div>
+          )}
+          <main className="flex-1 w-full">{children}</main>
+        </div>
+      );
+    };
+
+    /* =============================== PORTAL =============================== */
+    const Portal = ({ lang, onNavigate }) => {
+      const t = I18N[lang];
+      const cards = [
+        { key:'marketing', icon:'rocket', t:t.portal_marketing_t, d:t.portal_marketing_d },
+        { key:'lomda',     icon:'graduation', t:t.portal_lomda_t, d:t.portal_lomda_d },
+        { key:'docs',      icon:'book', t:t.portal_docs_t, d:t.portal_docs_d },
+      ];
+      return (
+        <div className="px-6 py-16 max-w-5xl mx-auto">
+          <div className="text-center mb-12 slide-up">
+            <div className="flex justify-center mb-6 float"><Logo size="lg"/></div>
+            <h1 className="text-4xl md:text-5xl font-extrabold mb-3" style={{color:'#fff'}}>
+              {t.portal_welcome}<span style={{background:'linear-gradient(135deg, var(--accent), var(--accent-2))', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent'}}>AIOP</span>
+            </h1>
+            <p className="text-lg" style={{color:'var(--text-dim)'}}>{t.portal_subtitle}</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {cards.map((c,i)=>(
+              <div key={c.key} className="portal-card slide-up" style={{animationDelay:`${i*0.1}s`}} onClick={()=>onNavigate(c.key)}>
+                <div className="portal-icon"><Icon name={c.icon} size={36}/></div>
+                <h3 className="font-bold text-xl mb-2" style={{color:'#fff'}}>{c.t}</h3>
+                <p style={{color:'var(--text-dim)'}}>{c.d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    };
+
+    /* ============================== MARKETING ============================== */
+    const Marketing = ({ lang, onGoLomda, onGoDocs }) => {
+      const t = I18N[lang];
+      const pains = [t.mkt_p1, t.mkt_p2, t.mkt_p3, t.mkt_p4];
+      const features = [
+        { i:'layers',   t:t.mkt_f1_t, d:t.mkt_f1_d },
+        { i:'target',   t:t.mkt_f2_t, d:t.mkt_f2_d },
+        { i:'sparkles', t:t.mkt_f3_t, d:t.mkt_f3_d },
+        { i:'wifi_off', t:t.mkt_f4_t, d:t.mkt_f4_d },
+        { i:'globe',    t:t.mkt_f5_t, d:t.mkt_f5_d },
+        { i:'shield',   t:t.mkt_f6_t, d:t.mkt_f6_d },
+      ];
+      const steps = [
+        { t:t.mkt_h1_t, d:t.mkt_h1_d },
+        { t:t.mkt_h2_t, d:t.mkt_h2_d },
+        { t:t.mkt_h3_t, d:t.mkt_h3_d },
+      ];
+      const stats = [
+        { n:'5', l:t.mkt_s1_l }, { n:'100%', l:t.mkt_s2_l },
+        { n:'2', l:t.mkt_s3_l }, { n:'∞', l:t.mkt_s4_l },
+      ];
+      return (
+        <div>
+          {/* Hero */}
+          <section className="mkt-hero-bg">
+            <div className="mkt-section text-center">
+              <div className="mkt-eyebrow">{t.mkt_eyebrow}</div>
+              <h1 className="text-5xl md:text-6xl font-extrabold mb-5 leading-tight" style={{color:'#fff', maxWidth:'920px', margin:'0 auto 20px'}}>
+                {t.mkt_hero_a}<span style={{background:'linear-gradient(135deg, var(--accent), var(--accent-2))', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent'}}>{t.mkt_hero_b}</span>
+              </h1>
+              <p className="text-lg md:text-xl mb-10" style={{color:'var(--text-dim)', maxWidth:'700px', margin:'0 auto 36px'}}>{t.mkt_hero_sub}</p>
+              <div className="flex flex-wrap gap-3 justify-center">
+                <button className="btn btn-primary text-base" style={{padding:'14px 28px'}} onClick={onGoLomda}>
+                  <Icon name="play" size={16}/><span>{t.mkt_cta_primary}</span>
+                </button>
+                <button className="btn btn-outline text-base" style={{padding:'14px 28px'}} onClick={onGoDocs}>
+                  <Icon name="book" size={16}/><span>{t.mkt_cta_secondary}</span>
+                </button>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 max-w-3xl mx-auto">
+                {stats.map((s,i)=>(
+                  <div key={i} className="text-center">
+                    <div className="stat-num">{s.n}</div>
+                    <div className="text-sm mt-1" style={{color:'var(--text-dim)'}}>{s.l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Problem */}
+          <section style={{background:'rgba(255,255,255,0.02)', borderTop:'1px solid rgba(255,255,255,0.05)', borderBottom:'1px solid rgba(255,255,255,0.05)'}}>
+            <div className="mkt-section">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+                <div>
+                  <h2 className="text-4xl font-extrabold mb-4" style={{color:'#fff'}}>{t.mkt_problem_t}</h2>
+                  <p className="text-lg" style={{color:'var(--text-dim)'}}>{t.mkt_problem_s}</p>
+                </div>
+                <div>
+                  {pains.map((p,i)=>(
+                    <div key={i} className="pain-row">
+                      <div className="pain-icon"><Icon name="x" size={18}/></div>
+                      <div style={{color:'var(--text)'}}>{p}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Solution */}
+          <section>
+            <div className="mkt-section text-center">
+              <h2 className="text-4xl font-extrabold mb-4" style={{color:'#fff'}}>{t.mkt_solution_t}</h2>
+              <p className="text-lg mb-12" style={{color:'var(--text-dim)', maxWidth:'700px', margin:'0 auto 48px'}}>{t.mkt_solution_s}</p>
+              <div className="mock-screen max-w-3xl mx-auto">
+                <div className="mock-header">
+                  <Logo size="sm"/>
+                  <div className="mock-search hidden md:flex"><Icon name="search" size={16}/><span>{t.docs_search_ph}</span></div>
+                  <div className="text-xs px-3 py-1 rounded-md" style={{background:'rgba(255,255,255,0.06)', color:'var(--text-dim)'}}>RADA</div>
+                </div>
+                <div className="p-8">
+                  <div className="grid grid-cols-5 gap-3">
+                    {['Troubleshooting','Manuals','Training','Utilities','FAQs'].map((n,i)=>(
+                      <div key={i} className="text-center p-3 rounded-lg" style={{background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.06)'}}>
+                        <div className="flex justify-center mb-2" style={{color:'var(--accent)'}}>
+                          <Icon name={['bug','book','graduation','tools','help'][i]} size={22}/>
+                        </div>
+                        <div className="text-xs" style={{color:'var(--text)'}}>{n}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Features */}
+          <section style={{background:'rgba(255,255,255,0.02)', borderTop:'1px solid rgba(255,255,255,0.05)', borderBottom:'1px solid rgba(255,255,255,0.05)'}}>
+            <div className="mkt-section">
+              <h2 className="text-4xl font-extrabold mb-12 text-center" style={{color:'#fff'}}>{t.mkt_features_t}</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {features.map((f,i)=>(
+                  <div key={i} className="feature-card">
+                    <div className="feature-icon"><Icon name={f.i} size={24}/></div>
+                    <h3 className="font-bold text-lg mb-2" style={{color:'#fff'}}>{f.t}</h3>
+                    <p style={{color:'var(--text-dim)'}}>{f.d}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* How */}
+          <section>
+            <div className="mkt-section">
+              <h2 className="text-4xl font-extrabold mb-16 text-center" style={{color:'#fff'}}>{t.mkt_how_t}</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {steps.map((s,i)=>(
+                  <div key={i} className="step-card">
+                    <div className="step-num">{i+1}</div>
+                    <h3 className="font-bold text-lg mb-2 mt-4" style={{color:'#fff'}}>{s.t}</h3>
+                    <p style={{color:'var(--text-dim)'}}>{s.d}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Case study */}
+          <section style={{background:'linear-gradient(180deg, rgba(81,196,211,0.05) 0%, transparent 100%)'}}>
+            <div className="mkt-section">
+              <div className="glass p-8 md:p-12 max-w-4xl mx-auto" style={{borderColor:'var(--border-strong)'}}>
+                <div className="mkt-eyebrow">{t.mkt_case_eye}</div>
+                <h2 className="text-3xl md:text-4xl font-extrabold mb-4" style={{color:'#fff'}}>{t.mkt_case_t}</h2>
+                <p className="text-lg mb-8" style={{color:'var(--text-dim)'}}>{t.mkt_case_d}</p>
+                <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t" style={{borderColor:'rgba(255,255,255,0.08)'}}>
+                  {[
+                    { n:t.mkt_cs1, l:t.mkt_cs1_l },
+                    { n:t.mkt_cs2, l:t.mkt_cs2_l },
+                    { n:t.mkt_cs3, l:t.mkt_cs3_l },
+                  ].map((s,i)=>(
+                    <div key={i} className="case-stat">
+                      <div className="stat-num">{s.n}</div>
+                      <div className="text-sm mt-2" style={{color:'var(--text-dim)'}}>{s.l}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Final CTA */}
+          <section>
+            <div className="mkt-section text-center">
+              <h2 className="text-4xl md:text-5xl font-extrabold mb-4" style={{color:'#fff'}}>{t.mkt_final_t}</h2>
+              <p className="text-lg mb-10" style={{color:'var(--text-dim)', maxWidth:'600px', margin:'0 auto 36px'}}>{t.mkt_final_s}</p>
+              <button className="btn btn-primary text-lg" style={{padding:'16px 36px'}}>
+                <Icon name="message" size={18}/>
+                <span>{t.mkt_final_cta}</span>
+              </button>
+            </div>
+          </section>
+
+          <footer className="text-center py-8 text-sm" style={{color:'var(--text-dim)', borderTop:'1px solid rgba(255,255,255,0.05)'}}>{t.mkt_footer}</footer>
+        </div>
+      );
+    };
+
+    /* ================================ DOCS ================================ */
+    const Docs = ({ lang }) => {
+      const t = I18N[lang];
+      const [search, setSearch] = useState('');
+      const [activeCat, setActiveCat] = useState('all');
+      const [activeArticle, setActiveArticle] = useState(null);
+
+      const categories = useMemo(() => {
+        const cats = {};
+        DOCS.forEach(d => { cats[d.cat] = (cats[d.cat]||0) + 1; });
+        return [
+          { key:'all', label:t.docs_all, count:DOCS.length },
+          { key:'gs', label:t.cat_gs, count:cats.gs||0 },
+          { key:'arch', label:t.cat_arch, count:cats.arch||0 },
+          { key:'content', label:t.cat_content, count:cats.content||0 },
+          { key:'brand', label:t.cat_brand, count:cats.brand||0 },
+          { key:'i18n', label:t.cat_i18n, count:cats.i18n||0 },
+          { key:'deploy', label:t.cat_deploy, count:cats.deploy||0 },
+          { key:'faq', label:t.cat_faq, count:cats.faq||0 },
+        ];
+      }, [lang]);
+
+      const filtered = useMemo(() => {
+        const q = search.trim().toLowerCase();
+        return DOCS.filter(d => {
+          if (activeCat !== 'all' && d.cat !== activeCat) return false;
+          if (!q) return true;
+          const hay = (d.title[lang]+' '+d.summary[lang]+' '+JSON.stringify(d.body[lang])).toLowerCase();
+          return hay.includes(q);
+        });
+      }, [search, activeCat, lang]);
+
+      const catLabel = (key) => {
+        const map = { gs:t.cat_gs, arch:t.cat_arch, content:t.cat_content, brand:t.cat_brand, i18n:t.cat_i18n, deploy:t.cat_deploy, faq:t.cat_faq };
+        return map[key] || key;
+      };
+
+      if (activeArticle) {
+        const article = DOCS.find(d=>d.slug===activeArticle);
+        const related = DOCS.filter(d=>d.cat===article.cat && d.slug!==article.slug).slice(0,3);
+        return (
+          <div className="px-6 py-8 max-w-4xl mx-auto fade-in">
+            <button className="btn btn-ghost mb-6" onClick={()=>setActiveArticle(null)}>
+              <Icon name={lang==='he'?'arrowRight':'arrowLeft'} size={16}/>
+              <span>{t.docs_back_to_list}</span>
+            </button>
+            <div className="docs-article">
+              <div className="text-sm font-bold mb-3" style={{color:'var(--accent)'}}>{t.docs_in_cat} {catLabel(article.cat)}</div>
+              <h1>{article.title[lang]}</h1>
+              <p className="text-lg" style={{color:'var(--text-dim)', marginBottom:'24px'}}>{article.summary[lang]}</p>
+              {article.body[lang].map((block, i) => {
+                const [type, content] = block;
+                if (type === 'p') return <p key={i}>{content}</p>;
+                if (type === 'h2') return <h2 key={i}>{content}</h2>;
+                if (type === 'ul') return <ul key={i}>{content.map((li,j)=><li key={j}>{li}</li>)}</ul>;
+                if (type === 'pre') return <pre key={i}><code>{content}</code></pre>;
+                return null;
+              })}
+            </div>
+            {related.length > 0 && (
+              <div className="mt-10">
+                <h3 className="text-lg font-bold mb-4" style={{color:'#fff'}}>{t.docs_related}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {related.map(r=>(
+                    <div key={r.slug} className="docs-card" onClick={()=>setActiveArticle(r.slug)}>
+                      <h4 className="font-bold mb-1" style={{color:'#fff'}}>{r.title[lang]}</h4>
+                      <p className="text-sm" style={{color:'var(--text-dim)'}}>{r.summary[lang]}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      return (
+        <div className="px-6 py-8 max-w-6xl mx-auto">
+          <div className="text-center mb-8 slide-up">
+            <h1 className="text-3xl md:text-4xl font-extrabold mb-2" style={{color:'#fff'}}>{t.docs_title}</h1>
+          </div>
+          <div className="docs-search">
+            <Icon name="search" size={20} className="docs-search-icon"/>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t.docs_search_ph}/>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <aside className="md:col-span-1">
+              <div className="docs-sidebar">
+                <div className="docs-cat-title">{t.docs_categories}</div>
+                {categories.map(c=>(
+                  <div key={c.key} className={`docs-cat-item ${activeCat===c.key?'active':''}`} onClick={()=>setActiveCat(c.key)}>
+                    <span>{c.label}</span>
+                    <span style={{float: lang==='he'?'left':'right', color:'var(--text-dim)', fontSize:'0.8rem'}}>{c.count}</span>
+                  </div>
+                ))}
+              </div>
+            </aside>
+            <div className="md:col-span-3">
+              <div className="mb-4 text-sm" style={{color:'var(--text-dim)'}}>{t.docs_results_count(filtered.length)}</div>
+              {filtered.length === 0 ? (
+                <div className="glass p-8 text-center" style={{color:'var(--text-dim)'}}>{t.docs_no_results}</div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {filtered.map(d=>(
+                    <div key={d.slug} className="docs-card fade-in" onClick={()=>setActiveArticle(d.slug)}>
+                      <div className="cat-tag">{catLabel(d.cat)}</div>
+                      <h3 className="font-bold text-lg mb-1" style={{color:'#fff'}}>{d.title[lang]}</h3>
+                      <p className="text-sm" style={{color:'var(--text-dim)'}}>{d.summary[lang]}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    /* ============================== NAVBUTTONS ============================== */
+    const NavButtons = ({ lang, onBack, onNext, disableNext = false }) => {
+      const t = I18N[lang];
+      return (
+        <div className="flex justify-between items-center pt-4 border-t" style={{borderColor:'rgba(255,255,255,0.05)'}}>
+          <button className="btn btn-ghost" onClick={onBack}>
+            <Icon name="arrowRight" size={16} className={lang==='he'?'':'rotate-180'}/>
+            <span>{t.back}</span>
+          </button>
+          <button className="btn btn-primary" onClick={onNext} disabled={disableNext}>
+            <span>{t.next}</span>
+            <Icon name="arrowLeft" size={16} className={lang==='he'?'':'rotate-180'}/>
+          </button>
+        </div>
+      );
+    };
+
+    /* =============================== SLIDES =============================== */
+    const Slide1 = ({ lang, onNext }) => {
+      const t = I18N[lang];
+      return (
+        <div className="slide-up flex flex-col items-center justify-center text-center py-12">
+          <div className="mb-8 zoom-in"><Logo size="lg"/></div>
+          <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight" style={{color:'#fff'}}>
+            {t.s1_welcome}<span style={{background:'linear-gradient(135deg, var(--accent), var(--accent-2))', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent'}}>AIOP</span>
+          </h1>
+          <p className="text-lg md:text-xl max-w-2xl mb-2" style={{color:'var(--text-dim)'}}>{t.appTagline}</p>
+          <p className="text-base md:text-lg max-w-2xl mb-10" style={{color:'var(--text-dim)'}}>{t.s1_sub}</p>
+          <button className="btn btn-primary text-lg" style={{padding:'14px 32px'}} onClick={onNext}>
+            <Icon name="play" size={18}/><span>{t.s1_cta}</span>
+          </button>
+          <p className="mt-8 text-sm" style={{color:'var(--text-dim)'}}>{t.s1_meta}</p>
+        </div>
+      );
+    };
+
+    const Slide2 = ({ lang, onNext, onBack }) => {
+      const t = I18N[lang];
+      const features = [
+        { icon:'layers', t:t.s2_f1_t, d:t.s2_f1_d },
+        { icon:'target', t:t.s2_f2_t, d:t.s2_f2_d },
+        { icon:'sparkles', t:t.s2_f3_t, d:t.s2_f3_d },
+        { icon:'wifi_off', t:t.s2_f4_t, d:t.s2_f4_d },
+      ];
+      return (
+        <div className="slide-up">
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-3" style={{color:'#fff'}}>{t.s2_title}</h2>
+          <p className="text-lg mb-10" style={{color:'var(--text-dim)'}}>{t.s2_lead}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+            {features.map((f,i)=>(
+              <div key={i} className="glass p-6 zoom-in" style={{animationDelay:`${i*0.08}s`}}>
+                <div className="flex items-start gap-4">
+                  <div style={{color:'var(--accent)'}}><Icon name={f.icon} size={32}/></div>
+                  <div>
+                    <h3 className="font-bold text-lg mb-2" style={{color:'#fff'}}>{f.t}</h3>
+                    <p style={{color:'var(--text-dim)'}}>{f.d}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <NavButtons lang={lang} onBack={onBack} onNext={onNext}/>
+        </div>
+      );
+    };
+
+    const Slide3 = ({ lang, onNext, onBack }) => {
+      const t = I18N[lang];
+      const [active, setActive] = useState(null);
+      const channels = [
+        { icon:'bug', n:t.s3_c1, d:t.s3_c1d },
+        { icon:'book', n:t.s3_c2, d:t.s3_c2d },
+        { icon:'graduation', n:t.s3_c3, d:t.s3_c3d },
+        { icon:'tools', n:t.s3_c4, d:t.s3_c4d },
+        { icon:'help', n:t.s3_c5, d:t.s3_c5d },
+      ];
+      return (
+        <div className="slide-up">
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-3" style={{color:'#fff'}}>{t.s3_title}</h2>
+          <p className="text-lg mb-8" style={{color:'var(--text-dim)'}}>{t.s3_lead}</p>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+            {channels.map((c,i)=>(
+              <div key={i} className={`channel-card ${active===i?'active':''}`} onClick={()=>setActive(i)} style={{animationDelay:`${i*0.06}s`}}>
+                <div className="mb-3 flex justify-center" style={{color: active===i?'var(--accent)':'#fff'}}>
+                  <Icon name={c.icon} size={40}/>
+                </div>
+                <h3 className="font-bold mb-1" style={{color:'#fff'}}>{c.n}</h3>
+              </div>
+            ))}
+          </div>
+          <div className="glass p-6 fade-in" style={{minHeight:'100px', display:'flex', alignItems:'center'}} key={active}>
+            {active === null ? (
+              <p style={{color:'var(--text-dim)'}} className="italic">{t.s3_pick}</p>
+            ) : (
+              <div>
+                <div className="font-bold text-lg mb-1" style={{color:'var(--accent)'}}>{channels[active].n}</div>
+                <p style={{color:'var(--text)'}}>{channels[active].d}</p>
+              </div>
+            )}
+          </div>
+          <div className="mt-8"><NavButtons lang={lang} onBack={onBack} onNext={onNext}/></div>
+        </div>
+      );
+    };
+
+    const Slide4 = ({ lang, onNext, onBack }) => {
+      const t = I18N[lang];
+      const hotspots = [
+        { id:1, x:'8%',  y:'12%', t:t.s4_h1_t, d:t.s4_h1_d, tx:'40%',  ty:'40%' },
+        { id:2, x:'50%', y:'12%', t:t.s4_h2_t, d:t.s4_h2_d, tx:'-50%', ty:'40%' },
+        { id:3, x:'50%', y:'58%', t:t.s4_h3_t, d:t.s4_h3_d, tx:'-50%', ty:'40%' },
+        { id:4, x:'88%', y:'8%',  t:t.s4_h4_t, d:t.s4_h4_d, tx:'-110%', ty:'40%' },
+      ];
+      const [done, setDone] = useState([]);
+      const [active, setActive] = useState(null);
+      const allDone = done.length === hotspots.length;
+      const click = (id) => { if (!done.includes(id)) setDone([...done, id]); setActive(id); };
+      const aHs = active !== null ? hotspots.find(h=>h.id===active) : null;
+      return (
+        <div className="slide-up">
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-3" style={{color:'#fff'}}>{t.s4_title}</h2>
+          <p className="text-lg mb-6" style={{color:'var(--text-dim)'}}>{t.s4_lead}</p>
+          <div className="mock-screen mb-6" style={{minHeight:'420px', position:'relative'}}>
+            <div className="mock-header">
+              <Logo size="sm"/>
+              <div className="mock-search hidden md:flex"><Icon name="search" size={16}/><span>{t.s4_search_ph}</span></div>
+              <div className="text-xs px-3 py-1 rounded-md" style={{background:'rgba(255,255,255,0.06)', color:'var(--text-dim)'}}>RADA</div>
+            </div>
+            <div className="p-8">
+              <div className="text-center mb-6">
+                <h4 className="text-xl font-bold" style={{color:'#fff'}}>RADA AIOP</h4>
+                <p className="text-sm" style={{color:'var(--text-dim)'}}>All In One Place</p>
+              </div>
+              <div className="grid grid-cols-5 gap-3">
+                {['Troubleshooting','Manuals','Training','Utilities','FAQs'].map((n,i)=>(
+                  <div key={i} className="text-center p-3 rounded-lg" style={{background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.06)'}}>
+                    <div className="flex justify-center mb-2" style={{color:'var(--accent)'}}><Icon name={['bug','book','graduation','tools','help'][i]} size={24}/></div>
+                    <div className="text-xs" style={{color:'var(--text)'}}>{n}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {hotspots.map(h=>(
+              <button key={h.id} className={`hotspot ${done.includes(h.id)?'done':''}`} style={{left:h.x, top:h.y}} onClick={()=>click(h.id)}>
+                {done.includes(h.id) ? <Icon name="check" size={14}/> : h.id}
+              </button>
+            ))}
+            {aHs && (
+              <div className="tooltip fade-in" style={{ left:aHs.x, top:aHs.y, transform:`translate(${aHs.tx}, ${aHs.ty})` }}>
+                <div className="font-bold mb-1" style={{color:'var(--accent)'}}>{aHs.t}</div>
+                <div>{aHs.d}</div>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-3 mb-4 text-sm" style={{color:'var(--text-dim)'}}>
+            <span>{done.length} / {hotspots.length}</span>
+            <div className="flex-1 progress-bar"><div className="progress-bar-fill" style={{width:`${(done.length/hotspots.length)*100}%`}}></div></div>
+          </div>
+          {allDone && (
+            <div className="glass p-4 mb-4 zoom-in" style={{borderColor:'var(--success)', background:'rgba(16,185,129,0.08)'}}>
+              <div className="flex items-center gap-3" style={{color:'#6ee7b7'}}>
+                <Icon name="check" size={20}/><span>{t.s4_done}</span>
+              </div>
+            </div>
+          )}
+          <NavButtons lang={lang} onBack={onBack} onNext={onNext} disableNext={!allDone}/>
+        </div>
+      );
+    };
+
+    const Slide5 = ({ lang, onNext, onBack }) => {
+      const t = I18N[lang];
+      const steps = [
+        { screen:'home',    target:'Troubleshooting' },
+        { screen:'radar',   target:'MHR' },
+        { screen:'station', target:'ATP Calibration' },
+        { screen:'failure', target:'AGC Failure' },
+      ];
+      const screens = {
+        home:    { title:'RADA AIOP', items:['Troubleshooting','Manuals','Training','Utilities','FAQs'] },
+        radar:   { title:lang==='he'?'בחר מכ"ם':'Choose Radar', items:['MHR','ieMHR','aCHR','exMHR','nMHR'] },
+        station: { title:lang==='he'?'בחר תחנה':'Choose MHR Station', items:['Inclinometer','OCXO','ESS','ATP Calibration','Bonding','Leakage'] },
+        failure: { title:lang==='he'?'בחר תקלה':'Choose Failure', items:['AGC Failure','Velocity Measurement Failure','ALC Failure','Offset Failure','Tx Element Failure'] },
+      };
+      const [step, setStep] = useState(0);
+      const done = step >= steps.length;
+      const cur = done ? steps[steps.length-1] : steps[step];
+      const screen = screens[cur.screen];
+      const handleClick = (item) => { if (item === cur.target) setStep(step+1); };
+      return (
+        <div className="slide-up">
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-3" style={{color:'#fff'}}>{t.s5_title}</h2>
+          <p className="text-lg mb-6" style={{color:'var(--text-dim)'}}>{t.s5_lead}</p>
+          <div className="flex flex-wrap items-center gap-2 mb-4 text-sm">
+            {steps.slice(0, step).map((s,i)=>(
+              <React.Fragment key={i}>
+                <span className="px-2 py-1 rounded" style={{background:'rgba(16,185,129,0.15)', color:'#6ee7b7'}}>{s.target}</span>
+                <span style={{color:'var(--text-dim)'}}>›</span>
+              </React.Fragment>
+            ))}
+            {!done && <span style={{color:'var(--text-dim)'}}>{t.s5_hint(step+1)}</span>}
+          </div>
+          {!done ? (
+            <div className="mock-screen mb-6 fade-in" key={step}>
+              <div className="mock-header">
+                <Logo size="sm"/>
+                <div className="mock-search hidden md:flex"><Icon name="search" size={16}/><span>{lang==='he'?'חיפוש...':'Search…'}</span></div>
+                <div className="text-xs px-3 py-1 rounded-md" style={{background:'rgba(255,255,255,0.06)', color:'var(--text-dim)'}}>RADA</div>
+              </div>
+              <div className="p-8">
+                <h4 className="text-xl font-bold text-center mb-6" style={{color:'#fff'}}>{screen.title}</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {screen.items.map((item,i)=>{
+                    const isTarget = item === cur.target;
+                    return (
+                      <button key={i} onClick={()=>handleClick(item)} className="p-4 rounded-lg text-center transition-all"
+                        style={{
+                          background: isTarget?'rgba(81,196,211,0.18)':'rgba(255,255,255,0.04)',
+                          border: isTarget?'2px solid var(--accent)':'1px solid rgba(255,255,255,0.08)',
+                          color:'var(--text)', cursor:'pointer', fontWeight:600,
+                          animation: isTarget?'pulse 2s infinite':'none'
+                        }}>{item}</button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="glass p-8 mb-6 text-center zoom-in" style={{borderColor:'var(--success)', background:'rgba(16,185,129,0.08)'}}>
+              <div className="flex justify-center mb-4" style={{color:'var(--success)'}}><Icon name="check" size={48}/></div>
+              <h3 className="text-2xl font-bold mb-2" style={{color:'#6ee7b7'}}>{t.s5_done_t}</h3>
+              <p style={{color:'var(--text-dim)'}}>{t.s5_done_d}</p>
+              <div className="flex flex-wrap justify-center gap-2 mt-5 text-sm">
+                {steps.map((s,i)=>(
+                  <React.Fragment key={i}>
+                    {i>0 && <span style={{color:'var(--text-dim)'}}>›</span>}
+                    <span className="px-2 py-1 rounded" style={{background:'rgba(16,185,129,0.15)', color:'#6ee7b7'}}>{s.target}</span>
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+          )}
+          <NavButtons lang={lang} onBack={onBack} onNext={onNext} disableNext={!done}/>
+        </div>
+      );
+    };
+
+    const Slide6 = ({ lang, onNext, onBack }) => {
+      const t = I18N[lang];
+      const questions = [
+        { q:t.s6_q1, o:t.s6_q1_o, c:t.s6_q1_c },
+        { q:t.s6_q2, o:t.s6_q2_o, c:t.s6_q2_c },
+        { q:t.s6_q3, o:t.s6_q3_o, c:t.s6_q3_c },
+        { q:t.s6_q4, o:t.s6_q4_o, c:t.s6_q4_c },
+      ];
+      const [current, setCurrent] = useState(0);
+      const [answers, setAnswers] = useState({});
+      const [showResults, setShowResults] = useState(false);
+      const score = Object.entries(answers).filter(([qi,ai])=>questions[qi].c===ai).length;
+      const passed = score >= questions.length - 1;
+      const answer = (ai) => { if (answers[current] !== undefined) return; setAnswers({...answers, [current]: ai}); };
+      const nextQ = () => { if (current < questions.length - 1) setCurrent(current+1); else setShowResults(true); };
+      const reset = () => { setCurrent(0); setAnswers({}); setShowResults(false); };
+      if (showResults) {
+        return (
+          <div className="slide-up">
+            <h2 className="text-3xl md:text-4xl font-extrabold mb-3" style={{color:'#fff'}}>{t.s6_title}</h2>
+            <div className="glass p-8 text-center zoom-in">
+              <div className="flex justify-center mb-4" style={{color: passed?'var(--success)':'var(--danger)'}}>
+                <Icon name={passed?'check':'x'} size={64}/>
+              </div>
+              <div className="text-4xl font-extrabold mb-2" style={{color:'#fff'}}>{t.s6_score(score, questions.length)}</div>
+              <p className="text-lg mb-6" style={{color: passed?'#6ee7b7':'#fca5a5'}}>
+                {score === questions.length ? t.s6_perfect : (passed ? t.s6_good : t.s6_retry)}
+              </p>
+              <div className="flex gap-3 justify-center flex-wrap">
+                <button className="btn btn-ghost" onClick={reset}>{t.s6_retry}</button>
+                {passed && <button className="btn btn-primary" onClick={onNext}>{t.s6_next}</button>}
+              </div>
+            </div>
+            {!passed && <div className="mt-6"><NavButtons lang={lang} onBack={onBack} onNext={onNext} disableNext={true}/></div>}
+          </div>
+        );
+      }
+      const q = questions[current];
+      const userAns = answers[current];
+      const answered = userAns !== undefined;
+      return (
+        <div className="slide-up">
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-3" style={{color:'#fff'}}>{t.s6_title}</h2>
+          <p className="text-lg mb-6" style={{color:'var(--text-dim)'}}>{t.s6_lead}</p>
+          <div className="flex gap-2 mb-6">
+            {questions.map((_,i)=>(
+              <div key={i} className="flex-1 progress-bar" style={{height:'6px'}}>
+                <div className="progress-bar-fill" style={{width: i<current?'100%':(i===current?'50%':'0%')}}></div>
+              </div>
+            ))}
+          </div>
+          <div className="glass p-8 fade-in" key={current}>
+            <div className="text-sm mb-3" style={{color:'var(--text-dim)'}}>{t.question} {current+1} / {questions.length}</div>
+            <h3 className="text-xl md:text-2xl font-bold mb-6" style={{color:'#fff'}}>{q.q}</h3>
+            <div className="space-y-3">
+              {q.o.map((opt, i) => {
+                let cls = 'quiz-option';
+                if (answered) {
+                  if (i === q.c) cls += ' correct';
+                  else if (i === userAns) cls += ' wrong';
+                }
+                return <button key={i} className={cls} onClick={()=>answer(i)} disabled={answered} style={{width:'100%'}}>{opt}</button>;
+              })}
+            </div>
+            {answered && (
+              <div className="mt-5 flex items-center justify-between fade-in">
+                <span style={{color: userAns===q.c?'#6ee7b7':'#fca5a5'}} className="font-bold">
+                  {userAns===q.c ? t.s6_correct_l : t.s6_wrong_l}
+                </span>
+                <button className="btn btn-primary" onClick={nextQ}>
+                  <span>{current < questions.length-1 ? t.next : t.finish}</span>
+                  <Icon name="arrowRight" size={16} className={lang==='he'?'rotate-180':''}/>
+                </button>
+              </div>
+            )}
+          </div>
+          <div className="mt-6"><NavButtons lang={lang} onBack={onBack} onNext={onNext} disableNext={true}/></div>
+        </div>
+      );
+    };
+
+    const Slide7 = ({ lang, onBack, onRestart }) => {
+      const t = I18N[lang];
+      const items = [t.s7_l1, t.s7_l2, t.s7_l3, t.s7_l4];
+      return (
+        <div className="slide-up">
+          <div className="text-center mb-8 zoom-in">
+            <div className="inline-block mb-4" style={{color:'var(--accent)'}}><Icon name="sparkles" size={64}/></div>
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-3" style={{color:'#fff'}}>{t.s7_title}</h2>
+            <p className="text-lg" style={{color:'var(--text-dim)'}}>{t.s7_lead}</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="glass p-6">
+              <h3 className="font-bold text-lg mb-4" style={{color:'#fff'}}>{t.s7_what}</h3>
+              {items.map((item,i)=>(
+                <div key={i} className="checklist-item">
+                  <div className="check-icon"><Icon name="check" size={14}/></div>
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+            <div className="glass p-6 glow-border">
+              <div className="text-sm font-bold mb-2" style={{color:'var(--accent)'}}>{t.s7_up}</div>
+              <h3 className="font-bold text-lg mb-3" style={{color:'#fff'}}>{t.s7_next_ch}</h3>
+              <p style={{color:'var(--text-dim)'}}>{t.s7_next_d}</p>
+              <button className="btn btn-primary mt-5" disabled style={{opacity:0.5}}><span>{t.s7_soon}</span></button>
+            </div>
+          </div>
+          <div className="text-center mt-10">
+            <p className="text-lg mb-4" style={{color:'#fff'}}>{t.s7_thanks}</p>
+            <div className="flex gap-3 justify-center flex-wrap">
+              <button className="btn btn-ghost" onClick={onBack}>
+                <Icon name="arrowRight" size={16} className={lang==='he'?'':'rotate-180'}/>
+                <span>{t.back}</span>
+              </button>
+              <button className="btn btn-primary" onClick={onRestart}>
+                <Icon name="play" size={16}/>
+                <span>{t.restart}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const TOTAL_SLIDES = 7;
+    const Lomda = ({ lang }) => {
+      const [current, setCurrent] = useState(0);
+      const next = () => setCurrent(c => Math.min(c+1, TOTAL_SLIDES-1));
+      const back = () => setCurrent(c => Math.max(c-1, 0));
+      const restart = () => setCurrent(0);
+      const jump = (i) => setCurrent(i);
+      const slides = [
+        <Slide1 lang={lang} onNext={next}/>,
+        <Slide2 lang={lang} onNext={next} onBack={back}/>,
+        <Slide3 lang={lang} onNext={next} onBack={back}/>,
+        <Slide4 lang={lang} onNext={next} onBack={back}/>,
+        <Slide5 lang={lang} onNext={next} onBack={back}/>,
+        <Slide6 lang={lang} onNext={next} onBack={back}/>,
+        <Slide7 lang={lang} onBack={back} onRestart={restart}/>,
+      ];
+      return (
+        <div className="px-6 py-8 max-w-6xl mx-auto w-full">
+          {slides[current]}
+        </div>
+      );
+    };
+
+    /* ================================ APP ================================ */
+    const STORAGE_KEY = 'aiop_portal_v2';
+    const App = () => {
+      const [lang, setLang] = useState(() => localStorage.getItem(STORAGE_KEY+'_lang') || 'he');
+      const [route, setRoute] = useState(() => localStorage.getItem(STORAGE_KEY+'_route') || 'portal');
+      const [lomdaSlide, setLomdaSlide] = useState(() => parseInt(localStorage.getItem(STORAGE_KEY+'_slide') || '0', 10));
+
+      useEffect(()=>{
+        document.documentElement.dir = lang==='he' ? 'rtl' : 'ltr';
+        document.documentElement.lang = lang;
+        localStorage.setItem(STORAGE_KEY+'_lang', lang);
+      }, [lang]);
+      useEffect(()=>{ localStorage.setItem(STORAGE_KEY+'_route', route); }, [route]);
+      useEffect(()=>{ localStorage.setItem(STORAGE_KEY+'_slide', String(lomdaSlide)); }, [lomdaSlide]);
+
+      const t = I18N[lang];
+      const titles = {
+        portal: t.appName,
+        marketing: t.portal_marketing_t,
+        lomda: t.lomdaTitle,
+        docs: t.docs_title,
+      };
+
+      // Build slide-progress only when in lomda
+      const slideProgressFor = route === 'lomda' ? {
+        current: lomdaSlide,
+        total: TOTAL_SLIDES,
+        onJump: setLomdaSlide,
+      } : null;
+
+      // Wrap Lomda with controlled slide state so progress bar reflects it
+      const LomdaControlled = () => {
+        const next = () => setLomdaSlide(c => Math.min(c+1, TOTAL_SLIDES-1));
+        const back = () => setLomdaSlide(c => Math.max(c-1, 0));
+        const restart = () => setLomdaSlide(0);
+        const slides = [
+          <Slide1 lang={lang} onNext={next}/>,
+          <Slide2 lang={lang} onNext={next} onBack={back}/>,
+          <Slide3 lang={lang} onNext={next} onBack={back}/>,
+          <Slide4 lang={lang} onNext={next} onBack={back}/>,
+          <Slide5 lang={lang} onNext={next} onBack={back}/>,
+          <Slide6 lang={lang} onNext={next} onBack={back}/>,
+          <Slide7 lang={lang} onBack={back} onRestart={restart}/>,
+        ];
+        return <div className="px-6 py-8 max-w-6xl mx-auto w-full">{slides[lomdaSlide]}</div>;
+      };
+
+      const content = {
+        portal:    <Portal lang={lang} onNavigate={setRoute}/>,
+        marketing: <Marketing lang={lang} onGoLomda={()=>setRoute('lomda')} onGoDocs={()=>setRoute('docs')}/>,
+        lomda:     <LomdaControlled/>,
+        docs:      <Docs lang={lang}/>,
+      };
+
+      return (
+        <Shell route={route} lang={lang} setLang={setLang}
+               onBack={()=>setRoute('portal')}
+               title={titles[route]}
+               slideProgress={slideProgressFor}>
+          {content[route]}
+        </Shell>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  </script>
+</body>
+</html>
