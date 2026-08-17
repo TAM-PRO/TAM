@@ -1,7 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
     const root = document.documentElement;
-    const isRTL = root.dir === "rtl";
-    const homeLabel = isRTL ? "ראשי" : "Home";
+    let isRTL = root.dir === "rtl";
+    const originalLanguage = root.getAttribute("data-original-lang") || root.lang || (isRTL ? "he" : "en");
+    const rtlLanguages = new Set(["ar", "dv", "fa", "he", "iw", "ku", "ps", "sd", "ug", "ur", "yi"]);
     const noMediaText = isRTL ? "אין איורים לסעיף זה." : "No media for this section.";
     const mediaContainer = document.getElementById("media-container");
     const breadcrumbs = document.getElementById("breadcrumbs");
@@ -23,6 +24,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const zoomInBtn = document.getElementById("media-zoom-in");
     const toggleNumbersBtn = document.getElementById("toc-toggle-numbers");
     const globalToolbar = document.getElementById("global-toolbar");
+    const languageSelector = document.getElementById("language-selector");
+    const languageSelect = document.getElementById("site-language-select");
+    const translationStatus = document.getElementById("translation-status");
     const pdfButton = document.querySelector('[data-tool="pdf"]');
     const sourcePdfUrl = pdfButton ? (pdfButton.getAttribute("data-pdf-url") || "") : "";
     const homeButton = document.querySelector('[data-tool="home"]');
@@ -30,6 +34,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const pageViews = Array.from(document.querySelectorAll(".page-view"));
     let mediaZoom = 1;
     let currentSectionId = pageViews[0] ? pageViews[0].id : "";
+    let translationJobId = 0;
+    let activeTranslator = null;
+    let activeTranslationTarget = "__original";
+    const translationOriginals = [];
+    const translationOriginalMap = new WeakMap();
+    const translationCache = new Map();
+
+    function currentHomeLabel() {
+        return isRTL ? "\u05e8\u05d0\u05e9\u05d9" : "Home";
+    }
 
     function parseConfig(id) {
         const el = document.getElementById(id);
@@ -107,6 +121,214 @@ document.addEventListener("DOMContentLoaded", function () {
         if (landingPage) landingPage.hidden = true;
     }
 
+    function setTranslationStatus(message, mode = "") {
+        if (!translationStatus) return;
+        translationStatus.textContent = message || "";
+        translationStatus.dataset.mode = mode;
+        translationStatus.hidden = !message;
+    }
+
+    function directionForLanguage(langCode) {
+        const base = String(langCode || originalLanguage).toLowerCase().split("-")[0];
+        return rtlLanguages.has(base) ? "rtl" : "ltr";
+    }
+
+    function translatorLanguageCode(langCode) {
+        const raw = String(langCode || originalLanguage).trim();
+        if (!raw || raw === "__original") return translatorLanguageCode(originalLanguage);
+        const lower = raw.toLowerCase();
+        const base = lower.split("-")[0];
+        if (base === "he" || base === "iw") return "iw";
+        if (lower === "zh-cn" || lower === "zh-hans") return "zh";
+        if (lower === "zh-hant" || lower === "zh-tw") return "zh-Hant";
+        return base;
+    }
+
+    function hasTranslatableText(text) {
+        return /[A-Za-z\u0590-\u05ff\u0600-\u06ff\u0400-\u04ff\u3040-\u30ff\u3400-\u9fff]/.test(text || "");
+    }
+
+    function shouldSkipTextNode(node) {
+        const parent = node.parentElement;
+        if (!parent) return true;
+        if (!hasTranslatableText(node.nodeValue)) return true;
+        return Boolean(parent.closest(
+            "script,style,noscript,textarea,input,select,option,code,pre,kbd,samp,svg,canvas,[translate='no'],.notranslate,.language-selector"
+        ));
+    }
+
+    function collectTextNodes(container) {
+        if (!container) return [];
+        const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
+            acceptNode(node) {
+                return shouldSkipTextNode(node) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+            }
+        });
+        const nodes = [];
+        while (walker.nextNode()) nodes.push(walker.currentNode);
+        return nodes;
+    }
+
+    function collectTranslationRoots() {
+        return [
+            document.getElementById("toc-nav"),
+            document.getElementById("breadcrumbs"),
+            document.getElementById("content-container"),
+            document.getElementById("media-container"),
+            document.getElementById("landing-page")
+        ].filter(Boolean);
+    }
+
+    function originalTextForNode(node) {
+        if (!translationOriginalMap.has(node)) {
+            translationOriginalMap.set(node, node.nodeValue);
+            translationOriginals.push(node);
+        }
+        return translationOriginalMap.get(node);
+    }
+
+    function restoreOriginalText() {
+        translationOriginals.forEach(function (node) {
+            if (node && translationOriginalMap.has(node)) {
+                node.nodeValue = translationOriginalMap.get(node);
+            }
+        });
+        activeTranslationTarget = "__original";
+    }
+
+    function nativeTranslatorAvailable() {
+        return "Translator" in self && typeof self.Translator?.create === "function";
+    }
+
+    async function getNativeTranslator(sourceLanguage, targetLanguage, jobId) {
+        if (!nativeTranslatorAvailable()) {
+            throw new Error("Native Translator API is not available in this browser.");
+        }
+        if (typeof self.Translator.availability === "function") {
+            const availability = await self.Translator.availability({ sourceLanguage, targetLanguage });
+            if (jobId !== translationJobId) return null;
+            if (availability === "unavailable") {
+                throw new Error("This language pair is not available in the browser translator.");
+            }
+        }
+        if (activeTranslator && typeof activeTranslator.destroy === "function") {
+            try { activeTranslator.destroy(); } catch {}
+        }
+        return self.Translator.create({
+            sourceLanguage,
+            targetLanguage,
+            monitor(monitor) {
+                monitor.addEventListener("downloadprogress", function (event) {
+                    if (jobId !== translationJobId) return;
+                    const percent = Math.round((event.loaded || 0) * 100);
+                    setTranslationStatus("Downloading translation model " + percent + "%", "working");
+                });
+            }
+        });
+    }
+
+    async function translateText(translator, text, sourceLanguage, targetLanguage) {
+        const leading = text.match(/^\s*/)?.[0] || "";
+        const trailing = text.match(/\s*$/)?.[0] || "";
+        const core = text.trim();
+        if (!core) return text;
+        const cacheKey = sourceLanguage + ">" + targetLanguage + ":" + core;
+        if (!translationCache.has(cacheKey)) {
+            translationCache.set(cacheKey, await translator.translate(core));
+        }
+        return leading + translationCache.get(cacheKey) + trailing;
+    }
+
+    async function translateRegion(container, translator, sourceLanguage, targetLanguage, jobId) {
+        const nodes = collectTextNodes(container);
+        for (let index = 0; index < nodes.length; index += 1) {
+            if (jobId !== translationJobId) return;
+            const node = nodes[index];
+            const original = originalTextForNode(node);
+            node.nodeValue = await translateText(translator, original, sourceLanguage, targetLanguage);
+        }
+    }
+
+    async function translateVisibleSite(targetLanguage, jobId) {
+        const sourceLanguage = translatorLanguageCode(originalLanguage);
+        const normalizedTarget = translatorLanguageCode(targetLanguage);
+        if (sourceLanguage === normalizedTarget) {
+            restoreOriginalText();
+            setTranslationStatus("", "");
+            return;
+        }
+
+        restoreOriginalText();
+        setTranslationStatus("Preparing browser translator...", "working");
+        const translator = await getNativeTranslator(sourceLanguage, normalizedTarget, jobId);
+        if (!translator || jobId !== translationJobId) return;
+
+        activeTranslator = translator;
+        activeTranslationTarget = normalizedTarget;
+        const roots = collectTranslationRoots();
+        const totalNodes = roots.reduce((count, rootNode) => count + collectTextNodes(rootNode).length, 0);
+        let completedRoots = 0;
+
+        for (const rootNode of roots) {
+            if (jobId !== translationJobId) return;
+            await translateRegion(rootNode, translator, sourceLanguage, normalizedTarget, jobId);
+            completedRoots += 1;
+            setTranslationStatus("Translating site " + completedRoots + "/" + roots.length + " (" + totalNodes + " text blocks)", "working");
+        }
+        setTranslationStatus("Translated by browser", "success");
+    }
+
+    function translateDynamicRegion(container) {
+        if (!container || !activeTranslator || activeTranslationTarget === "__original") return;
+        const jobId = translationJobId;
+        translateRegion(
+            container,
+            activeTranslator,
+            translatorLanguageCode(originalLanguage),
+            activeTranslationTarget,
+            jobId
+        ).catch(function () {
+            setTranslationStatus("Could not translate this dynamic area.", "error");
+        });
+    }
+
+    async function applyLanguageChoice(value, persist = true) {
+        const selected = value && value !== "__original" ? value : originalLanguage;
+        const direction = directionForLanguage(selected);
+        root.lang = selected;
+        root.setAttribute("lang", selected);
+        root.setAttribute("dir", direction);
+        document.body.setAttribute("dir", direction);
+        document.body.setAttribute("translate", "yes");
+        isRTL = direction === "rtl";
+        if (languageSelect) {
+            languageSelect.value = value || "__original";
+        }
+        if (persist) {
+            try { localStorage.setItem("digitam:selectedLanguage", value || "__original"); } catch {}
+        }
+        const jobId = ++translationJobId;
+        if (!value || value === "__original" || translatorLanguageCode(selected) === translatorLanguageCode(originalLanguage)) {
+            restoreOriginalText();
+            setTranslationStatus("", "");
+        } else {
+            translateVisibleSite(selected, jobId).catch(function (error) {
+                if (jobId !== translationJobId) return;
+                restoreOriginalText();
+                setTranslationStatus(
+                    "Automatic browser translation is not available. Use Chrome/Edge with the built-in Translator API enabled.",
+                    "error"
+                );
+                console.warn("Digi-TAM translation failed:", error);
+            });
+        }
+        if (currentSectionId) {
+            const activeSection = document.getElementById(currentSectionId);
+            if (activeSection) renderBreadcrumbs(activeSection);
+        }
+        requestAnimationFrame(alignLayoutStart);
+    }
+
     function resolveSectionId(sectionId) {
         if (!sectionId) return "";
         if (document.getElementById(sectionId)) return sectionId;
@@ -121,7 +343,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function sectionHasMedia(sectionNode) {
         const sectionMedia = sectionNode ? sectionNode.querySelector(".section-media") : null;
-        return Boolean(sectionMedia && sectionMedia.querySelector("img"));
+        return Boolean(sectionMedia && sectionMedia.querySelector("img, iframe, video, .media-video-link"));
     }
 
     function setMediaPaneVisible(visible) {
@@ -140,6 +362,7 @@ document.addEventListener("DOMContentLoaded", function () {
             setMediaPaneVisible(true);
             mediaContainer.innerHTML = sectionMedia.innerHTML;
             wireMediaImages();
+            translateDynamicRegion(mediaContainer);
             return;
         }
         setMediaPaneVisible(false);
@@ -194,7 +417,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const trailNumbers = (sectionNode.getAttribute("data-breadcrumb-numbers") || "")
             .split("|")
             .map((part) => part.trim());
-        const parts = [{ label: homeLabel, target: pageViews[0] ? pageViews[0].id : "" }].concat(
+        const parts = [{ label: currentHomeLabel(), target: pageViews[0] ? pageViews[0].id : "" }].concat(
             trail.map(function (label, index) {
                 return { label: label, number: trailNumbers[index] || "", target: trailIds[index] || "" };
             })
@@ -217,6 +440,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 window.navigateTo(this.getAttribute("data-target"));
             });
         });
+        translateDynamicRegion(breadcrumbs);
     }
 
     function setTocItemExpanded(item, expanded) {
@@ -271,6 +495,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 ((toolId === "zoom_in" || toolId === "zoom_out" || toolId === "zoom_reset") && (runtimeFeatures.media_zoom === false || componentRules.media?.zoom_enabled === false)) ||
                 (toolId === "focus_mode" && runtimeFeatures.focus_mode === false) ||
                 (toolId === "search" && runtimeFeatures.search === false) ||
+                (toolId === "language_selector" && runtimeFeatures.browser_translation !== true) ||
                 (toolId === "pdf" && !sourcePdfUrl) ||
                 ((toolId === "prev_section" || toolId === "next_section") && runtimeFeatures.section_navigation === false) ||
                 (toolId === "toggle_numbers" && runtimeFeatures.show_hide_numbering === false);
@@ -281,7 +506,7 @@ document.addEventListener("DOMContentLoaded", function () {
             searchInput.hidden = runtimeFeatures.search === false;
         }
         if (globalToolbar) {
-            globalToolbar.hidden = Array.from(globalToolbar.querySelectorAll(".global-toolbar-btn")).every((btn) => btn.hidden);
+            globalToolbar.hidden = !Array.from(globalToolbar.querySelectorAll("[data-tool]")).some((tool) => !tool.hidden);
         }
     }
 
@@ -545,7 +770,16 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    root.setAttribute("dir", isRTL ? "rtl" : "ltr");
+    if (languageSelect) {
+        languageSelect.addEventListener("change", function () {
+            applyLanguageChoice(this.value, true);
+        });
+        let savedLanguage = "__original";
+        try { savedLanguage = localStorage.getItem("digitam:selectedLanguage") || "__original"; } catch {}
+        applyLanguageChoice(runtimeFeatures.browser_translation === true ? savedLanguage : "__original", false);
+    } else {
+        root.setAttribute("dir", isRTL ? "rtl" : "ltr");
+    }
     setTocNumbersVisible(false);
     setMediaZoom(1);
     filterToolbar();

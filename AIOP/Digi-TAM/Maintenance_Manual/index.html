@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" translate="yes" data-original-lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -59,6 +59,26 @@
             <button type="button" class="global-toolbar-btn" data-tool="next_section">▶</button>
             <button type="button" class="global-toolbar-btn" data-tool="copy_link">Link</button>
             <button type="button" class="global-toolbar-btn" data-tool="focus_mode">Focus</button>
+            <div class="language-selector" id="language-selector" data-tool="language_selector" >
+                <select id="site-language-select" class="language-select" aria-label="Language" translate="no">
+                    <option value="__original">Original</option>
+                    <option value="en">English</option>
+                    <option value="he">עברית</option>
+                    <option value="ar">العربية</option>
+                    <option value="fr">Français</option>
+                    <option value="es">Español</option>
+                    <option value="de">Deutsch</option>
+                    <option value="it">Italiano</option>
+                    <option value="ru">Русский</option>
+                    <option value="pt">Português</option>
+                    <option value="zh-CN">中文</option>
+                    <option value="ja">日本語</option>
+                    <option value="ko">한국어</option>
+                    <option value="fa">فارسی</option>
+                    <option value="ur">اردو</option>
+                </select>
+                <span id="translation-status" class="translation-status" aria-live="polite" translate="no" hidden></span>
+            </div>
             <button type="button" class="global-toolbar-btn" data-tool="pdf" data-pdf-url="assets/docs/source.pdf" >PDF</button>
         </div>
 
@@ -468,7 +488,13 @@
 <figure class="inline-figure">
   <img src="assets/images/image1.png" alt="" loading="lazy">
 </figure>
-  </section>
+  <div class="section-media" style="display:none">
+  <figure class="media-figure media-video-figure">
+  <video controls preload="metadata" src="https://tam-pro.github.io/TAM/AIOP/Assembly_Procedure/Assembly_Procedure.mp4"></video>
+  <figcaption>PURPOSE OF THIS MANUAL</figcaption>
+</figure>
+</div>
+</section>
 
 <section class="page-view" id="sec-5" data-section-aliases="sec-4" data-breadcrumb="Assembly and Sub-Assemblies Procedures|Drawing List" data-breadcrumb-numbers="2|2.3" data-breadcrumb-ids="sec-2|sec-5">
   <h2 class="section-heading merged-empty-heading" data-merged-section="sec-4"><span class="section-number">2.2</span><span class="section-title">Assembly Process</span></h2>
@@ -3229,8 +3255,8 @@
         </figure>
     </div>
 
-    <script id="runtime-features-data" type="application/json">{"breadcrumbs": true, "copy_section_link": false, "focus_mode": true, "hierarchical_toc": true, "image_lightbox": true, "keyboard_shortcuts": true, "media_zoom": true, "remember_last_section": false, "search": true, "section_navigation": true, "show_hide_numbering": true, "show_home_page": false}</script>
-    <script id="toolbar-config-data" type="application/json">{"global": [{"enabled": true, "id": "home", "label": "Home"}, {"enabled": true, "id": "toggle_toc", "label": "TOC"}, {"enabled": true, "id": "prev_section", "label": "Prev"}, {"enabled": true, "id": "next_section", "label": "Next"}, {"enabled": false, "id": "copy_link", "label": "Copy Link"}, {"enabled": true, "id": "focus_mode", "label": "Focus"}, {"enabled": true, "id": "pdf", "label": "PDF"}], "media": [{"enabled": true, "id": "zoom_out", "label": "-"}, {"enabled": true, "id": "zoom_reset", "label": "100%"}, {"enabled": true, "id": "zoom_in", "label": "+"}, {"enabled": true, "id": "lightbox", "label": "Full Screen"}], "toc": [{"enabled": true, "id": "expand_all", "label": "+"}, {"enabled": true, "id": "collapse_all", "label": "-"}, {"enabled": true, "id": "toggle_numbers", "label": "ABC"}]}</script>
+    <script id="runtime-features-data" type="application/json">{"search": true, "hierarchical_toc": true, "breadcrumbs": true, "show_home_page": false, "browser_translation": true, "section_navigation": true, "show_hide_numbering": true, "image_lightbox": true, "media_zoom": true, "keyboard_shortcuts": true, "copy_section_link": false, "focus_mode": true, "remember_last_section": false}</script>
+    <script id="toolbar-config-data" type="application/json">{"global": [{"enabled": true, "id": "home", "label": "Home"}, {"enabled": true, "id": "toggle_toc", "label": "TOC"}, {"enabled": true, "id": "prev_section", "label": "Prev"}, {"enabled": true, "id": "next_section", "label": "Next"}, {"enabled": false, "id": "copy_link", "label": "Copy Link"}, {"enabled": true, "id": "focus_mode", "label": "Focus"}, {"enabled": true, "id": "language_selector", "label": "Language"}, {"enabled": true, "id": "pdf", "label": "PDF"}], "media": [{"enabled": true, "id": "zoom_out", "label": "-"}, {"enabled": true, "id": "zoom_reset", "label": "100%"}, {"enabled": true, "id": "zoom_in", "label": "+"}, {"enabled": true, "id": "lightbox", "label": "Full Screen"}], "toc": [{"enabled": true, "id": "expand_all", "label": "+"}, {"enabled": true, "id": "collapse_all", "label": "-"}, {"enabled": true, "id": "toggle_numbers", "label": "ABC"}]}</script>
     <script id="layout-config-data" type="application/json">{"content_density": "comfortable", "content_max_width": 760, "header_height": 72, "media_resizable": true, "media_width": 760, "media_width_percent": 42, "sticky_header": true, "sticky_toc": true, "toc_resizable": true, "toc_width": 310}</script>
     <script id="component-rules-data" type="application/json">{"callouts": {"collapsible": false, "icon_style": "status", "title_visibility": true}, "headings": {"open_new_page_from_level": 1, "show_numbering": true, "toc_levels": 5}, "links": {"external_target": "new_tab", "show_link_icon": false, "xref_format": "title"}, "lists": {"bullet_style": "disc", "compact_spacing": false, "ordered_style": "decimal", "show_step_badges": true}, "media": {"fit_mode": "contain", "lightbox_enabled": true, "show_captions": true, "zoom_enabled": true}, "tables": {"compact": false, "first_row_header": true, "responsive_overflow": true, "show_borders": true, "sticky_header": true, "zebra_rows": true}}</script>
     <script id="landing-config-data" type="application/json">{"cards": [], "enabled": false, "search_enabled": false, "subtitle": "", "title": "Lift Assy", "categories": []}</script>
